@@ -4,8 +4,9 @@ Linux sibling of [EditForthWin](https://github.com/Win32Forth/EditForthWin).
 Public domain (same spirit as the other EditForth trees).
 
 **Target:** Linux Mint first (Ubuntu/Debian package base), **x64**.  
-**Status:** scaffold from EditForthWin 1.3.1. System V/NASM kernel objects
-assemble; Linux C host + link still open (see `PORT.md`).
+**Status:** System V/NASM kernel + Linux host C are in tree. Run
+`./build-x64.sh` on Linux Mint to link `forthx64` and smoke `--agent`
+(see `PORT.md`).
 
 Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 (`--companion`). Shared Forth cold-load `.fth`, `kernel_api.h`, and
@@ -19,7 +20,7 @@ Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 | `Edit/` | Qt Widgets editor (from EditForthWin; Linux IPC in `ForthPipe_linux.cpp`) |
 | `Forth/` | Interpreter tree (kernels, Resources, cold-load) |
 | `Forth/host/` | Windows host kept as reference (`*_win.c`, `main.c`, `companion.c`) |
-| `Forth/host/linux/` | Linux host port (stubs / in progress) |
+| `Forth/host/linux/` | Linux host (`--agent` / `--companion`, files, float, exec, …) |
 | `Forth/kernel/arm64` | ARM64 armasm source of truth (same as Windows) |
 | `Forth/kernel/x64` | Windows ml64 / Win ABI translation (reference) |
 | `Forth/kernel/x64-linux` | NASM / System V translation + hand-written identity/vmregs/find_host |
@@ -40,11 +41,12 @@ On Linux Mint / Debian-ish:
 
 ```bash
 ./scripts/mint-deps.sh    # apt packages (Qt6, cmake, nasm, build-essential)
-./build-x64.sh            # Forth companion + Qt editor (once host/kernel land)
+./build-x64.sh            # translate, assemble, link forthx64, build editor
+Forth/build/x64/forthx64 --agent -e '2 3 + .'
 ```
 
-See [docs/linux-mint-setup.md](docs/linux-mint-setup.md) and
-[PORT.md](PORT.md) for the Win→Linux gap list.
+See [docs/linux-mint-setup.md](docs/linux-mint-setup.md),
+[docs/linux-host.md](docs/linux-host.md), and [PORT.md](PORT.md).
 
 ## Version
 

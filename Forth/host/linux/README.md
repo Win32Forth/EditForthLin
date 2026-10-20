@@ -1,19 +1,19 @@
-# Linux host stubs
+# Linux host (EditForthLin)
 
-Windows implementations remain in `Forth/host/*_win.c`, `main.c`, and
-`companion.c` as the behavioural reference (same pattern as EditForthAnd
-keeping the Windows host in-tree).
+POSIX host for the System V / NASM `forthx64` companion.
 
-| Stub | Port from | First milestone |
-| --- | --- | --- |
-| `main_linux.c` | `main.c` | user tree, INCLUDE paths, SYSTEM |
-| `console_linux.c` | `console_win.c` | `--agent` argv, help text |
-| `companion_linux.c` | `companion.c` | Unix socket server + JSON frames |
-| `float_linux.c` | `float_win.c` | IEEE stack host slots |
-| `exec_linux.c` | `exec_win.c` | mmap / mprotect |
-| `facility_linux.c` | `facility_win.c` | PAGE / AT-XY stubs; clipboard later |
-| `gfx_linux.c` | `gfx_win.c` | stub returns until GRAPHICS lands |
-| `debug_linux.c` | `debug_win.c` | debug JSON notify |
-| `bigint.c` | `../bigint.c` | link the shared file |
+| File | Role |
+| --- | --- |
+| `console_linux.c` | `main`: `--agent` and `--companion` |
+| `companion_linux.c` | AF_UNIX length-prefixed JSON (matches Qt `QLocalSocket`) |
+| `main_linux.c` | Files, paths, FROMLIB, SYSTEM, seed `~/Documents/EditForthLin`, `sa_win_*` |
+| `float_linux.c` | Soft IEEE float stack |
+| `exec_linux.c` | `mmap` / `mprotect` / `__builtin___clear_cache` |
+| `facility_linux.c` | PAGE / AT-XY grid; clipboard stub |
+| `debug_linux.c` | Debug JSON paint for the editor |
+| `gfx_linux.c` | GRAPHICS stubs (return failure) |
+| `bigint.c` | Shared big-integer helpers |
 
-Do not `#include <windows.h>` here. Prefer POSIX + thin Qt-free C.
+Windows `Forth/host/*_win.c` / `main.c` / `companion.c` stay as reference.
+
+Socket name with no `/` binds as `$TMPDIR/<name>` (default `/tmp/<name>`), matching Qt `QLocalSocket`.

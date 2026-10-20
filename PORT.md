@@ -12,12 +12,13 @@ not a second OS-specific kernel dialect beyond ABI and host calls.
 - [x] Product README + Mint setup docs
 - [x] Linux editor CMake target name `editforthlin`
 - [x] `ForthPipe_linux.cpp` skeleton (Unix domain socket / `QLocalServer`)
-- [x] `Forth/host/linux/` stub map from `*_win.c`
-- [x] `build-x64.sh` and `scripts/mint-deps.sh` placeholders
+- [x] `Forth/host/linux/` host (agent + companion + file/path host)
+- [x] `build-x64.sh` and `scripts/mint-deps.sh`
 - [x] System V / NASM translator `GrokTools/arm64_to_nasm_sysv.py`
 - [x] Generated `Forth/kernel/x64-linux/asm/*.asm`
 - [x] Hand-written `identity.asm`, `vmregs.asm`, `find_host.asm` (System V)
 - [x] `nasm -f elf64` smoke assemble of all 18 objects (2026-10-20)
+- [x] Host C compile-checked on Darwin; ELF link of `forthx64` runs on Linux Mint
 
 ## Kernel / ABI
 
@@ -25,23 +26,23 @@ not a second OS-specific kernel dialect beyond ABI and host calls.
   - Windows `GrokTools/arm64_to_ml64.py` emits ml64 + **Windows** x64 ABI
   - Linux `arm64_to_nasm_sysv.py` emits NASM + **System V** (`rdi`…`r9`, stack args)
 - [x] Hand-written `identity` + `vmregs` / `find_host` for linux-x64
-- [ ] Link `forthx64` ELF with `Forth/host/linux/*` (no `.exe`, no `/SUBSYSTEM:WINDOWS`)
+- [ ] Run `./build-x64.sh` on Mint to link `forthx64` and smoke `--agent -e "2 3 + ."`
 - [ ] Optional later: linux-arm64 native kernel (Mint on Arm devices)
-- [ ] Host symbols still named `sa_win_file_op` / `sa_win_putchar` in the ARM64 source — provide those names from the Linux host or rename later
+- [x] Host provides `sa_win_file_op` / `sa_win_putchar` (names kept for first link)
 
 ## Forth host (`Forth/host/linux/`)
 
-| Windows | Linux target | Notes |
+| Windows | Linux | Status |
 | --- | --- | --- |
-| `main.c` | `main_linux.c` or shared + ifdefs | Paths: `~/Documents/EditForthLin`; POSIX file I/O |
-| `console_win.c` | `console_linux.c` | Agent TTY; optional X11/Wayland console window later |
-| `companion.c` | `companion_linux.c` | Unix domain socket instead of `\\.\pipe\` |
-| `bigint.c` | reuse | Likely portable as-is |
-| `float_win.c` | `float_linux.c` | Soft float stack; mostly portable |
-| `exec_win.c` | `exec_linux.c` | `mmap`/`mprotect`/`__builtin___clear_cache` |
-| `facility_win.c` | `facility_linux.c` | Clipboard via Qt or xclip/wl-clipboard later |
-| `gfx_win.c` | `gfx_linux.c` | X11 or Qt helper process (defer) |
-| `debug_win.c` | `debug_linux.c` | Same JSON paint protocol over companion socket |
+| `main.c` | `main_linux.c` | Done — `~/Documents/EditForthLin`, POSIX I/O |
+| `console_win.c` | `console_linux.c` | Done — `--agent` / `--companion` (no GUI console) |
+| `companion.c` | `companion_linux.c` | Done — AF_UNIX, Qt `/tmp/<name>` path |
+| `bigint.c` | `bigint.c` | Done — shared copy |
+| `float_win.c` | `float_linux.c` | Done |
+| `exec_win.c` | `exec_linux.c` | Done — mmap/mprotect |
+| `facility_win.c` | `facility_linux.c` | Grid done; clipboard stub |
+| `gfx_win.c` | `gfx_linux.c` | Stub (GRAPHICS deferred) |
+| `debug_win.c` | `debug_linux.c` | Done |
 
 ## Editor (`Edit/`)
 

@@ -1,60 +1,58 @@
 # Linux Forth host (EditForthLin)
 
-Companion reference: Windows `Forth/host/main.c` + `companion.c` + `*_win.c`.
+Companion reference: Windows `Forth/host/main.c` + `companion.c` + `*_win.c`.  
+Implementation: `Forth/host/linux/`.
 
 ## Process model
-
-Same as Windows desktop:
 
 1. Qt editor starts.
 2. Editor launches `forthx64 --companion <name>`.
 3. Companion boots the kernel, runs Autoload, serves length-prefixed JSON
-   frames over a **Unix domain socket** (Windows used a named pipe).
-4. Editor pane owns the transcript; Forth has no separate console window in
-   companion mode.
+   frames over an **AF_UNIX** socket.
+4. Editor pane owns the transcript.
 
-Agent mode stays `forthx64 --agent` on the launching TTY.
+Agent mode: `forthx64 --agent` on the launching TTY.
 
 ## Roots
 
 | Role | Path |
 | --- | --- |
-| User tree | `~/Documents/EditForthLin` |
-| Library | `~/Documents/EditForthLin/Library` |
-| Autoload | `~/Documents/EditForthLin/AutoLoad/autoload.fth` |
-| Shipped seeds | `Forth/Resources/` beside the executable (walk-up search) |
+| User tree | `~/Documents/EditForthLin` (or `$XDG_DOCUMENTS_DIR/EditForthLin`) |
+| Override | absolute `EDITFORTHLIN` |
+| Library | `…/Library` |
+| Autoload | `…/AutoLoad/autoload.fth` |
+| Shipped seeds | `Forth/Resources/` (walk-up from `/proc/self/exe`) |
 
-Override with `EDITFORTHLIN` (absolute path to the user tree) when set.
+## Boot order (companion)
 
-## Boot order
-
-Match Windows companion:
-
-1. `kernel_init`
-2. Product banner (`=== EditForthLin … ===`)
-3. Autoload (`AutoLoad/autoload.fth` then `[DEFINED] MAIN [IF] MAIN [THEN]`)
-4. Interactive eval loop on the socket
+1. Bind/listen/accept AF_UNIX (`$TMPDIR/<name>`, default `/tmp/<name>` — matches Qt `QLocalSocket`)
+2. `host_set_sink` / debug / edit hooks / key hook
+3. `forth_boot` → `kernel_init` + banner
+4. Send `version`
+5. `forth_autoload`
+6. `cwd` + prompt + eval loop
 
 ## IPC frame format
 
-Unchanged from Windows companion:
-
-- 4-byte little-endian length + UTF-8 JSON body
-- Ops: `out`, `cwd`, `edit`, `debug`, `breaks`, `last`, `err`, eval requests, keys
-
-Linux transport: `AF_UNIX` socket under `$XDG_RUNTIME_DIR` (fallback `/tmp`),
-name prefix `EditForthLin-`.
+Unchanged from Windows: 4-byte little-endian length + UTF-8 JSON.
 
 ## Exec / JIT
 
-| Word | Windows | Linux |
-| --- | --- | --- |
-| `ALLOCATE-EXEC` | `VirtualAlloc` | `mmap` `PROT_READ|PROT_WRITE` |
-| `MPROTECT` | `VirtualProtect` | `mprotect` |
-| `ICACHE-INVAL` | `FlushInstructionCache` | `__builtin___clear_cache` |
-| `JIT-WPROTECT` | no-op flag | no-op flag (or `pthread` JIT write if needed) |
+| Word | Linux |
+| --- | --- |
+| `ALLOCATE-EXEC` | `mmap` `PROT_READ\|PROT_WRITE` |
+| `MPROTECT` | `mprotect` |
+| `ICACHE-INVAL` | `__builtin___clear_cache` |
+| `JIT-WPROTECT` | no-op flag |
 
-## Stub status
+## Build
 
-`Forth/host/linux/` holds the port map and empty `.c` placeholders. Link them
-from `build-x64.sh` only after the System V kernel objects exist.
+```bash
+./scripts/mint-deps.sh
+./build-x64.sh
+# forthx64 at Forth/build/x64/forthx64
+Forth/build/x64/forthx64 --agent -e '2 3 + .'
+```
+
+On macOS, `./build-x64.sh` assembles ELF objects and compile-checks host C;
+link happens on Linux.
