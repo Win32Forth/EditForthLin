@@ -1,16 +1,17 @@
 # EditForthWin → EditForthLin port checklist
 
-Scaffold date: 2026-10-20. Source snapshot: EditForthWin 1.3.1.
+Scaffold date: 2026-10-20. Source snapshot: EditForthWin 1.3.1.  
+**Marketing version:** **0.1.0** (`0.1.0-x64`).
 
 Linux is a desktop sibling of Windows (Qt + process companion), not an
 in-process Android-style embed. Prefer System V ABI growth in the translator,
 not a second OS-specific kernel dialect beyond ABI and host calls.
 
-## Done in this scaffold
+## Done for 0.1.0
 
 - [x] Sibling tree `EditForthLin` copied from EditForthWin (no Windows Install/dist)
-- [x] Product README + Mint setup docs
-- [x] Linux editor CMake target name `editforthlin`
+- [x] Product README, CHANGELOG, Mint setup / host / smoke docs
+- [x] Linux editor CMake target name `editforthlin` / `editforthlinx64` (project VERSION 0.1.0)
 - [x] `ForthPipe_linux.cpp` skeleton (Unix domain socket / `QLocalServer`)
 - [x] `Forth/host/linux/` host (agent + companion + file/path host)
 - [x] `build-x64.sh` and `scripts/mint-deps.sh`
@@ -18,7 +19,9 @@ not a second OS-specific kernel dialect beyond ABI and host calls.
 - [x] Generated `Forth/kernel/x64-linux/asm/*.asm`
 - [x] Hand-written `identity.asm`, `vmregs.asm`, `find_host.asm` (System V)
 - [x] `nasm -f elf64` smoke assemble of all 18 objects (2026-10-20)
-- [x] Host C compile-checked on Darwin; ELF link of `forthx64` runs on Linux Mint
+- [x] Host C compile-checked on Darwin; ELF link of `forthx64` designed for Mint
+- [x] Version strings `0.1.0-x64` / `Oct 20, 2026 6:25 PM` / `EditForthLin x64`
+- [x] GitHub `Win32Forth/EditForthLin` + tag `v0.1.0`
 
 ## Kernel / ABI
 
@@ -57,7 +60,7 @@ not a second OS-specific kernel dialect beyond ABI and host calls.
 
 - [ ] `.deb` or AppImage for x64
 - [ ] Desktop entry + icon
-- [ ] Seed `~/Documents/EditForthLin` from `Forth/Resources` on first run
+- [ ] Seed `~/Documents/EditForthLin` from `Forth/Resources` on first run (host implements; verify on Mint)
 
 ## Validation
 

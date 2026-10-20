@@ -23,4 +23,8 @@ nasm -f elf64 -o Forth/build/x64-linux/state.o Forth/kernel/x64-linux/asm/state.
 # …same for each generated file, plus vmregs / identity / find_host
 ```
 
-`./build-x64.sh` will own the full assemble+link once the Linux C host lands.
+`./build-x64.sh` owns translate + assemble + host compile + ELF link of
+`Forth/build/x64/forthx64` on Linux. On macOS it stops after assemble and
+host compile-check.
+
+Version strings live in `identity.asm` (`0.1.0-x64` for the 0.1.0 release).

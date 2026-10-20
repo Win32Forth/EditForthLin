@@ -3,6 +3,9 @@
 Target: **Linux Mint** (Ubuntu/Debian package names). Other Debian-ish distros
 should work with the same packages.
 
+Version **0.1.0** — see [mint-build-smoke.md](mint-build-smoke.md) for the
+full build and smoke sequence.
+
 ## Packages
 
 From the repo root:
@@ -37,7 +40,7 @@ cmake -S Edit -B Edit/build/x64 -DCMAKE_BUILD_TYPE=Release
 cmake --build Edit/build/x64 -j"$(nproc)"
 ```
 
-If Qt is in a custom prefix (aQt offline installer):
+If Qt is in a custom prefix (a Qt offline installer):
 
 ```bash
 cmake -S Edit -B Edit/build/x64 \
@@ -45,13 +48,14 @@ cmake -S Edit -B Edit/build/x64 \
   -DCMAKE_PREFIX_PATH="$HOME/Qt/6.x.y/gcc_64"
 ```
 
-## Build order (once the host/kernel exist)
+## Build order
 
-1. Translate / assemble linux-x64 Forth kernel → `Forth/build/x64/forthx64`
-2. Build editor → `Edit/build/x64/editforthlin`
-3. Run editor; it starts `forthx64 --companion <socket-name>`
-
-Until those land, `./build-x64.sh` exits with a clear “not ready” message.
+1. `./scripts/mint-deps.sh`
+2. `./build-x64.sh` — translate / assemble linux-x64 kernel, link
+   `Forth/build/x64/forthx64`, build editor `Edit/build/x64/editforthlinx64`
+3. Smoke agent: `Forth/build/x64/forthx64 --agent -e '2 3 + .'`
+4. Run editor; it should start `forthx64 --companion <socket-name>` once
+   `ForthPipe_linux` is finished
 
 ## Documents tree
 
