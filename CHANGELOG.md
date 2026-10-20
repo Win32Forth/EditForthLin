@@ -30,4 +30,4 @@ First public EditForthLin cut. Sibling of EditForthWin for **Linux Mint x64**.
 - GRAPHICS and clipboard (stubs return failure)
 - AskForth key storage (libsecret) and packaging (`.deb` / AppImage)
 
-See [PORT.md](PORT.md) and [docs/mint-build-smoke.md](docs/mint-build-smoke.md).
+See [LINUXMINT.md](LINUXMINT.md) and [PORT.md](PORT.md).

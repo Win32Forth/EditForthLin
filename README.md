@@ -7,7 +7,7 @@ Public domain (same spirit as the other EditForth trees).
 
 **Target:** Linux Mint first (Ubuntu/Debian package base), **x64**.  
 **Status:** System V/NASM kernel + Linux host C are in tree. Link and smoke
-`forthx64` on Mint with [docs/mint-build-smoke.md](docs/mint-build-smoke.md).
+`forthx64` on Mint with **[LINUXMINT.md](LINUXMINT.md)**.
 
 Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 (`--companion`). Shared Forth cold-load `.fth`, `kernel_api.h`, and
@@ -36,7 +36,8 @@ See [CHANGELOG.md](CHANGELOG.md).
 | `Forth/kernel/x64` | Windows ml64 / Win ABI translation (reference) |
 | `Forth/kernel/x64-linux` | NASM / System V translation + hand-written identity/vmregs/find_host |
 | `GrokTools/arm64_to_nasm_sysv.py` | Linux translator (`python3 GrokTools/arm64_to_nasm_sysv.py`) |
-| `docs/` | Mint setup, host notes, build/smoke checklist |
+| `LINUXMINT.md` | Mint build, smoke, and project notes (start here on Linux) |
+| `docs/` | Host notes and shorter Mint setup snippets |
 | `build-x64.sh` | Translate + assemble + link forthx64 + Qt editor (Linux) |
 | `build.bat` / `build-x64.bat` | Windows reference scripts (not used on Linux) |
 
@@ -60,9 +61,8 @@ Forth/build/x64/forthx64 --agent -e '2 3 + .'
 On macOS, `./build-x64.sh` translates, assembles ELF objects, and
 compile-checks host C; ELF link needs Linux.
 
-See [docs/linux-mint-setup.md](docs/linux-mint-setup.md),
-[docs/linux-host.md](docs/linux-host.md),
-[docs/mint-build-smoke.md](docs/mint-build-smoke.md), and [PORT.md](PORT.md).
+Full Mint guide: **[LINUXMINT.md](LINUXMINT.md)**. Also
+[docs/linux-host.md](docs/linux-host.md) and [PORT.md](PORT.md).
 
 ## Console banner (expected after Mint link)
 

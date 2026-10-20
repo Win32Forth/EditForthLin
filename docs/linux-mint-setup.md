@@ -3,8 +3,7 @@
 Target: **Linux Mint** (Ubuntu/Debian package names). Other Debian-ish distros
 should work with the same packages.
 
-Version **0.1.0** — see [mint-build-smoke.md](mint-build-smoke.md) for the
-full build and smoke sequence.
+Version **0.1.0** — full Mint guide: **[LINUXMINT.md](../LINUXMINT.md)**.
 
 ## Packages
 

@@ -10,7 +10,7 @@ not a second OS-specific kernel dialect beyond ABI and host calls.
 ## Done for 0.1.0
 
 - [x] Sibling tree `EditForthLin` copied from EditForthWin (no Windows Install/dist)
-- [x] Product README, CHANGELOG, Mint setup / host / smoke docs
+- [x] Product README, CHANGELOG, `LINUXMINT.md`, Mint setup / host / smoke docs
 - [x] Linux editor CMake target name `editforthlin` / `editforthlinx64` (project VERSION 0.1.0)
 - [x] `ForthPipe_linux.cpp` skeleton (Unix domain socket / `QLocalServer`)
 - [x] `Forth/host/linux/` host (agent + companion + file/path host)
