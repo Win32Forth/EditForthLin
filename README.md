@@ -4,7 +4,8 @@ Linux sibling of [EditForthWin](https://github.com/Win32Forth/EditForthWin).
 Public domain (same spirit as the other EditForth trees).
 
 **Target:** Linux Mint first (Ubuntu/Debian package base), **x64**.  
-**Status:** scaffold from EditForthWin 1.3.1 — not yet a runnable Mint build.
+**Status:** scaffold from EditForthWin 1.3.1. System V/NASM kernel objects
+assemble; Linux C host + link still open (see `PORT.md`).
 
 Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 (`--companion`). Shared Forth cold-load `.fth`, `kernel_api.h`, and
@@ -20,10 +21,11 @@ Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 | `Forth/host/` | Windows host kept as reference (`*_win.c`, `main.c`, `companion.c`) |
 | `Forth/host/linux/` | Linux host port (stubs / in progress) |
 | `Forth/kernel/arm64` | ARM64 armasm source of truth (same as Windows) |
-| `Forth/kernel/x64` | Windows ml64 / Win ABI translation (reference until System V exists) |
-| `GrokTools/` | Translators; Linux needs a System V / NASM path (see PORT.md) |
+| `Forth/kernel/x64` | Windows ml64 / Win ABI translation (reference) |
+| `Forth/kernel/x64-linux` | NASM / System V translation + hand-written identity/vmregs/find_host |
+| `GrokTools/arm64_to_nasm_sysv.py` | Linux translator (`python3 GrokTools/arm64_to_nasm_sysv.py`) |
 | `docs/` | Mint setup and host notes |
-| `build-x64.sh` | Planned Mint/x64 build entry |
+| `build-x64.sh` | Translate + assemble; link waits on Linux host |
 | `build.bat` / `build-x64.bat` | Windows reference scripts (not used on Linux) |
 
 ## Working directory

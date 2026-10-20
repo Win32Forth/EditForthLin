@@ -2,28 +2,29 @@
 
 Tools that ship with EditForthLin so a clone can rebuild the x64 kernel.
 
+## arm64_to_nasm_sysv.py (Linux Mint path)
+
+Reads `Forth/kernel/arm64` and writes NASM into `Forth/kernel/x64-linux/asm`.
+Those generated files are part of this repository. ARM64 armasm stays the
+kernel text. Host calls use the **System V AMD64** ABI (`rdi`, `rsi`, `rdx`,
+`rcx`, `r8`, `r9`, then stack). Entry points `kernel_init`, `kernel_eval`,
+and the `kernel_set_*` hooks take System V arguments into the virtual
+register file.
+
+Hand-written (not produced here):
+
+- `Forth/kernel/x64-linux/identity.asm`
+- `Forth/kernel/x64-linux/vmregs.asm`
+- `Forth/kernel/x64-linux/find_host.asm`
+
+```bash
+python3 GrokTools/arm64_to_nasm_sysv.py
+```
+
+Set `EDITFORTHLIN` if the tree is not the parent of `GrokTools`.
+
 ## arm64_to_ml64.py (Windows reference)
 
-Copied from EditForthWin. Reads `Forth/kernel/arm64` and writes **ml64** into
-`Forth/kernel/x64/asm` using the **Windows x64 ABI**. Useful as the translation
-reference. It is not the Mint build path.
-
-## Planned: System V / NASM translator
-
-Linux Mint x64 needs a sibling translator (working name
-`arm64_to_nasm_sysv.py`) that:
-
-- Reads the same `Forth/kernel/arm64` sources
-- Emits NASM (or GAS) for **System V AMD64** host calls
-- Writes into something like `Forth/kernel/x64-linux/asm/` (exact path TBD)
-
-Hand-written pieces will mirror Windows: `identity`, `vmregs`, and
-`find_host` for the register-file VM.
-
-Until that script exists, `./build-x64.sh` stops before assembling the kernel.
-See `PORT.md`.
-
-## Environment
-
-`EDITFORTHLIN` may override the default tree path once the Linux translator
-lands (same idea as `EDITFORTHWIN` for the Windows script).
+Copied from EditForthWin. Emits **ml64** with the **Windows** x64 ABI into
+`Forth/kernel/x64/asm`. Kept as the translation reference; not used by
+`build-x64.sh` on Linux.

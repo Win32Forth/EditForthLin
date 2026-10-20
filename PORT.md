@@ -14,15 +14,20 @@ not a second OS-specific kernel dialect beyond ABI and host calls.
 - [x] `ForthPipe_linux.cpp` skeleton (Unix domain socket / `QLocalServer`)
 - [x] `Forth/host/linux/` stub map from `*_win.c`
 - [x] `build-x64.sh` and `scripts/mint-deps.sh` placeholders
+- [x] System V / NASM translator `GrokTools/arm64_to_nasm_sysv.py`
+- [x] Generated `Forth/kernel/x64-linux/asm/*.asm`
+- [x] Hand-written `identity.asm`, `vmregs.asm`, `find_host.asm` (System V)
+- [x] `nasm -f elf64` smoke assemble of all 18 objects (2026-10-20)
 
 ## Kernel / ABI
 
-- [ ] System V x64 translator (NASM or GAS) from `Forth/kernel/arm64`
+- [x] System V x64 translator (NASM) from `Forth/kernel/arm64`
   - Windows `GrokTools/arm64_to_ml64.py` emits ml64 + **Windows** x64 ABI
-  - Linux needs host calls with System V argument registers / red zone rules
-- [ ] Hand-written `identity` + `vmregs` / `find_host` for linux-x64
-- [ ] Assemble + link `forthx64` ELF (no `.exe`, no `/SUBSYSTEM:WINDOWS`)
+  - Linux `arm64_to_nasm_sysv.py` emits NASM + **System V** (`rdi`…`r9`, stack args)
+- [x] Hand-written `identity` + `vmregs` / `find_host` for linux-x64
+- [ ] Link `forthx64` ELF with `Forth/host/linux/*` (no `.exe`, no `/SUBSYSTEM:WINDOWS`)
 - [ ] Optional later: linux-arm64 native kernel (Mint on Arm devices)
+- [ ] Host symbols still named `sa_win_file_op` / `sa_win_putchar` in the ARM64 source — provide those names from the Linux host or rename later
 
 ## Forth host (`Forth/host/linux/`)
 

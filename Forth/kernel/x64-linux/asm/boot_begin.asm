@@ -1,0 +1,41 @@
+; Generated from Forth/kernel/arm64/boot_begin.asm. Do not edit.
+bits 64
+default rel
+extern arm_x0
+extern arm_x1
+extern arm_x2
+extern arm_x3
+extern arm_x4
+extern arm_x5
+extern arm_x6
+extern arm_x7
+extern arm_x8
+extern arm_x9
+extern arm_x10
+extern arm_x11
+extern arm_x12
+extern arm_x13
+extern arm_x14
+extern arm_x15
+extern arm_x16
+extern arm_x17
+extern arm_x18
+extern arm_x19
+extern arm_x20
+extern arm_x21
+extern arm_x22
+extern arm_x23
+extern arm_x24
+extern arm_x25
+extern arm_x26
+extern arm_x27
+extern arm_x28
+extern arm_x29
+extern arm_x30
+extern arm_n
+extern arm_z
+extern arm_c
+extern arm_v
+section .bootptr align=8
+global bootptr_start
+bootptr_start:
