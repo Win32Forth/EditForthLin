@@ -1,0 +1,16 @@
+Forth/build/
+Edit/build/
+.vs/
+*.user
+*.obj
+*.o
+*.exe
+*.pdb
+*.ilk
+*.a
+*.so
+dist/
+.DS_Store
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
