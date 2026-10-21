@@ -52,6 +52,7 @@
 #include <QUuid>
 #include <QVector>
 
+#ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
@@ -60,6 +61,7 @@
 #endif
 #include <windows.h>
 #include <wincred.h>
+#endif
 
 #include <algorithm>
 #include <atomic>
@@ -167,6 +169,7 @@ Profile profileFrom(const QJsonObject &o) {
     return p;
 }
 
+#ifdef _WIN32
 std::wstring credTarget(const QString &id) {
     return (QStringLiteral("EditForthLin/AskForth/") + id).toStdWString();
 }
@@ -199,6 +202,22 @@ QString loadKey(const QString &id) {
     CredFree(cred);
     return key;
 }
+#else
+/* Credential Manager is Windows-only. Linux key storage is still open
+   (libsecret or a file fallback). Keys are not saved yet. */
+bool saveKey(const QString &id, const QString &key) {
+    (void)id;
+    (void)key;
+    return false;
+}
+
+void deleteKey(const QString &id) { (void)id; }
+
+QString loadKey(const QString &id) {
+    (void)id;
+    return {};
+}
+#endif
 
 QString resolveKey(const QString &id) {
     const QString saved = loadKey(id).trimmed();

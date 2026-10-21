@@ -6,10 +6,11 @@ Other Debian/Ubuntu-based distros use the same packages and steps.
 | Item | Value |
 | --- | --- |
 | Product | EditForthLin |
-| Marketing version | **0.1.0** (`0.1.0-x64`) |
+| Marketing version | **0.1.5** (`0.1.5-x64`) |
 | Repo | https://github.com/Win32Forth/EditForthLin |
-| Tag / release | [v0.1.0](https://github.com/Win32Forth/EditForthLin/releases/tag/v0.1.0) |
-| Kernel banner | `=== EditForthLin 0.1.0-x64 === Oct 20, 2026 6:25 PM ===` |
+| Tag / release | [v0.1.5](https://github.com/Win32Forth/EditForthLin/releases/tag/v0.1.5) |
+| Install | [INSTALLER.md](INSTALLER.md) |
+| Kernel banner | `=== EditForthLin 0.1.5-x64 === Oct 21, 2026 2:00 PM ===` |
 | Agent binary | `Forth/build/x64/forthx64` |
 | Editor binary | `Edit/build/x64/editforthlinx64` |
 | User data | `~/Documents/EditForthLin` (override with absolute `EDITFORTHLIN`) |
@@ -37,14 +38,14 @@ habit. Install UTM from [mac.getutm.app](https://mac.getutm.app).
 
 | Mode | Guest | Speed | Role for EditForthLin |
 | --- | --- | --- | --- |
-| **Virtualize** | Linux **ARM64** (Ubuntu/Debian desktop) | Near-native | Fast Linux/Qt desktop; **not** the 0.1.0 `forthx64` target |
-| **Emulate** | Linux **x86_64** (Mint or Ubuntu amd64) | Slower | Matches **0.1.0** / `LINUXMINT.md` (`elf64`, `forthx64`) |
+| **Virtualize** | Linux **ARM64** (Ubuntu/Debian desktop) | Near-native | Fast Linux/Qt desktop; **not** the 0.1.5 `forthx64` target |
+| **Emulate** | Linux **x86_64** (Mint or Ubuntu amd64) | Slower | Matches **0.1.5** / `LINUXMINT.md` (`elf64`, `forthx64`) |
 
 Windows 11 has official Arm64 **and** x64 SKUs. Official **Linux Mint** is
 **amd64 only** (no official ARM ISO). So a true Mint guest is the same *kind*
 of UTM VM as the **Win11 x64** guest: **Emulate** → x86_64.
 
-### Guest A — Emulate Mint amd64 (primary for 0.1.0)
+### Guest A — Emulate Mint amd64 (primary for 0.1.5)
 
 Same lane as the Win11 **x64** UTM VM.
 
@@ -74,13 +75,13 @@ Same lane as the Win11 **Arm64** UTM VM: snappy, native virtualization.
 4. Install, remove ISO, boot from disk.
 
 Use this for general Linux desktop / Qt feel. Guest `uname -m` is `aarch64`.
-EditForthLin **0.1.0** does not yet ship a linux-arm64 kernel/host; do not
+EditForthLin **0.1.5** does not yet ship a linux-arm64 kernel/host; do not
 expect `./build-x64.sh` to produce a native arm64 `forthx64` here. A later
 linux-arm64 port would mirror EditForthWin’s dual-arch split.
 
 UTM can also enable **Rosetta (x86_64 Emulation)** inside an ARM64 Linux
 guest so some Intel binaries run there. That is optional and separate from a
-full Mint amd64 install; prefer Guest A for the 0.1.0 smoke checklist.
+full Mint amd64 install; prefer Guest A for the 0.1.5 smoke checklist.
 
 ### After the guest is up
 
@@ -93,17 +94,17 @@ uname -m    # expect x86_64
 
 ---
 
-## Mint build / smoke walkthrough (0.1.0)
+## Mint build / smoke walkthrough (0.1.5)
 
 Do this on a **Linux Mint x64** machine or VM (on Apple Silicon Mac hosts, use
-[UTM Guest A](#guest-a--emulate-mint-amd64-primary-for-010) above).
+[UTM Guest A](#guest-a--emulate-mint-amd64-primary-for-015) above).
 
 ### 0. Clone
 
 ```bash
 git clone https://github.com/Win32Forth/EditForthLin.git
 cd EditForthLin
-git checkout v0.1.0   # or main
+git checkout v0.1.5   # or main
 ```
 
 ### 1. Dependencies
@@ -170,7 +171,7 @@ cmake --build Edit/build/x64 -j"$(nproc)"
 (Normally `./build-x64.sh` runs the editor cmake step after linking
 `forthx64`.)
 
-### 3. Agent smoke (primary for 0.1.0)
+### 3. Agent smoke (primary for 0.1.5)
 
 ```bash
 Forth/build/x64/forthx64 --agent -e '2 3 + .'
@@ -178,7 +179,7 @@ Forth/build/x64/forthx64 --agent -e '2 3 + .'
 
 Look for:
 
-- Cold-load / banner with `0.1.0-x64` and `EditForthLin x64`
+- Cold-load / banner with `0.1.5-x64` and `EditForthLin x64`
 - Printed `5`
 - Clean exit, or return to a prompt if `-e` leaves the REPL (either is fine
   for a first smoke)
@@ -193,23 +194,22 @@ Forth/build/x64/forthx64 --agent
 BYE
 ```
 
-### 4. Companion smoke (optional for 0.1.0)
+### 4. Editor
 
 ```bash
-# terminal A
-Forth/build/x64/forthx64 --companion EditForthLin-smoke
-
-# terminal B
-ls -l /tmp/EditForthLin-smoke
-Edit/build/x64/editforthlinx64
+./Edit/build/x64/editforthlinx64
 ```
 
-Socket path: `$TMPDIR/<name>` (default `/tmp/<name>`), matching Qt
-`QLocalSocket`.
+The editor starts `Forth/build/x64/forthx64 --companion`. A debug pause (`DBG VIEW VIEW`) opens the stamped source. F6 steps over and F7 steps into.
 
-Expect length-prefixed JSON frames (version / cwd / prompt) once
-`ForthPipe_linux` is finished. Until that editor path is complete, companion
-bind/accept alone is a useful host check.
+A socket-only check, without the window:
+
+```bash
+Forth/build/x64/forthx64 --companion EditForthLin-smoke
+ls -l /tmp/EditForthLin-smoke
+```
+
+Socket path: `$TMPDIR/<name>` (default `/tmp/<name>`), matching Qt `QLocalSocket`.
 
 ### 5. Record results
 
@@ -218,13 +218,13 @@ bind/accept alone is a useful host check.
 | `mint-deps.sh` | |
 | `build-x64.sh` → `forthx64` | |
 | `--agent -e '2 3 + .'` | |
-| Banner shows `0.1.0-x64` | |
+| Banner shows `0.1.5-x64` | |
 | `~/Documents/EditForthLin` seeded | |
 | Editor starts (if built) | |
 | Companion socket accepted | |
 
 If anything fails, note it on the
-[v0.1.0 release](https://github.com/Win32Forth/EditForthLin/releases/tag/v0.1.0)
+[v0.1.5 release](https://github.com/Win32Forth/EditForthLin/releases/tag/v0.1.5)
 or open a GitHub issue.
 
 ---
@@ -239,13 +239,19 @@ or open a GitHub issue.
 - Companion AF_UNIX IPC aligned with Qt (`/tmp/<name>`)
 - `build-x64.sh` + `scripts/mint-deps.sh`
 
-## Not yet verified / finished on Mint
+## Verified on Mint x64 (2026-10-21)
 
-- Link + smoke of `forthx64 --agent` (this checklist)
-- Editor companion round-trip (`ForthPipe_linux` unfinished)
+- `./build-x64.sh` links `forthx64` and `editforthlinx64`
+- `forthx64 --agent -e '2 3 + .'` prints `5` and exits 0
+- Autoload finishes, including Hyper
+- The editor starts the companion. A debugger pause opens source; F6 and F7 step
+
+## Not finished
+
 - Hayes / ANS-VALIDATE
 - GRAPHICS and clipboard (stubs return failure)
 - AskForth key storage (libsecret) and packaging (`.deb` / AppImage)
+- `Config/HYPER.CFG` is not copied into the user tree; reindex uses the default list
 
 Port status: [PORT.md](PORT.md). Host details: [docs/linux-host.md](docs/linux-host.md).
 
@@ -262,54 +268,3 @@ Port status: [PORT.md](PORT.md). Host details: [docs/linux-host.md](docs/linux-h
 | `GrokTools/arm64_to_nasm_sysv.py` | translator |
 | `Edit/` | Qt editor (`editforthlinx64`) |
 | `Forth/Resources/` | seeds for `~/Documents/EditForthLin` |
-
-## Linux Tools
-
-Clipboard sharing needs a setting in UTM and a guest package in Mint.
-
-1. Turn it on in UTM
-
-1. Shut down the Mint VM (full stop, not just suspend).
-2. Select the VM → Edit (pencil).
-3. Open Sharing (QEMU / Emulate) or Virtualization (Apple / Virtualize).
-4. Enable Clipboard sharing.
-5. Save, then start the VM.
-
-2. Install the SPICE agent in Mint
-
-In a Mint terminal:
-
-sudo apt update
-sudo apt install -y spice-vdagent
-
-Optional but useful:
-
-sudo apt install -y qemu-guest-agent
-
-Then reboot the guest:
-
-sudo reboot
-
-Official note: SPICE agent is required for clipboard on both QEMU and Apple backends
-(https://docs.getutm.app/guest-support/linux/).
-
-3. Test
-
-• Copy text on the Mac → click in Mint → paste (Ctrl+V or middle-click).
-• Copy in Mint → paste on the Mac (Cmd+V).
-
-If it still fails
-
-• Confirm you are in a graphical desktop session (Cinnamon), not only a text console. Clipboard sharing needs the desktop clipboard.
-• Check the agent is running:
-
-ps aux | grep -i spice-vdagent
-
-If nothing shows after login:
-
-spice-vdagent &
-
-• On some setups Wayland is flaky with SPICE. At the login screen, choose a session like Cinnamon (Xorg) / X11, then log in again.
-• Quit and reopen UTM once after enabling the option.
-
-After that works, you can paste the Grok install commands from the Mac into Mint without retyping them.

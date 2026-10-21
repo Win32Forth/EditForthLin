@@ -9,6 +9,10 @@
    console_linux expectations — declare (this file provides the definition):
      int companion_run(const char *sock_name); */
 
+#if !defined(_DEFAULT_SOURCE) && !defined(_POSIX_C_SOURCE)
+#define _DEFAULT_SOURCE
+#endif
+
 #include "kernel_api.h"
 
 #include <errno.h>

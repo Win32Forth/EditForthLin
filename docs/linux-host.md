@@ -57,5 +57,5 @@ Forth/build/x64/forthx64 --agent -e '2 3 + .'
 On macOS, `./build-x64.sh` assembles ELF objects and compile-checks host C;
 link happens on Linux. Full Mint steps: [LINUXMINT.md](../LINUXMINT.md).
 
-**0.1.0** kernel identity: `0.1.0-x64` / `EditForthLin x64`
+**0.1.5** kernel identity: `0.1.5-x64` / `EditForthLin x64`
 (`Forth/kernel/x64-linux/identity.asm`).

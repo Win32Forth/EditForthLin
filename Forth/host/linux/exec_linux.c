@@ -4,6 +4,10 @@
    ALLOCATE-EXEC memory starts read/write. MPROTECT 5 makes it read/execute.
    JIT-WPROTECT does not switch pages. */
 
+#if !defined(_DEFAULT_SOURCE) && !defined(_POSIX_C_SOURCE)
+#define _DEFAULT_SOURCE
+#endif
+
 #include <stdint.h>
 #include <string.h>
 #include <sys/mman.h>

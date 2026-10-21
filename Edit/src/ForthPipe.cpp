@@ -164,10 +164,14 @@ public:
                     QMetaObject::invokeMethod(owner, "noteError", Qt::QueuedConnection,
                                               Q_ARG(QString, text));
                 } else if (op == QLatin1String("debug")) {
+                    /* Companion JSON uses 0/1 integers. toBool() is false unless
+                       the value is a JSON boolean, so a pause never reached the editor. */
+                    const bool armed = obj.value(QStringLiteral("armed")).toInt() != 0;
+                    const bool paused = obj.value(QStringLiteral("paused")).toInt() != 0;
                     QMetaObject::invokeMethod(
                         owner, "noteDebug", Qt::QueuedConnection,
-                        Q_ARG(bool, obj.value(QStringLiteral("armed")).toBool()),
-                        Q_ARG(bool, obj.value(QStringLiteral("paused")).toBool()),
+                        Q_ARG(bool, armed),
+                        Q_ARG(bool, paused),
                         Q_ARG(int, obj.value(QStringLiteral("line")).toInt()),
                         Q_ARG(int, obj.value(QStringLiteral("off")).toInt()),
                         Q_ARG(int, obj.value(QStringLiteral("len")).toInt()),

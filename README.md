@@ -3,16 +3,23 @@
 Linux sibling of [EditForthWin](https://github.com/Win32Forth/EditForthWin).  
 Public domain (same spirit as the other EditForth trees).
 
-**Version:** 0.1.0 (`0.1.0-x64`)
+**Version:** 0.1.5 (`0.1.5-x64`)
 
 **Target:** Linux Mint first (Ubuntu/Debian package base), **x64**.  
-**Status:** System V/NASM kernel + Linux host C are in tree. Link and smoke
-`forthx64` on Mint with **[LINUXMINT.md](LINUXMINT.md)**.
+**Status:** Builds and runs on Linux Mint x64. Build steps are in
+**[INSTALLER.md](INSTALLER.md)**. Host notes: **[LINUXMINT.md](LINUXMINT.md)**.
 
 Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 (`--companion`). Shared Forth cold-load `.fth`, `kernel_api.h`, and
 `Forth/Resources/Library` stay common; OS-specific code lives under
 `Forth/host/linux/` and the Linux editor IPC path.
+
+### 0.1.5 highlights
+
+- Mint x64 link of `forthx64` and the Qt editor
+- Case-insensitive loads under `~/Documents/EditForthLin`
+- Debugger pause opens the source; F6 / F7 step
+- Build and run steps in [INSTALLER.md](INSTALLER.md)
 
 ### 0.1.0 highlights
 
@@ -55,8 +62,11 @@ On Linux Mint / Debian-ish:
 ```bash
 ./scripts/mint-deps.sh    # apt packages (Qt6, cmake, nasm, build-essential)
 ./build-x64.sh            # translate, assemble, link forthx64, build editor
+./Edit/build/x64/editforthlinx64
 Forth/build/x64/forthx64 --agent -e '2 3 + .'
 ```
+
+Full steps: **[INSTALLER.md](INSTALLER.md)**.
 
 On macOS, `./build-x64.sh` translates, assembles ELF objects, and
 compile-checks host C; ELF link needs Linux.
@@ -67,7 +77,7 @@ Full Mint guide: **[LINUXMINT.md](LINUXMINT.md)**. Also
 ## Console banner (expected after Mint link)
 
 ```
-=== EditForthLin 0.1.0-x64 === Oct 20, 2026 6:25 PM ===
+=== EditForthLin 0.1.5-x64 === Oct 21, 2026 2:00 PM ===
 ```
 
 (`Forth/kernel/x64-linux/identity.asm`)

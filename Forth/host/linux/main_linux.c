@@ -1409,12 +1409,96 @@ long long host_library_path(char *dst, long long cap)
     return (long long)n;
 }
 
+/* Forth sources keep Windows spellings (Library/HYPER/HYPER.fth). The
+   seeded tree under Documents/EditForthLin uses the names from the ship
+   copy (Library/Hyper/hyper.fth). Walk that tree case-insensitively when
+   the exact path is missing. */
+static int host_ci_walk(char *built, size_t cap, const char *rest)
+{
+    char name[NAME_MAX + 1];
+    const char *slash;
+    size_t nlen;
+    size_t blen;
+    DIR *d;
+    struct dirent *ent;
+    struct stat st;
+
+    while (rest != NULL && *rest == '/')
+        rest++;
+    if (rest == NULL || *rest == '\0') {
+        if (stat(built, &st) != 0)
+            return 0;
+        return S_ISREG(st.st_mode) || S_ISDIR(st.st_mode);
+    }
+    slash = strchr(rest, '/');
+    nlen = slash != NULL ? (size_t)(slash - rest) : strlen(rest);
+    if (nlen == 0 || nlen > NAME_MAX)
+        return 0;
+    memcpy(name, rest, nlen);
+    name[nlen] = '\0';
+    d = opendir(built);
+    if (d == NULL)
+        return 0;
+    blen = strlen(built);
+    while ((ent = readdir(d)) != NULL) {
+        size_t elen = strlen(ent->d_name);
+        if (ent->d_name[0] == '.' &&
+            (ent->d_name[1] == '\0' ||
+             (ent->d_name[1] == '.' && ent->d_name[2] == '\0')))
+            continue;
+        if (elen != nlen || strncasecmp(ent->d_name, name, nlen) != 0)
+            continue;
+        if (blen + 1 + elen + 1 > cap)
+            continue;
+        if (blen > 0 && built[blen - 1] != '/') {
+            built[blen] = '/';
+            memcpy(built + blen + 1, ent->d_name, elen + 1);
+        } else {
+            memcpy(built + blen, ent->d_name, elen + 1);
+        }
+        if (host_ci_walk(built, cap, slash != NULL ? slash + 1 : "")) {
+            closedir(d);
+            return 1;
+        }
+        built[blen] = '\0';
+    }
+    closedir(d);
+    return 0;
+}
+
+static int host_ci_under_root(char *dst, size_t cap, const char *src)
+{
+    size_t n;
+    char built[PATH_MAX];
+    const char *rest;
+
+    if (user_root[0] == '\0' || src == NULL || src[0] != '/')
+        return 0;
+    n = strlen(user_root);
+    if (n == 0 || n >= sizeof built)
+        return 0;
+    if (strncmp(src, user_root, n) != 0)
+        return 0;
+    if (src[n] != '\0' && src[n] != '/')
+        return 0;
+    memcpy(built, user_root, n + 1);
+    rest = src + n;
+    if (!host_ci_walk(built, sizeof built, rest))
+        return 0;
+    n = strlen(built);
+    if (n + 1 > cap)
+        return 0;
+    memcpy(dst, built, n + 1);
+    return 1;
+}
+
 long long host_resolve(const char *p, long long n, char *out, long long cap)
 {
     char tmp[HOST_PATH];
     char joined[HOST_PATH];
     char cwd[HOST_PATH];
-    char absbuf[HOST_PATH];
+    /* glibc realpath() rejects a destination shorter than PATH_MAX. */
+    char absbuf[PATH_MAX];
     const char *src;
     size_t sl;
 
@@ -1464,7 +1548,7 @@ long long host_resolve(const char *p, long long n, char *out, long long cap)
             src = joined;
         }
     }
-    if (realpath(src, absbuf) != NULL) {
+    if (realpath(src, absbuf) != NULL || host_ci_under_root(absbuf, sizeof absbuf, src)) {
         sl = strlen(absbuf);
         if (sl >= (size_t)cap)
             sl = (size_t)cap - 1;

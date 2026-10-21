@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.1.5 — 2026-10-21
+
+First Mint x64 build that links, runs the editor, and steps in the debugger.
+There is still no `.deb` or AppImage. Build from source with [INSTALLER.md](INSTALLER.md).
+
+### In this release
+
+- `./build-x64.sh` links `Forth/build/x64/forthx64` and `Edit/build/x64/editforthlinx64` on Linux Mint x64
+- POSIX feature macros in the Linux host so `sigaction`, `poll`, and `mmap` compile under `-std=c11`
+- `realpath` uses a `PATH_MAX` buffer (glibc rejects a shorter destination)
+- Loads under `~/Documents/EditForthLin` match Windows spellings such as `Library/HYPER/HYPER.fth` to the seeded `Library/Hyper/hyper.fth`
+- Ask Forth credential calls are Windows-only. On Linux the key is not saved yet
+- Editor debug messages treat `"armed"` and `"paused"` as integers, so a pause opens the source and F6 / F7 step
+- Agent smoke `forthx64 --agent -e '2 3 + .'` prints `5` and exits 0. Autoload finishes, including Hyper
+
+### Kernel banner
+
+```
+=== EditForthLin 0.1.5-x64 === Oct 21, 2026 2:00 PM ===
+```
+
+### Still open
+
+- Hayes / ANS-VALIDATE
+- GRAPHICS and clipboard (stubs return failure)
+- Ask Forth key storage (libsecret or a file fallback)
+- `Config/HYPER.CFG` is not seeded; reindex uses the default file list
+- Packaging (`.deb` / AppImage)
+
 ## 0.1.0 — 2026-10-20
 
 First public EditForthLin cut. Sibling of EditForthWin for **Linux Mint x64**.
