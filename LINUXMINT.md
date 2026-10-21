@@ -262,3 +262,54 @@ Port status: [PORT.md](PORT.md). Host details: [docs/linux-host.md](docs/linux-h
 | `GrokTools/arm64_to_nasm_sysv.py` | translator |
 | `Edit/` | Qt editor (`editforthlinx64`) |
 | `Forth/Resources/` | seeds for `~/Documents/EditForthLin` |
+
+## Linux Tools
+
+Clipboard sharing needs a setting in UTM and a guest package in Mint.
+
+1. Turn it on in UTM
+
+1. Shut down the Mint VM (full stop, not just suspend).
+2. Select the VM → Edit (pencil).
+3. Open Sharing (QEMU / Emulate) or Virtualization (Apple / Virtualize).
+4. Enable Clipboard sharing.
+5. Save, then start the VM.
+
+2. Install the SPICE agent in Mint
+
+In a Mint terminal:
+
+sudo apt update
+sudo apt install -y spice-vdagent
+
+Optional but useful:
+
+sudo apt install -y qemu-guest-agent
+
+Then reboot the guest:
+
+sudo reboot
+
+Official note: SPICE agent is required for clipboard on both QEMU and Apple backends
+(https://docs.getutm.app/guest-support/linux/).
+
+3. Test
+
+• Copy text on the Mac → click in Mint → paste (Ctrl+V or middle-click).
+• Copy in Mint → paste on the Mac (Cmd+V).
+
+If it still fails
+
+• Confirm you are in a graphical desktop session (Cinnamon), not only a text console. Clipboard sharing needs the desktop clipboard.
+• Check the agent is running:
+
+ps aux | grep -i spice-vdagent
+
+If nothing shows after login:
+
+spice-vdagent &
+
+• On some setups Wayland is flaky with SPICE. At the login screen, choose a session like Cinnamon (Xorg) / X11, then log in again.
+• Quit and reopen UTM once after enabling the option.
+
+After that works, you can paste the Grok install commands from the Mac into Mint without retyping them.
