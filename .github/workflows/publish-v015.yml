@@ -1,0 +1,55 @@
+name: Publish EditForthLin 0.1.5
+
+on:
+  push:
+    paths:
+      - .github/workflows/publish-v015.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create v0.1.5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch install notes and publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET: 685c99f2caed0804002a24c42eaef73141181e11
+        run: |
+          set -euo pipefail
+          notes="$RUNNER_TEMP/notes.md"
+          curl -fsSL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github.raw" \
+            -o "$RUNNER_TEMP/INSTALLER.md" \
+            "https://api.github.com/repos/${{ github.repository }}/contents/INSTALLER.md?ref=$TARGET"
+          {
+            echo "# EditForthLin 0.1.5"
+            echo
+            echo "Linux Mint x64 source release. There is no downloaded program. Clone this tag and build on the machine that will run it."
+            echo
+            echo "This tag is commit \`$TARGET\`."
+            echo
+            echo "What changed since 0.1.0:"
+            echo
+            echo "- The Mint x64 build links, the editor runs, and debugger pause reaches the editor (F6 steps over, F7 steps into)."
+            echo "- Loads under \`~/Documents/EditForthLin\` match Windows spellings, so \`Library/HYPER/HYPER.fth\` opens \`Library/Hyper/hyper.fth\`."
+            echo "- The host compiles as C11, and \`realpath\` uses a \`PATH_MAX\` buffer."
+            echo "- Ask Forth keys are not saved on Linux yet."
+            echo
+            echo "Kernel banner:"
+            echo
+            echo '```'
+            echo "=== EditForthLin 0.1.5-x64 === Oct 21, 2026 2:00 PM ==="
+            echo '```'
+            echo
+            cat "$RUNNER_TEMP/INSTALLER.md"
+          } > "$notes"
+          gh release create v0.1.5 \
+            --repo "${{ github.repository }}" \
+            --target "$TARGET" \
+            --title "EditForthLin 0.1.5" \
+            --notes-file "$notes"
