@@ -34,7 +34,12 @@ ASM_FILES=(
   sa_print sa_files sa_float prims_dbg dict entry cold boot_end
 )
 for name in "${ASM_FILES[@]}"; do
-  "$CC" -c -o "$OBJDIR/$name.o" "$ASMDIR/$name.s"
+  src="$ASMDIR/$name.s"
+  if compgen -G "$ASMDIR/$name.s.part*" >/dev/null; then
+    src="$OBJDIR/$name.s"
+    cat "$ASMDIR/$name.s" "$ASMDIR/$name.s.part"* > "$src"
+  fi
+  "$CC" -c -o "$OBJDIR/$name.o" "$src"
 done
 "$CC" -c -o "$OBJDIR/identity.o" Forth/kernel/arm64-linux/identity.s
 echo "Assembled $(ls "$OBJDIR"/*.o | wc -l | tr -d ' ') objects in $OBJDIR"

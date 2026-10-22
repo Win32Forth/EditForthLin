@@ -593,6 +593,43 @@ def translate_file(name: str) -> str:
     return emit_gas(name, unit)
 
 
+def write_gas(dest: str, text: str, limit: int = 112000) -> list[str]:
+    """Write GAS text. A file over `limit` bytes is split on line boundaries.
+
+    The pieces are concatenated before assemble. Symbol directives stay in
+    the first piece, which is why the split is only a storage cut.
+    """
+    raw = text.encode("utf-8")
+    if len(raw) <= limit:
+        with open(dest, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(text)
+        return [dest]
+    lines = text.splitlines(keepends=True)
+    parts = []
+    buf = []
+    size = 0
+    for line in lines:
+        encoded = len(line.encode("utf-8"))
+        if buf and size + encoded > limit:
+            parts.append("".join(buf))
+            buf = []
+            size = 0
+        buf.append(line)
+        size += encoded
+    if buf:
+        parts.append("".join(buf))
+    written = []
+    for index, part in enumerate(parts):
+        if index == 0:
+            path = dest
+        else:
+            path = dest + f".part{index + 1}"
+        with open(path, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(part)
+        written.append(path)
+    return written
+
+
 def main() -> int:
     os.makedirs(OUT, exist_ok=True)
     for name in FILES:
@@ -602,9 +639,12 @@ def main() -> int:
             print(f"error: {exc}", file=sys.stderr)
             return 1
         dest = os.path.join(OUT, os.path.splitext(name)[0] + ".s")
-        with open(dest, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(text)
-        print(f"  {name} -> {os.path.relpath(dest, ROOT)}")
+        for stale in (dest + ".part2", dest + ".part3", dest + ".part4"):
+            if os.path.isfile(stale) and len(text.encode("utf-8")) <= 112000:
+                os.remove(stale)
+        written = write_gas(dest, text)
+        shown = ", ".join(os.path.relpath(path, ROOT) for path in written)
+        print(f"  {name} -> {shown}")
     print(f"Translated {len(FILES)} files into {os.path.relpath(OUT, ROOT)}")
     return 0
 
