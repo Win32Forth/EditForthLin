@@ -1,6 +1,6 @@
 # Installing EditForthLin
 
-**Version 0.1.5** (`0.1.5-x64`). Linux Mint x64, or another Debian/Ubuntu x64 system with the same packages.
+**Version 0.1.6** (`0.1.6-arm64` on aarch64, `0.1.6-x64` on x86_64). Linux Mint, or another Debian/Ubuntu system with the same packages.
 
 There is no downloaded program and no installer package. Clone the source and build it on the machine that will run it. The built programs stay in the repository tree. They are linked to that machine's Qt 6, so copying `editforthlinx64` to another distribution will not run.
 
@@ -9,10 +9,10 @@ There is no downloaded program and no installer package. Clone the source and bu
 ```bash
 git clone https://github.com/Win32Forth/EditForthLin.git
 cd EditForthLin
-git checkout v0.1.5
+git checkout v0.1.6
 ```
 
-`main` tracks the latest commit. `v0.1.5` is this release.
+`main` tracks the latest commit. `v0.1.6` is this release.
 
 ## 2. Install the build tools
 
@@ -34,7 +34,23 @@ sudo apt install -y \
   qt6-base-dev qt6-base-dev-tools libgl1-mesa-dev
 ```
 
-This needs an **x86_64** system. `uname -m` should print `x86_64`. EditForthLin 0.1.5 does not build a native ARM64 `forthx64`.
+On **x86_64**, `uname -m` prints `x86_64`. Continue with `./build-x64.sh` below.
+
+On **aarch64**, `uname -m` prints `aarch64`. Use this instead of the x64 steps:
+
+```bash
+./build-arm64.sh
+./Edit/build/arm64/editforthlinarm64
+Forth/build/arm64/fortharm64 --agent -e '2 3 + .'
+```
+
+Expect:
+
+```
+=== EditForthLin 0.1.6-arm64 === Oct 21, 2026 9:23 PM ===
+```
+
+and the number `5`. `./build-arm64.sh` links `Forth/build/arm64/fortharm64` and `Edit/build/arm64/editforthlinarm64`.
 
 ## 3. Build
 
@@ -74,7 +90,7 @@ Forth/build/x64/forthx64 --agent -e '2 3 + .'
 Expect the banner, the number `5`, and exit code 0:
 
 ```
-=== EditForthLin 0.1.5-x64 === Oct 21, 2026 2:00 PM ===
+=== EditForthLin 0.1.6-x64 === Oct 21, 2026 9:23 PM ===
 ```
 
 The first run creates `~/Documents/EditForthLin` and copies `Library`, `AutoLoad`, and `Docs` from `Forth/Resources`. That folder is your Forth tree. Set `EDITFORTHLIN` to an absolute path to use a different one.

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(EditForthLinEditor VERSION 0.1.5 LANGUAGES CXX)
+project(EditForthLinEditor VERSION 0.1.6 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -30,4 +30,10 @@ message(STATUS "EditForthLin editor executable: editforthlin${EDITFORTH_ARCH}")
 
 set_target_properties(editforthlin PROPERTIES
     OUTPUT_NAME "editforthlin${EDITFORTH_ARCH}"
+)
+
+# Companion the editor launches: Forth/build/<arch>/forth<arch>
+target_compile_definitions(editforthlin PRIVATE
+    "EDITFORTH_FORTH_EXE=\"forth${EDITFORTH_ARCH}\""
+    "EDITFORTH_ARCH_NAME=\"${EDITFORTH_ARCH}\""
 )

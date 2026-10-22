@@ -1,11 +1,20 @@
 # EditForthWin → EditForthLin port checklist
 
 Scaffold date: 2026-10-20. Source snapshot: EditForthWin 1.3.1.  
-**Marketing version:** **0.1.5** (`0.1.5-x64`). Install steps: [INSTALLER.md](INSTALLER.md).
+**Marketing version:** **0.1.6** (`0.1.6-arm64`, `0.1.6-x64`). Install steps: [INSTALLER.md](INSTALLER.md).
 
 Linux is a desktop sibling of Windows (Qt + process companion), not an
 in-process Android-style embed. Prefer System V ABI growth in the translator,
 not a second OS-specific kernel dialect beyond ABI and host calls.
+
+## Done for 0.1.6
+
+- [x] `GrokTools/arm64_to_gas_linux.py` and generated `Forth/kernel/arm64-linux/asm/*.s`
+- [x] Hand-written `Forth/kernel/arm64-linux/identity.s` (`0.1.6-arm64` / `Oct 21, 2026 9:23 PM` / `EditForthLin arm64`)
+- [x] `./build-arm64.sh` links `Forth/build/arm64/fortharm64` and `Edit/build/arm64/editforthlinarm64`
+- [x] Editor companion path is `Forth/build/<arch>/forth<arch>`
+- [x] aarch64 smoke: `--agent -e "2 3 + ."` prints `5`; editor View, DBG, and Ask Forth window (Ollama still required to answer)
+- [x] x64 identity string `0.1.6-x64` (not rebuilt on this aarch64 host)
 
 ## Done for 0.1.0
 
@@ -30,7 +39,7 @@ not a second OS-specific kernel dialect beyond ABI and host calls.
   - Linux `arm64_to_nasm_sysv.py` emits NASM + **System V** (`rdi`…`r9`, stack args)
 - [x] Hand-written `identity` + `vmregs` / `find_host` for linux-x64
 - [x] Run `./build-x64.sh` on Mint to link `forthx64` and smoke `--agent -e "2 3 + ."` (2026-10-21, prints `5`)
-- [ ] Optional later: linux-arm64 native kernel (Mint on Arm devices)
+- [x] linux-arm64 native kernel: `GrokTools/arm64_to_gas_linux.py` + `./build-arm64.sh` → `Forth/build/arm64/fortharm64` (2026-10-21, `--agent -e "2 3 + ."` prints `5`)
 - [x] Host provides `sa_win_file_op` / `sa_win_putchar` (names kept for first link)
 
 ## Forth host (`Forth/host/linux/`)
@@ -53,7 +62,7 @@ not a second OS-specific kernel dialect beyond ABI and host calls.
 - [x] `ForthPipe.cpp` length-prefixed JSON frames; companion starts and debugger pause reaches the editor
 - [ ] Replace Credential Manager AskForth key storage with libsecret / file fallback (Linux stubs return failure)
 - [x] Product strings: EditForthLin, `~/Documents/EditForthLin`
-- [x] Locate companion as `Forth/build/x64/forthx64` (no `.exe`)
+- [x] Locate companion as `Forth/build/<arch>/forth<arch>` (`forthx64` or `fortharm64`, no `.exe`)
 - [ ] `linuxdeployqt` or manual Qt plugin deploy for releases
 
 ## Packaging (Mint)

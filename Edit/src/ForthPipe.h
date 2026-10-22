@@ -10,7 +10,7 @@
 class QProcess;
 class QThread;
 
-// Launches forthx64 --companion and carries eval / output messages on a Unix
+// Launches forthx64 or fortharm64 --companion and carries eval / output messages on a Unix
 // domain socket (QLocalSocket). Windows named-pipe client is kept as
 // ForthPipe_win.cpp for reference. One thread owns the socket; mixing sync
 // read/write across threads deadlocks, and Return never reaches Forth.

@@ -90,10 +90,15 @@ static int agent_requested(int argc, char **argv)
 
 static void agent_help(void)
 {
+#if defined(__aarch64__) || defined(__arm64__)
+#define FORTH_BIN "fortharm64"
+#else
+#define FORTH_BIN "forthx64"
+#endif
     static const char help[] =
         "EditForthLin agent channel — headless load / eval / capture\n"
         "\n"
-        "forthx64 --agent [options]\n"
+        FORTH_BIN " --agent [options]\n"
         "\n"
         "Options:\n"
         "  -e, --eval <line>       Evaluate a Forth line\n"
@@ -110,9 +115,9 @@ static void agent_help(void)
         "  EDITFORTHLIN_AGENT=1    Same as --agent\n"
         "\n"
         "Examples:\n"
-        "  forthx64 --agent -e \"2 3 + .\"\n"
-        "  forthx64 --agent -f smoke.fth -o out.txt\n"
-        "  forthx64 --agent --repl\n"
+        "  " FORTH_BIN " --agent -e \"2 3 + .\"\n"
+        "  " FORTH_BIN " --agent -f smoke.fth -o out.txt\n"
+        "  " FORTH_BIN " --agent --repl\n"
         "\n"
         "Exit 0 means every step returned 0. Exit 1 means a step failed.\n";
     host_out(help, sizeof help - 1);

@@ -209,9 +209,17 @@ ForthPipe::ForthPipe(QObject *parent) : QObject(parent) {}
 ForthPipe::~ForthPipe() { shutdown(); }
 
 QString ForthPipe::forthPath() const {
-    const QString forthName = QStringLiteral("forthx64");
-    const QString archForth = QStringLiteral("Forth/build/x64/forthx64");
-    const QString archRel = QStringLiteral("../../../Forth/build/x64/forthx64");
+#ifndef EDITFORTH_FORTH_EXE
+#define EDITFORTH_FORTH_EXE "forthx64"
+#endif
+#ifndef EDITFORTH_ARCH_NAME
+#define EDITFORTH_ARCH_NAME "x64"
+#endif
+    const QString forthName = QString::fromLatin1(EDITFORTH_FORTH_EXE);
+    const QString archName = QString::fromLatin1(EDITFORTH_ARCH_NAME);
+    const QString archForth =
+        QStringLiteral("Forth/build/") + archName + QLatin1Char('/') + forthName;
+    const QString archRel = QStringLiteral("../../../") + archForth;
     const QStringList candidates = {
         QDir(QCoreApplication::applicationDirPath()).filePath(forthName),
         QDir(QCoreApplication::applicationDirPath()).filePath(archRel),

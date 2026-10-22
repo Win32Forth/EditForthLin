@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.1.6 — 2026-10-21
+
+Native Linux arm64. The Windows ARM64 armasm kernel is translated to GNU
+assembler and linked with the existing Linux host. The Qt editor on aarch64
+starts `fortharm64`.
+
+### In this release
+
+- `GrokTools/arm64_to_gas_linux.py` reads `Forth/kernel/arm64` and writes GNU as into `Forth/kernel/arm64-linux/asm`. The instructions stay ARM64. `adrp` / `add reg, reg, symbol` becomes the Linux `:lo12:` form.
+- Hand-written `Forth/kernel/arm64-linux/identity.s` (`0.1.6-arm64`, `EditForthLin arm64`)
+- `./build-arm64.sh` assembles that kernel and links it with `Forth/host/linux` to `Forth/build/arm64/fortharm64`, then builds `Edit/build/arm64/editforthlinarm64`
+- The editor companion path follows `EDITFORTH_ARCH` (`fortharm64` or `forthx64`)
+- On aarch64, `_find_word` is the normal ARM64 function, so the companion calls it directly
+- Agent smoke `fortharm64 --agent -e '2 3 + .'` prints `5` and exits 0. Autoload finishes, including Hyper
+- The editor window opens. View opens source, the debugger steps, and the Ask Forth window appears. Ask Forth still needs a local Ollama server before it can answer
+- x64 banner string is `0.1.6-x64`. This aarch64 machine did not rebuild `forthx64`
+
+### Kernel banners
+
+```
+=== EditForthLin 0.1.6-arm64 === Oct 21, 2026 9:23 PM ===
+=== EditForthLin 0.1.6-x64 === Oct 21, 2026 9:23 PM ===
+```
+
+### Still open
+
+- Hayes / ANS-VALIDATE
+- GRAPHICS and clipboard (stubs return failure)
+- Ask Forth key storage (libsecret or a file fallback)
+- `Config/HYPER.CFG` is not seeded; reindex uses the default file list
+- Packaging (`.deb` / AppImage)
+
 ## 0.1.5 — 2026-10-21
 
 First Mint x64 build that links, runs the editor, and steps in the debugger.

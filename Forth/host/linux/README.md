@@ -1,6 +1,6 @@
 # Linux host (EditForthLin)
 
-POSIX host for the System V / NASM `forthx64` companion.
+POSIX host for `forthx64` and `fortharm64`. The C sources are shared. The x64 kernel is NASM / System V. The arm64 kernel is native AArch64.
 
 | File | Role |
 | --- | --- |
