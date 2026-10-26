@@ -1575,10 +1575,6 @@ XCHDIR:
     mov qword [rel arm_x30], rax
     jmp _parse_filespec
     xret_119:
-    ; cbz     x1, _chdir_done
-    mov rax, qword [rel arm_x1]
-    cmp rax, 0
-    je _chdir_done
     ; bl      host_chdir
     push rbx
     mov rbx, rsp
@@ -1600,7 +1596,6 @@ XCHDIR:
     mov qword [rel arm_x0], rax
     mov rsp, rbx
     pop rbx
-_chdir_done:
     ; ldp     x29, x30, [sp], #16
     lea r10, [rsp]
     mov rax, qword [r10]
@@ -3863,3 +3858,7 @@ XEVALUATE:
     lea rax, [rel source_cur]
     mov qword [rel arm_x2], rax
     ; str     x0, [x2]
+    mov r10, qword [rel arm_x2]
+    mov rax, qword [rel arm_x0]
+    mov qword [r10], rax
+    ; add     x0, x0, x1
