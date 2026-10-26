@@ -28,6 +28,64 @@
 
 extern unsigned char data_stack[];
 extern unsigned long long vm_dsp;
+extern unsigned long long latest_var;
+extern unsigned long long current_var;
+extern unsigned long long search_order[8];
+extern unsigned long long search_order_n;
+extern unsigned long long wordlist_reg[32];
+extern unsigned long long wordlist_reg_n;
+
+/* cut is a CFA. A VOCABULARY or WORDLIST created after that cut is gone
+   with the dictionary. Drop it from the registry, the search order, and
+   CURRENT. An empty order becomes FORTH. */
+void host_forget_drop_stale(unsigned long long cut)
+{
+    unsigned long long forth_wid;
+    unsigned long long n;
+    unsigned long long i;
+    unsigned long long j;
+    unsigned long long wid;
+
+    forth_wid = (unsigned long long)(uintptr_t)&latest_var;
+    n = wordlist_reg_n;
+    if (n > 32)
+        n = 32;
+    i = 0;
+    while (i < n) {
+        wid = wordlist_reg[i];
+        if (wid != 0 && wid >= cut) {
+            for (j = i + 1; j < n; j++)
+                wordlist_reg[j - 1] = wordlist_reg[j];
+            n--;
+            continue;
+        }
+        i++;
+    }
+    wordlist_reg_n = n;
+
+    n = search_order_n;
+    if (n > 8)
+        n = 8;
+    i = 0;
+    while (i < n) {
+        wid = search_order[i];
+        if (wid != 0 && wid >= cut) {
+            for (j = i + 1; j < n; j++)
+                search_order[j - 1] = search_order[j];
+            n--;
+            continue;
+        }
+        i++;
+    }
+    if (n == 0) {
+        search_order[0] = forth_wid;
+        n = 1;
+    }
+    search_order_n = n;
+
+    if (current_var != 0 && current_var >= cut)
+        current_var = forth_wid;
+}
 
 /* Windows FILE_ATTRIBUTE_* bits — FILE-STATUS consumers often test directory. */
 #ifndef FILE_ATTR_DIRECTORY
@@ -356,6 +414,11 @@ static int host_user_dir(char *dst, size_t cap)
     if (getcwd(dst, cap) == NULL)
         return 0;
     return 1;
+}
+
+int host_documents_dir(char *dst, size_t cap)
+{
+    return host_user_dir(dst, cap);
 }
 
 static int host_under_root(const char *full, const char *root, const char **rest)
@@ -717,6 +780,11 @@ static char *host_hyper_specs_text(long long *out_len)
     return text;
 }
 
+char *host_hyper_source_list(long long *out_len)
+{
+    return host_hyper_specs_text(out_len);
+}
+
 static int host_is_hyper_specs(const char *path)
 {
     const char *base;
@@ -950,8 +1018,22 @@ static int host_join(char *dst, int cap, const char *dir, const char *rel)
     return 1;
 }
 
-/* Copy src onto dst. overwrite 0 leaves files the user already has. */
-static void host_copy_tree(const char *src, const char *dst, int overwrite, int depth)
+/* 1 when the shipped file is newer than the Documents copy. */
+static int host_src_newer(const char *src, const char *dst)
+{
+    struct stat a;
+    struct stat b;
+
+    if (stat(src, &a) != 0)
+        return 0;
+    if (stat(dst, &b) != 0)
+        return 1;
+    return a.st_mtime > b.st_mtime;
+}
+
+/* Copy src onto dst. overwrite 0 copies a file that is missing or older
+   than the shipped copy, and leaves a newer user file alone. */
+static int host_copy_tree(const char *src, const char *dst, int overwrite, int depth)
 {
     DIR *d;
     struct dirent *ent;
@@ -959,13 +1041,14 @@ static void host_copy_tree(const char *src, const char *dst, int overwrite, int 
     char to[HOST_PATH];
     struct stat st;
     int n;
+    int copied = 0;
 
     if (depth > 24 || src == NULL || dst == NULL)
-        return;
+        return 0;
     mkdir(dst, 0755);
     d = opendir(src);
     if (d == NULL)
-        return;
+        return 0;
     while ((ent = readdir(d)) != NULL) {
         if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
             continue;
@@ -978,15 +1061,16 @@ static void host_copy_tree(const char *src, const char *dst, int overwrite, int 
         if (stat(from, &st) != 0)
             continue;
         if (S_ISDIR(st.st_mode))
-            host_copy_tree(from, to, overwrite, depth + 1);
+            copied += host_copy_tree(from, to, overwrite, depth + 1);
         else if (S_ISREG(st.st_mode)) {
             struct stat td;
             FILE *in;
             FILE *outf;
             char buf[8192];
             size_t got;
+            int short_write = 0;
 
-            if (!overwrite && stat(to, &td) == 0)
+            if (!overwrite && stat(to, &td) == 0 && !host_src_newer(from, to))
                 continue;
             in = fopen(from, "rb");
             if (in == NULL)
@@ -997,19 +1081,24 @@ static void host_copy_tree(const char *src, const char *dst, int overwrite, int 
                 continue;
             }
             while ((got = fread(buf, 1, sizeof buf, in)) > 0) {
-                if (fwrite(buf, 1, got, outf) != got)
+                if (fwrite(buf, 1, got, outf) != got) {
+                    short_write = 1;
                     break;
+                }
             }
             fclose(outf);
             fclose(in);
+            if (!short_write)
+                copied++;
         }
     }
     closedir(d);
+    return copied;
 }
 
-static void host_copy_missing(const char *src, const char *dst, int depth)
+static int host_copy_missing(const char *src, const char *dst, int depth)
 {
-    host_copy_tree(src, dst, 0, depth);
+    return host_copy_tree(src, dst, 0, depth);
 }
 
 static void host_remove_tree(const char *dir)
@@ -1233,6 +1322,7 @@ static void host_install_user_tree(void)
     const char *names[] = {"Library", "AutoLoad", "Docs"};
     int i;
     int slash;
+    int copied = 0;
 
     if (!host_user_root_path(user_root, sizeof user_root))
         return;
@@ -1264,7 +1354,13 @@ static void host_install_user_tree(void)
             continue;
         if (!host_join(dst, (int)sizeof dst, user_root, names[i]))
             continue;
-        host_copy_missing(src, dst, 0);
+        copied += host_copy_missing(src, dst, 0);
+    }
+    if (copied > 0) {
+        char msg[96];
+        snprintf(msg, sizeof msg,
+                 "Updated %d shipped file(s) in Documents/EditForthLin\n", copied);
+        host_outs(msg);
     }
     if (snprintf(dst, sizeof dst, "%s/Config", user_root) < (int)sizeof dst)
         mkdir(dst, 0755);
@@ -1273,7 +1369,7 @@ static void host_install_user_tree(void)
     (void)chdir(user_root);
 }
 
-/* mode 0: copy missing Library/AutoLoad/Docs.
+/* mode 0: copy Library/AutoLoad/Docs files that are missing or older.
    mode 1: replace those three folders from the ship tree. Config stays.
    mode 2: rename Documents/EditForthLin to EditForthLin.UserN, then copy fresh. */
 void host_user_tree(int mode)
@@ -1288,6 +1384,7 @@ void host_user_tree(int mode)
     int slash;
     int n;
     int overwrite;
+    int copied = 0;
 
     if (user_root[0] == '\0') {
         if (!host_user_root_path(user_root, sizeof user_root)) {
@@ -1352,15 +1449,21 @@ void host_user_tree(int mode)
             continue;
         if (!host_join(dst, (int)sizeof dst, user_root, names[i]))
             continue;
-        host_copy_tree(src, dst, overwrite, 0);
+        copied += host_copy_tree(src, dst, overwrite, 0);
     }
     if (snprintf(dst, sizeof dst, "%s/Config", user_root) < (int)sizeof dst)
         mkdir(dst, 0755);
     if (snprintf(library_root, sizeof library_root, "%s/Library", user_root) >= (int)sizeof library_root)
         library_root[0] = '\0';
-    if (mode == 0)
-        host_outs("Updated missing files in Documents/EditForthLin\n");
-    else
+    if (mode == 0) {
+        char msg[96];
+        if (copied > 0)
+            snprintf(msg, sizeof msg,
+                     "Updated %d shipped file(s) in Documents/EditForthLin\n", copied);
+        else
+            snprintf(msg, sizeof msg, "Documents/EditForthLin is current\n");
+        host_outs(msg);
+    } else
         host_outs("Restored shipped files in Documents/EditForthLin\n");
     if (mode == 2)
         (void)chdir(user_root);

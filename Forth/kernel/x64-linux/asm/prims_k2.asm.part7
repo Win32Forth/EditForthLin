@@ -1,0 +1,530 @@
+    ; cbnz    x0, _ns_bad
+    mov rax, qword [rel arm_x0]
+    cmp rax, 0
+    jne _ns_bad
+    ; ldr     x0, [sp, #48]
+    lea r10, [rsp]
+    add r10, 0x30
+    mov rax, qword [r10]
+    mov qword [rel arm_x0], rax
+    ; str     x0, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [rel arm_x0]
+    mov qword [r10], rax
+    ; bl      host_native_ret7
+    push rbx
+    mov rbx, rsp
+    and rsp, -16
+    sub rsp, 32
+    mov rdi, qword [rel arm_x0]
+    mov rsi, qword [rel arm_x1]
+    mov rdx, qword [rel arm_x2]
+    mov rcx, qword [rel arm_x3]
+    mov r8, qword [rel arm_x4]
+    mov r9, qword [rel arm_x5]
+    mov rax, qword [rel arm_x6]
+    mov qword [rsp], rax
+    mov rax, qword [rel arm_x7]
+    mov qword [rsp+8], rax
+    mov rax, qword [rbx+8]
+    mov qword [rsp+16], rax
+    call host_native_ret7
+    mov qword [rel arm_x0], rax
+    mov rsp, rbx
+    pop rbx
+    ; ldr     x0, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [rel arm_x0], rax
+    ; mov     x1, #0x1000
+    mov rax, 0x1000
+    mov qword [rel arm_x1], rax
+    ; mov     x2, #5
+    mov rax, 5
+    mov qword [rel arm_x2], rax
+    ; bl      host_mprotect
+    push rbx
+    mov rbx, rsp
+    and rsp, -16
+    sub rsp, 32
+    mov rdi, qword [rel arm_x0]
+    mov rsi, qword [rel arm_x1]
+    mov rdx, qword [rel arm_x2]
+    mov rcx, qword [rel arm_x3]
+    mov r8, qword [rel arm_x4]
+    mov r9, qword [rel arm_x5]
+    mov rax, qword [rel arm_x6]
+    mov qword [rsp], rax
+    mov rax, qword [rel arm_x7]
+    mov qword [rsp+8], rax
+    mov rax, qword [rbx+8]
+    mov qword [rsp+16], rax
+    call host_mprotect
+    mov qword [rel arm_x0], rax
+    mov rsp, rbx
+    pop rbx
+    ; cbnz    x0, _ns_free
+    mov rax, qword [rel arm_x0]
+    cmp rax, 0
+    jne _ns_free
+    ; ldr     x0, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [rel arm_x0], rax
+    ; mov     x1, #0x1000
+    mov rax, 0x1000
+    mov qword [rel arm_x1], rax
+    ; bl      host_icache_inval
+    push rbx
+    mov rbx, rsp
+    and rsp, -16
+    sub rsp, 32
+    mov rdi, qword [rel arm_x0]
+    mov rsi, qword [rel arm_x1]
+    mov rdx, qword [rel arm_x2]
+    mov rcx, qword [rel arm_x3]
+    mov r8, qword [rel arm_x4]
+    mov r9, qword [rel arm_x5]
+    mov rax, qword [rel arm_x6]
+    mov qword [rsp], rax
+    mov rax, qword [rel arm_x7]
+    mov qword [rsp+8], rax
+    mov rax, qword [rbx+8]
+    mov qword [rsp+16], rax
+    call host_icache_inval
+    mov qword [rel arm_x0], rax
+    mov rsp, rbx
+    pop rbx
+    ; mov     x0, #0
+    mov rax, 0
+    mov qword [rel arm_x0], rax
+    ; lea x1, native_dsp_end
+    lea rax, [rel native_dsp_end]
+    mov qword [rel arm_x1], rax
+    ; sub     x1, x1, #64
+    mov rax, qword [rel arm_x1]
+    sub rax, 0x40
+    mov qword [rel arm_x1], rax
+    ; ldr     x2, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [rel arm_x2], rax
+    ; bl      _call_native_regs
+    lea rax, [rel xret_144]
+    mov qword [rel arm_x30], rax
+    jmp _call_native_regs
+    xret_144:
+    ; str     x0, [sp, #64]
+    lea r10, [rsp]
+    add r10, 0x40
+    mov rax, qword [rel arm_x0]
+    mov qword [r10], rax
+    ; ldr     x0, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [rel arm_x0], rax
+    ; mov     x1, #0x1000
+    mov rax, 0x1000
+    mov qword [rel arm_x1], rax
+    ; bl      host_free_exec
+    push rbx
+    mov rbx, rsp
+    and rsp, -16
+    sub rsp, 32
+    mov rdi, qword [rel arm_x0]
+    mov rsi, qword [rel arm_x1]
+    mov rdx, qword [rel arm_x2]
+    mov rcx, qword [rel arm_x3]
+    mov r8, qword [rel arm_x4]
+    mov r9, qword [rel arm_x5]
+    mov rax, qword [rel arm_x6]
+    mov qword [rsp], rax
+    mov rax, qword [rel arm_x7]
+    mov qword [rsp+8], rax
+    mov rax, qword [rbx+8]
+    mov qword [rsp+16], rax
+    call host_free_exec
+    mov qword [rel arm_x0], rax
+    mov rsp, rbx
+    pop rbx
+    ; cbnz    x0, _ns_bad
+    mov rax, qword [rel arm_x0]
+    cmp rax, 0
+    jne _ns_bad
+    ; ldr     x0, [sp, #64]
+    lea r10, [rsp]
+    add r10, 0x40
+    mov rax, qword [r10]
+    mov qword [rel arm_x0], rax
+    ; cmp     x0, #7
+    mov rax, qword [rel arm_x0]
+    cmp rax, 7
+    seto byte [rel arm_v]
+    sets byte [rel arm_n]
+    setz byte [rel arm_z]
+    setnc byte [rel arm_c]
+    ; b.ne    _ns_bad
+    cmp byte [rel arm_z], 0
+    je _ns_bad
+    ; mov     x0, #0
+    mov rax, 0
+    mov qword [rel arm_x0], rax
+    ; b       _ns_out
+    jmp _ns_out
+_ns_free:
+    ; ldr     x0, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [rel arm_x0], rax
+    ; mov     x1, #0x1000
+    mov rax, 0x1000
+    mov qword [rel arm_x1], rax
+    ; bl      host_free_exec
+    push rbx
+    mov rbx, rsp
+    and rsp, -16
+    sub rsp, 32
+    mov rdi, qword [rel arm_x0]
+    mov rsi, qword [rel arm_x1]
+    mov rdx, qword [rel arm_x2]
+    mov rcx, qword [rel arm_x3]
+    mov r8, qword [rel arm_x4]
+    mov r9, qword [rel arm_x5]
+    mov rax, qword [rel arm_x6]
+    mov qword [rsp], rax
+    mov rax, qword [rel arm_x7]
+    mov qword [rsp+8], rax
+    mov rax, qword [rbx+8]
+    mov qword [rsp+16], rax
+    call host_free_exec
+    mov qword [rel arm_x0], rax
+    mov rsp, rbx
+    pop rbx
+_ns_bad:
+    ; mov     x0, #-1
+    mov rax, -1
+    mov qword [rel arm_x0], rax
+_ns_out:
+    ; ldp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r10]
+    mov rcx, qword [r10+8]
+    mov qword [rel arm_x29], rax
+    mov qword [rel arm_x30], rcx
+    ; add     sp, sp, #96
+    mov rax, rsp
+    add rax, 0x60
+    mov rsp, rax
+    ; str     x20, [x22, #-8]!
+    mov rax, qword [rel arm_x22]
+    add rax, -8
+    mov qword [rel arm_x22], rax
+    mov r10, qword [rel arm_x22]
+    mov rax, qword [rel arm_x20]
+    mov qword [r10], rax
+    ; mov     x20, x0
+    mov rax, qword [rel arm_x0]
+    mov qword [rel arm_x20], rax
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [rel arm_x28]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [rel arm_x1], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [rel arm_x1]
+    mov rax, qword [r10]
+    mov qword [rel arm_x1], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [rel arm_x1]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [rel arm_x19]
+    mov rax, qword [r10]
+    mov qword [rel arm_x21], rax
+    mov rax, qword [rel arm_x19]
+    add rax, 8
+    mov qword [rel arm_x19], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [rel arm_x21]
+    mov rax, qword [r10]
+    mov qword [rel arm_x1], rax
+    ; br      x1
+    mov rax, qword [rel arm_x1]
+    jmp rax
+next_debug_gate:
+    ; lea x16, next_debug
+    lea rax, [rel next_debug]
+    mov qword [rel arm_x16], rax
+    ; br      x16
+    mov rax, qword [rel arm_x16]
+    jmp rax
+section .rodata
+req_included_name:
+    ; DCB   "INCLUDED"
+    db "INCLUDED"
+str_protected:
+    ; DCB     "protected (system word)", 10, 0
+    db "protected (system word)", 0xa, 0
+str_gmm_already:
+    ; DCB     "? GROWMEMORYMB already used (once per session)", 10, 0
+    db "? GROWMEMORYMB already used (once per session)", 0xa, 0
+str_gmm_small:
+    ; DCB     "? GROWMEMORYMB needs at least 1 MB", 10, 0
+    db "? GROWMEMORYMB needs at least 1 MB", 0xa, 0
+str_gmm_big:
+    ; DCB     "? GROWMEMORYMB exceeds maximum (256 MB)", 10, 0
+    db "? GROWMEMORYMB exceeds maximum (256 MB)", 0xa, 0
+str_gmm_shrink:
+    ; DCB     "? GROWMEMORYMB cannot shrink memory", 10, 0
+    db "? GROWMEMORYMB cannot shrink memory", 0xa, 0
+str_bang:
+    ; DCB     "!", 0
+    db "!", 0
+str_twostore:
+    ; DCB     "2!", 0
+    db "2!", 0
+str_twofetch:
+    ; DCB     "2@", 0
+    db "2@", 0
+str_type:
+    ; DCB     "TYPE", 0
+    db "TYPE", 0
+    ; ALIGN 8
+align 8
+env_name_ptrs:
+    ; DCQ     env_n_counted
+    dq env_n_counted
+    ; DCQ     env_n_aub
+    dq env_n_aub
+    ; DCQ     env_n_core
+    dq env_n_core
+    ; DCQ     env_n_core_ext
+    dq env_n_core_ext
+    ; DCQ     env_n_floored
+    dq env_n_floored
+    ; DCQ     env_n_maxchar
+    dq env_n_maxchar
+    ; DCQ     env_n_maxn
+    dq env_n_maxn
+    ; DCQ     env_n_maxu
+    dq env_n_maxu
+    ; DCQ     env_n_rstack
+    dq env_n_rstack
+    ; DCQ     env_n_stack
+    dq env_n_stack
+    ; DCQ     env_n_floating
+    dq env_n_floating
+    ; DCQ     env_n_float_ext
+    dq env_n_float_ext
+    ; DCQ     env_n_floating_stack
+    dq env_n_floating_stack
+    ; DCQ     env_n_max_float
+    dq env_n_max_float
+    ; DCQ     env_n_string
+    dq env_n_string
+    ; DCQ     env_n_facility
+    dq env_n_facility
+    ; DCQ     env_n_facility_ext
+    dq env_n_facility_ext
+    ; DCQ     env_n_locals
+    dq env_n_locals
+    ; DCQ     env_n_nlocals
+    dq env_n_nlocals
+    ; DCQ     env_n_xchar
+    dq env_n_xchar
+    ; DCQ     env_n_xchar_enc
+    dq env_n_xchar_enc
+    ; DCQ     env_n_max_xchar
+    dq env_n_max_xchar
+    ; DCQ     env_n_xchar_maxmem
+    dq env_n_xchar_maxmem
+    ; DCQ     env_n_double
+    dq env_n_double
+    ; DCQ     env_n_exception
+    dq env_n_exception
+    ; DCQ     env_n_mem
+    dq env_n_mem
+    ; DCQ     env_n_search
+    dq env_n_search
+    ; DCQ     env_n_wordlists
+    dq env_n_wordlists
+    ; DCQ     env_n_block
+    dq env_n_block
+    ; DCQ     env_n_file
+    dq env_n_file
+    ; DCQ     env_n_file_ext
+    dq env_n_file_ext
+env_values:
+    ; DCQ     255
+    dq 0xff
+    ; DCQ     8
+    dq 8
+    ; DCQ     -1
+    dq -1
+    ; DCQ     -1
+    dq -1
+    ; DCQ     0
+    dq 0
+    ; DCQ     255
+    dq 0xff
+    ; DCQ     0x7FFFFFFFFFFFFFFF
+    dq 0x7fffffffffffffff
+    ; DCQ     -1
+    dq -1
+    ; DCQ     512
+    dq 0x200
+    ; DCQ     512
+    dq 0x200
+    ; DCQ     -1
+    dq -1
+    ; DCQ     -1
+    dq -1
+    ; DCQ     16
+    dq 0x10
+    ; DCQ     0x7FEFFFFFFFFFFFFF
+    dq 0x7fefffffffffffff
+    ; DCQ     -1
+    dq -1
+    ; DCQ     0
+    dq 0
+    ; DCQ     0
+    dq 0
+    ; DCQ     -1
+    dq -1
+    ; DCQ     32
+    dq 0x20
+    ; DCQ     0
+    dq 0
+    ; DCQ     env_s_utf8
+    dq env_s_utf8
+    ; DCQ     0x10FFFF
+    dq 0x10ffff
+    ; DCQ     4
+    dq 4
+    ; DCQ     -1
+    dq -1
+    ; DCQ     -1
+    dq -1
+    ; DCQ     -1
+    dq -1
+    ; DCQ     -1
+    dq -1
+    ; DCQ     8
+    dq 8
+    ; DCQ     -1
+    dq -1
+    ; DCQ     -1
+    dq -1
+    ; DCQ     -1
+    dq -1
+env_kinds:
+    ; DCB     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    ; DCB     2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    db 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+env_n_counted:
+    ; DCB "/COUNTED-STRING", 0
+    db "/COUNTED-STRING", 0
+env_n_aub:
+    ; DCB "ADDRESS-UNIT-BITS", 0
+    db "ADDRESS-UNIT-BITS", 0
+env_n_core:
+    ; DCB "CORE", 0
+    db "CORE", 0
+env_n_core_ext:
+    ; DCB "CORE-EXT", 0
+    db "CORE-EXT", 0
+env_n_floored:
+    ; DCB "FLOORED", 0
+    db "FLOORED", 0
+env_n_maxchar:
+    ; DCB "MAX-CHAR", 0
+    db "MAX-CHAR", 0
+env_n_maxn:
+    ; DCB "MAX-N", 0
+    db "MAX-N", 0
+env_n_maxu:
+    ; DCB "MAX-U", 0
+    db "MAX-U", 0
+env_n_rstack:
+    ; DCB "RETURN-STACK-CELLS", 0
+    db "RETURN-STACK-CELLS", 0
+env_n_stack:
+    ; DCB "STACK-CELLS", 0
+    db "STACK-CELLS", 0
+env_n_floating:
+    ; DCB "FLOATING", 0
+    db "FLOATING", 0
+env_n_float_ext:
+    ; DCB "FLOAT-EXT", 0
+    db "FLOAT-EXT", 0
+env_n_floating_stack:
+    ; DCB "FLOATING-STACK", 0
+    db "FLOATING-STACK", 0
+env_n_max_float:
+    ; DCB "MAX-FLOAT", 0
+    db "MAX-FLOAT", 0
+env_n_string:
+    ; DCB "STRING", 0
+    db "STRING", 0
+env_n_facility:
+    ; DCB "FACILITY", 0
+    db "FACILITY", 0
+env_n_facility_ext:
+    ; DCB "FACILITY-EXT", 0
+    db "FACILITY-EXT", 0
+env_n_locals:
+    ; DCB "LOCALS", 0
+    db "LOCALS", 0
+env_n_nlocals:
+    ; DCB "#LOCALS", 0
+    db "#LOCALS", 0
+env_n_xchar:
+    ; DCB "EXTENDED-CHARACTER", 0
+    db "EXTENDED-CHARACTER", 0
+env_n_xchar_enc:
+    ; DCB "XCHAR-ENCODING", 0
+    db "XCHAR-ENCODING", 0
+env_n_max_xchar:
+    ; DCB "MAX-XCHAR", 0
+    db "MAX-XCHAR", 0
+env_n_xchar_maxmem:
+    ; DCB "XCHAR-MAXMEM", 0
+    db "XCHAR-MAXMEM", 0
+env_n_double:
+    ; DCB "DOUBLE", 0
+    db "DOUBLE", 0
+env_n_exception:
+    ; DCB "EXCEPTION", 0
+    db "EXCEPTION", 0
+env_n_mem:
+    ; DCB "MEMORY-ALLOCATION", 0
+    db "MEMORY-ALLOCATION", 0
+env_n_search:
+    ; DCB "SEARCH-ORDER", 0
+    db "SEARCH-ORDER", 0
+env_n_wordlists:
+    ; DCB "WORDLISTS", 0
+    db "WORDLISTS", 0
+env_n_block:
+    ; DCB "BLOCK", 0
+    db "BLOCK", 0
+env_n_file:
+    ; DCB "FILE", 0
+    db "FILE", 0
+env_n_file_ext:
+    ; DCB "FILE-EXT", 0
+    db "FILE-EXT", 0
+env_s_utf8:
+    ; DCB "UTF-8", 0
+    db "UTF-8", 0
