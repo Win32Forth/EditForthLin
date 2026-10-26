@@ -180,6 +180,12 @@ public:
                         Q_ARG(int, obj.value(QStringLiteral("len")).toInt()),
                         Q_ARG(QString, obj.value(QStringLiteral("name")).toString()),
                         Q_ARG(QString, obj.value(QStringLiteral("path")).toString()));
+                } else if (op == QLatin1String("pickdir")) {
+                    /* The companion thread is blocked in this request. Show the
+                       dialog on the GUI thread, queue the reply, then return so
+                       the next flushOutgoing writes it. */
+                    QMetaObject::invokeMethod(owner, "notePickDir", Qt::BlockingQueuedConnection,
+                                              Q_ARG(QString, text));
                 } else if (op == QLatin1String("bye") || op == QLatin1String("quit")) {
                     told = true;
                     QMetaObject::invokeMethod(owner, "noteStopped", Qt::QueuedConnection);
@@ -245,6 +251,8 @@ QList<QByteArray> ForthPipe::takeOutgoing() {
 void ForthPipe::noteVersion(const QString &text) { emit versionReceived(text); }
 
 void ForthPipe::noteStatus(const QString &text) { emit statusReceived(text); }
+
+void ForthPipe::notePickDir(const QString &start) { emit pickDirRequested(start); }
 
 void ForthPipe::post(const QByteArray &json) {
     QMutexLocker lock(&m_mu);
@@ -332,6 +340,8 @@ void ForthPipe::requestView(const QString &name) { post(message("view", name)); 
 void ForthPipe::requestTree(const QString &mode) { post(message("tree", mode)); }
 
 void ForthPipe::requestRunTo(int utf8Offset) { post(message("runto", QString::number(utf8Offset))); }
+
+void ForthPipe::replyPickDir(const QString &path) { post(message("pickdir", path)); }
 
 bool ForthPipe::signalBreak() {
     // Side-channel event comes with companion_linux; Esc key is the interim path.

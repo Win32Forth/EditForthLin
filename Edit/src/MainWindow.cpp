@@ -268,6 +268,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     });
     m_forthDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
                  QStringLiteral("/EditForthLin");
+    connect(m_pipe, &ForthPipe::pickDirRequested, this, &MainWindow::pickDirectory);
     connect(m_pipe, &ForthPipe::directoryChanged, this, [this](const QString &path) {
         if (!path.isEmpty())
             m_forthDir = path;
@@ -1744,6 +1745,20 @@ void MainWindow::chdirDialog() {
         return;
     }
     m_pipe->eval(QStringLiteral("CHDIR \"%1\"").arg(path));
+}
+
+void MainWindow::pickDirectory(const QString &start) {
+    const QString initial = start.isEmpty() ? m_forthDir : start;
+    const QString path = QFileDialog::getExistingDirectory(this, QStringLiteral("CHDIR"), initial);
+    if (path.isEmpty() || !pathAccepts(path)) {
+        if (!path.isEmpty()) {
+            QMessageBox::warning(this, QStringLiteral("EditForthLin"),
+                                 QStringLiteral("That path cannot be used with CHDIR."));
+        }
+        m_pipe->replyPickDir(QString());
+        return;
+    }
+    m_pipe->replyPickDir(path);
 }
 
 void MainWindow::restoreShipped() {
