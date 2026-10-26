@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.5.6.0 — 2026-10-26
+
+Ask Forth circled help marks are buttons. A click opens a dialog with the section title and the help text. The kernel banner is `2.5.6.0` / `Oct 26, 2026 3:26 PM` / `EditForthLin arm64` or `EditForthLin x64`. The programs are not rebuilt in this commit. Hayes and ANS-VALIDATE were not run.
+
+### In this release
+
+- The circled ? beside Ask Forth and EditForthLin Agent, and the circled i beside Reference, open that dialog
+- Hover tips on those marks are gone
+- The Reference dialog says to open a source file, select it in the dropdown, and that it stays until deselected. New session starts a new question/Answer session
+
+### Still open
+
+- Interactive GRAPHICS host (the in-process window is still a stub; stand-alone emit uses the X11 runner)
+- Ask Forth key storage on Linux
+- Hayes / ANS-VALIDATE on x64 (checked on aarch64 only, at 2.5.5.2)
+- Packaging (`.deb` / AppImage)
+
 ## 2.5.5.3 — 2026-10-26
 
 The Linux x64 stand-alone emitter was compiling the ARM64 runner, so `EMIT-APP` failed in `cc` on `x30` and the other ARM registers. The kernel banner is `2.5.5.3` / `Oct 26, 2026 1:29 PM` / `EditForthLin arm64` or `EditForthLin x64`.

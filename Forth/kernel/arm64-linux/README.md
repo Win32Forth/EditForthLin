@@ -21,4 +21,4 @@ python3 GrokTools/arm64_to_gas_linux.py
 `Forth/host/linux/`. `_find_word` is a normal AAPCS64 function, so the
 companion calls it directly.
 
-Version strings live in `identity.s` (`2.5.5.3`, console `EditForthLin arm64`).
+Version strings live in `identity.s` (`2.5.6.0`, console `EditForthLin arm64`).
