@@ -2870,9 +2870,7 @@ XBIISQRT_END
 XCHDIR
         stp     x29, x30, [sp, #-16]!
         bl      _parse_filespec
-        cbz     x1, _chdir_done
         bl      host_chdir
-_chdir_done
         ldp     x29, x30, [sp], #16
         NEXT
 
