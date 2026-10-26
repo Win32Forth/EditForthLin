@@ -24,6 +24,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <pthread.h>
 #include <unistd.h>
 
 void host_debug_set_notify(void (*flush)(void), void (*send)(const char *json));
@@ -76,6 +77,13 @@ static int g_out_n;
 
 static volatile sig_atomic_t g_evaluating;
 static volatile sig_atomic_t g_quit_req;
+static volatile sig_atomic_t g_companion_active;
+static volatile sig_atomic_t g_companion_ready;
+static pthread_mutex_t g_pipe_mu = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t g_eval_mu = PTHREAD_MUTEX_INITIALIZER;
+
+static int pipe_send_text(const char *op, const char *text, int n);
+static void companion_flush(void);
 
 static int utf8_tail(const char *s, int n)
 {
@@ -139,7 +147,44 @@ static int pipe_send(const char *json)
     hdr[1] = (unsigned char)(n >> 8);
     hdr[2] = (unsigned char)(n >> 16);
     hdr[3] = (unsigned char)(n >> 24);
-    return sock_write(hdr, 4) && sock_write(json, n);
+    pthread_mutex_lock(&g_pipe_mu);
+    {
+        int ok = sock_write(hdr, 4) && sock_write(json, n);
+        pthread_mutex_unlock(&g_pipe_mu);
+        return ok;
+    }
+}
+
+int companion_is_active(void)
+{
+    return g_companion_active != 0;
+}
+
+int companion_is_ready(void)
+{
+    return g_companion_ready != 0;
+}
+
+void companion_status_note(const char *text)
+{
+    if (text == NULL || g_companion_active == 0)
+        return;
+    pipe_send_text("status", text, (int)strlen(text));
+}
+
+int companion_eval_idle(const char *text)
+{
+    int rc;
+
+    if (text == NULL || g_companion_active == 0)
+        return -1;
+    pthread_mutex_lock(&g_eval_mu);
+    g_evaluating = 1;
+    rc = forth_eval(text, strlen(text));
+    g_evaluating = 0;
+    pthread_mutex_unlock(&g_eval_mu);
+    companion_flush();
+    return rc;
 }
 
 static int pipe_send_text(const char *op, const char *text, int n)
@@ -964,11 +1009,13 @@ int companion_run(const char *sock_name)
         if (n > 0)
             pipe_send_text("version", msg, n);
     }
+    g_companion_active = 1;
     forth_autoload();
     companion_flush();
     companion_send_cwd();
     forth_prompt();
     companion_flush();
+    g_companion_ready = 1;
 
     for (;;) {
         char op[32];
@@ -1025,9 +1072,11 @@ int companion_run(const char *sock_name)
             rc = 0;
             break;
         }
+        pthread_mutex_lock(&g_eval_mu);
         g_evaluating = 1;
         forth_eval(text, strlen(text));
         g_evaluating = 0;
+        pthread_mutex_unlock(&g_eval_mu);
         if (g_quit_req) {
             rc = 0;
             break;
@@ -1039,6 +1088,8 @@ int companion_run(const char *sock_name)
     }
 
 done:
+    g_companion_ready = 0;
+    g_companion_active = 0;
     host_debug_set_notify(NULL, NULL);
     host_set_edit(NULL);
     host_set_edit_at(NULL);

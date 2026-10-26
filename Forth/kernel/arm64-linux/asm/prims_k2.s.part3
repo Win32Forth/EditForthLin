@@ -1,3 +1,60 @@
+    cbnz    x1, next_debug_gate
+    ldr     x21, [x19], #8
+    ldr     x1, [x21]
+    br      x1
+.section .bwstr, "a", %progbits
+nm_XRESTORE_INPUT:
+    .byte 82, 69, 83, 84, 79, 82, 69, 45, 73, 78, 80, 85, 84, 0
+hl_XRESTORE_INPUT:
+    .byte 82, 69, 83, 84, 79, 82, 69, 45, 73, 78, 80, 85, 84, 32, 40, 32
+    .byte 120, 110, 32, 46, 46, 32, 120, 49, 32, 110, 32, 45, 45, 32, 102, 108
+    .byte 97, 103, 32, 41, 32, 114, 101, 115, 116, 111, 114, 101, 32, 105, 110, 112
+    .byte 117, 116, 32, 115, 111, 117, 114, 99, 101, 46, 32, 48, 32, 109, 101, 97
+    .byte 110, 115, 32, 111, 107, 0
+.section .bootword, "a", %progbits
+.balign 8
+    .balign 8
+row_XRESTORE_INPUT:
+    .quad nm_XRESTORE_INPUT, hl_XRESTORE_INPUT
+    .quad 0
+    .quad XRESTORE_INPUT, 0
+.section .bootptr, "a", %progbits
+.balign 8
+    .balign 8
+    .quad row_XRESTORE_INPUT
+.section .text, "ax", %progbits
+.balign 16
+XRESTORE_INPUT:
+    cmp     x20, #5
+    b.eq    _ri_n5
+    cmp     x20, #4
+    b.ne    _ri_fail
+    mov     x5, #0
+    b       _ri_common
+_ri_n5:
+    ldr     x5, [x22], #8
+_ri_common:
+    ldr     x0, [x22], #8
+    ldr     x1, [x22], #8
+    ldr     x2, [x22], #8
+    ldr     x3, [x22], #8
+    ldr     x20, [x22], #8
+    adrp    x4, blk_var
+    add x4, x4, :lo12:blk_var
+    str     x5, [x4]
+    cbz     x5, _ri_apply
+    sub     sp, sp, #64
+    stp     x29, x30, [sp, #16]
+    stp     x0, x1, [sp, #32]
+    str     x20, [sp, #48]
+    mov     x0, x5
+    bl      _block_load_nr
+    ldp     x0, x1, [sp, #32]
+    ldr     x20, [sp, #48]
+    ldp     x29, x30, [sp, #16]
+    add     sp, sp, #64
+    adrp    x3, block_buf
+    add x3, x3, :lo12:block_buf
     mov     x2, #1024
 _ri_apply:
     adrp    x4, source_base
