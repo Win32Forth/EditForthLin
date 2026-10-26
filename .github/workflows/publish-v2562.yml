@@ -1,0 +1,77 @@
+name: Publish EditForthLin 2.5.6.2
+
+on:
+  push:
+    paths:
+      - .github/workflows/publish-v2562.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create v2.5.6.2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish the source release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET: c155c99e826139e7e3b49faeb9dd31992364fc1d
+        run: |
+          set -euo pipefail
+          notes="$RUNNER_TEMP/notes.md"
+          cat > "$notes" << 'EOF'
+          # EditForthLin 2.5.6.2
+
+          Source release for Linux x64 and native arm64. There is no installer, no `.deb`, and no AppImage. Clone this tag and build on the machine that will run it.
+
+          This tag is commit `c155c99e826139e7e3b49faeb9dd31992364fc1d`.
+
+          ## Build
+
+          ```bash
+          git clone https://github.com/Win32Forth/EditForthLin.git
+          cd EditForthLin
+          git checkout v2.5.6.2
+          bash scripts/mint-deps.sh
+          ```
+
+          On Linux x86_64:
+
+          ```bash
+          bash build-x64.sh
+          ./Edit/build/x64/editforthlinx64
+          Forth/build/x64/forthx64 --agent -e '2 3 + .'
+          ```
+
+          On Linux aarch64:
+
+          ```bash
+          bash build-arm64.sh
+          ./Edit/build/arm64/editforthlinarm64
+          Forth/build/arm64/fortharm64 --agent -e '2 3 + .'
+          ```
+
+          Packages and the rest of the steps are in `INSTALLER.md` at this tag. The first run creates `~/Documents/EditForthLin`.
+
+          ## What changed
+
+          Bare `CHDIR` opens a directory dialog, starting in the current directory. Choosing a folder changes to it. Cancel leaves the directory as it is. `CHDIR` with a path still changes directory and does not open a dialog.
+
+          The x64 kernel and editor were rebuilt on Linux Mint. The companion socket was checked for a chosen folder, a cancel, and `CHDIR "/tmp"`. arm64 uses the same sources and was not rebuilt on that host. Hayes and ANS-VALIDATE were not run.
+
+          Kernel banner:
+
+          ```
+          === EditForthLin 2.5.6.2 === Oct 26, 2026 5:33 PM ===
+          ```
+
+          Still open: the in-process GRAPHICS host, Ask Forth key storage on Linux, Hayes / ANS-VALIDATE on x64, and a `.deb` or AppImage.
+          EOF
+          sed -i 's/^          //' "$notes"
+          gh release create v2.5.6.2 \
+            --repo "${{ github.repository }}" \
+            --target "$TARGET" \
+            --title "EditForthLin 2.5.6.2" \
+            --notes-file "$notes"
