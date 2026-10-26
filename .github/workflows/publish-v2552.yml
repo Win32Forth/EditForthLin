@@ -1,0 +1,66 @@
+name: Publish EditForthLin 2.5.5.2
+
+on:
+  push:
+    paths:
+      - .github/workflows/publish-v2552.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create v2.5.5.2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish the source release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET: 24f99da178debd812c3495c761e01e225db410ab
+        run: |
+          set -euo pipefail
+          notes="$RUNNER_TEMP/notes.md"
+          cat > "$notes" << 'EOF'
+          # EditForthLin 2.5.5.2
+
+          Source release for Linux x64 and native arm64. There is no installer, no `.deb`, and no AppImage. Clone this tag and build on the machine that will run it.
+
+          This tag is commit `24f99da178debd812c3495c761e01e225db410ab`.
+
+          ## Build
+
+          ```bash
+          git clone https://github.com/Win32Forth/EditForthLin.git
+          cd EditForthLin
+          git checkout v2.5.5.2
+          bash build-x64.sh
+          bash build-arm64.sh
+          ```
+
+          Use `bash build-x64.sh` on Linux x86_64 and `bash build-arm64.sh` on Linux aarch64. Steps and packages are in `INSTALLER.md` at this tag.
+
+          ## What changed
+
+          EditForthWin 2.5.5.1 is merged, then the Linux fixes that make this 2.5.5.2:
+
+          - Background Hyper reindex, FORGET wordlist cleanup, newer shipped files, Ask Forth session file and context window, line comments, and Open EditForthLin Folder
+          - Stand-alone `EMIT-APP` on Linux builds an X11 program (`emit-lin.c`)
+          - GCLOCK stays open. Twelve o'clock stays at the top, the hands meet the tick ring, and the title plus Esc / Enter / Space lines are drawn
+          - arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero
+
+          Kernel banner:
+
+          ```
+          === EditForthLin 2.5.5.2 === Oct 26, 2026 12:31 PM ===
+          ```
+
+          Still open: the in-process GRAPHICS host, Ask Forth key storage on Linux, Hayes / ANS-VALIDATE on x64, and a `.deb` or AppImage.
+          EOF
+          # The heredoc above is indented; strip the common indent.
+          sed -i 's/^          //' "$notes"
+          gh release create v2.5.5.2 \
+            --repo "${{ github.repository }}" \
+            --target "$TARGET" \
+            --title "EditForthLin 2.5.5.2" \
+            --notes-file "$notes"
