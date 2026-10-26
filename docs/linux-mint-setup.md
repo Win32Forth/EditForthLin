@@ -3,7 +3,7 @@
 Target: **Linux Mint** (Ubuntu/Debian package names). Other Debian-ish distros
 should work with the same packages.
 
-Version **0.1.6** — install steps: **[INSTALLER.md](../INSTALLER.md)**. Full Mint guide: **[LINUXMINT.md](../LINUXMINT.md)**.
+Version **2.5.5.2** — install steps: **[INSTALLER.md](../INSTALLER.md)**. Full Mint guide: **[LINUXMINT.md](../LINUXMINT.md)**.
 
 ## Packages
 
