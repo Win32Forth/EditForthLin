@@ -1149,17 +1149,26 @@ $D63F0120 CONSTANT ARM-BLR-X9
 
 \ _udivmod128 sits immediately before UM/MOD and is not a boot word, so the
 \ span walk misses it and stand-alone SM/REM used to NOP the BL. */ then
-\ returns garbage: clock ticks miss the window, while a line from the
-\ center to that garbage point still looks like a hand.
+\ returns the undivided product: clock hands use sine*scale instead of
+\ sine*scale/240 and run off the window.
 \ The helper is pure ALU (no ADRP). Copy tgt..UM/MOD when tgt is in that gap.
+\ BOOT_WORD aligns UM/MOD, so one or more NOPs may sit between the helper
+\ RET and the UM/MOD label. Skip those before requiring RET.
 : SA-UDIV-SPAN  ( tgt -- code u | 0 0 )
-  {: tgt | um u -- :}
+  {: tgt | um u end -- :}
   S" UM/MOD" BOOT-SPAN-NAMED DROP TO um
   um 0= IF  0 0 EXIT  THEN
   tgt um U< 0= IF  0 0 EXIT  THEN
   um tgt - TO u
   u 8 U<  u 256 U>  OR IF  0 0 EXIT  THEN
-  um 4 - W@ $D65F03C0 <> IF  0 0 EXIT  THEN
+  um TO end
+  BEGIN
+    end tgt 4 + U>
+    end 4 - W@ $D503201F = AND
+  WHILE
+    end 4 - TO end
+  REPEAT
+  end 4 - W@ $D65F03C0 <> IF  0 0 EXIT  THEN
   tgt W@ $FF000000 AND $B4000000 <> IF  0 0 EXIT  THEN
   tgt u ;
 
