@@ -90,6 +90,8 @@
         EXTERN host_edit
         EXTERN host_edit_at
         EXTERN host_system
+        EXTERN host_hyper_reindex
+        EXTERN host_forget_drop_stale
         EXTERN host_fromlib
         EXTERN host_fromlib_off
         EXTERN host_fromlib_query
@@ -2230,6 +2232,22 @@ XSYSTEM
         NEXT
 XSYSTEM_END
 
+; (HX-BG-REINDEX) ( -- n ). 1 = the side index is already in place.
+; A companion build returns 0 and the host reloads later.
+        BOOT_WORD (HX-BG-REINDEX), (HX-BG-REINDEX) ( -- n ) background HYPER-REINDEX. 1 means reload the index now, 0, XHX_BG_REINDEX, XHX_BG_REINDEX_END
+XHX_BG_REINDEX
+        sub     sp, sp, #64
+        stp     x29, x30, [sp, #32]
+        bl      host_hyper_reindex
+        str     x0, [sp, #48]
+        ldp     x29, x30, [sp, #32]
+        ldr     x0, [sp, #48]
+        add     sp, sp, #64
+        str     x20, [x22, #-8]!
+        mov     x20, x0
+        NEXT
+XHX_BG_REINDEX_END
+
 ; VIEW-PATH, DBG-ON, and DBG-OFF live with the stepper in prims_dbg.asm.
 
 ; ---------------------------------------------------------------------
@@ -3047,7 +3065,7 @@ _forget_regs
         mov     x4, #0
 _forget_rloop
         cmp     x4, x2
-        b.hs    _forget_done
+        b.hs    _forget_drop
         ldr     x0, [x3, x4, lsl #3]
         cbz     x0, _forget_rnext
         stp     x2, x3, [sp, #-16]!
@@ -3061,6 +3079,11 @@ _forget_rloop
 _forget_rnext
         add     x4, x4, #1
         b       _forget_rloop
+_forget_drop
+        adrp    x0, forget_cut
+        add     x0, x0, forget_cut
+        ldr     x0, [x0]
+        bl      host_forget_drop_stale
 _forget_done
         ldp     x29, x30, [sp, #32]
         add     sp, sp, #80
