@@ -1,11 +1,18 @@
 # EditForthWin → EditForthLin port checklist
 
 Scaffold date: 2026-10-20. Source snapshot: EditForthWin 1.3.1.  
-**Marketing version:** **0.1.6** (`0.1.6-arm64`, `0.1.6-x64`). Install steps: [INSTALLER.md](INSTALLER.md).
+**Marketing version:** **2.5.5.2** (EditForthWin 2.5.5.1, plus the Linux fixes in that release). Install steps: [INSTALLER.md](INSTALLER.md).
 
 Linux is a desktop sibling of Windows (Qt + process companion), not an
 in-process Android-style embed. Prefer System V ABI growth in the translator,
 not a second OS-specific kernel dialect beyond ABI and host calls.
+
+## Done for 2.5.5.2
+
+- [x] Linux kernel banners `2.5.5.2` / `Oct 26, 2026 12:31 PM` / `EditForthLin arm64` and `EditForthLin x64`
+- [x] X11 stand-alone runner `Forth/Resources/Library/Emitter/runner/emit-lin.c`
+- [x] Stand-alone `*/` divides (`_udivmod128` is copied past the alignment NOPs)
+- [x] arm64 ANS-VALIDATE 394 passed, 0 failed; Hayes all counts zero
 
 ## Done for 0.1.6
 
