@@ -1,11 +1,17 @@
 # EditForthWin → EditForthLin port checklist
 
 Scaffold date: 2026-10-20. Source snapshot: EditForthWin 1.3.1.  
-**Marketing version:** **2.5.6.0** (EditForth 2.5.6). Install steps: [INSTALLER.md](INSTALLER.md).
+**Marketing version:** **2.5.6.1** (EditForth 2.5.6). Install steps: [INSTALLER.md](INSTALLER.md).
 
 Linux is a desktop sibling of Windows (Qt + process companion), not an
 in-process Android-style embed. Prefer System V ABI growth in the translator,
 not a second OS-specific kernel dialect beyond ABI and host calls.
+
+## Done for 2.5.6.1
+
+- [x] Linux kernel banners `2.5.6.1` / `Oct 26, 2026 4:20 PM` / `EditForthLin arm64` and `EditForthLin x64`
+- [x] Ask Forth help dialogs use the EditForthWin layout: icon at the top left, text wrapped at 440 pixels
+- [x] arm64 kernel and editor rebuilt on this host. arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero. x64 was not run on this host
 
 ## Done for 2.5.6.0
 

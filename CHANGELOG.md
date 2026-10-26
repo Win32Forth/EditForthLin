@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.5.6.1 — 2026-10-26
+
+Ask Forth help dialogs use the EditForthWin 2.5.6.1 layout. The information icon sits at the top left, and the help text wraps in a block 440 pixels wide. The kernel banner is `2.5.6.1` / `Oct 26, 2026 4:20 PM` / `EditForthLin arm64` or `EditForthLin x64`. The arm64 kernel and editor were rebuilt. arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero, including `FPERRORS`. x64 was not run on this host.
+
+### In this release
+
+- The circled ? beside Ask Forth and EditForthLin Agent, and the circled i beside Reference, open that dialog
+- The dialog is a normal width instead of a stretched message box
+
+### Still open
+
+- Interactive GRAPHICS host (the in-process window is still a stub; stand-alone emit uses the X11 runner)
+- Ask Forth key storage on Linux
+- Hayes / ANS-VALIDATE on x64 (checked on aarch64 at 2.5.6.1)
+- Packaging (`.deb` / AppImage)
+
 ## 2.5.6.0 — 2026-10-26
 
 Ask Forth circled help marks are buttons. A click opens a dialog with the section title and the help text. The kernel banner is `2.5.6.0` / `Oct 26, 2026 3:26 PM` / `EditForthLin arm64` or `EditForthLin x64`. The programs are not rebuilt in this commit. Hayes and ANS-VALIDATE were not run.
