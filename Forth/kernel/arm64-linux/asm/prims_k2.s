@@ -586,6 +586,11 @@
 .local row_XSYSTEM
 .local XSYSTEM
 .local XSYSTEM_END
+.local nm_XHX_BG_REINDEX
+.local hl_XHX_BG_REINDEX
+.local row_XHX_BG_REINDEX
+.local XHX_BG_REINDEX
+.local XHX_BG_REINDEX_END
 .local nm_XRO
 .local hl_XRO
 .local row_XRO
@@ -825,6 +830,7 @@
 .local _forget_regs
 .local _forget_rloop
 .local _forget_rnext
+.local _forget_drop
 .local _forget_done
 .local _forget_prot
 .local _forget_empty
@@ -4614,10 +4620,3 @@ hl_XLATEST:
     .balign 8
 row_XLATEST:
     .quad nm_XLATEST, hl_XLATEST
-    .quad 0
-    .quad XLATEST, 0
-.section .bootptr, "a", %progbits
-.balign 8
-    .balign 8
-    .quad row_XLATEST
-.section .text, "ax", %progbits

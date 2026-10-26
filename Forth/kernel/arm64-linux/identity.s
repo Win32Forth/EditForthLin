@@ -9,11 +9,11 @@
 .global kernel_console
 
 kernel_version:
-    .ascii "0.1.6-arm64"
+    .ascii "2.5.5.2"
     .byte 0
     .balign 8
 kernel_built:
-    .ascii "Oct 21, 2026 9:23 PM"
+    .ascii "Oct 26, 2026 12:31 PM"
     .byte 0
     .balign 8
 kernel_console:

@@ -3,10 +3,10 @@
 Linux sibling of [EditForthWin](https://github.com/Win32Forth/EditForthWin).  
 Public domain (same spirit as the other EditForth trees).
 
-**Version:** 0.1.6 (`0.1.6-arm64` and `0.1.6-x64`)
+**Version:** 2.5.5.2 (`EditForthLin arm64` and `EditForthLin x64`)
 
 **Target:** Linux Mint first (Ubuntu/Debian package base), **x64** and **arm64**.  
-**Status:** x64 builds and runs on Linux Mint. Native arm64 builds and runs on aarch64 Linux (`./build-arm64.sh`). Build steps are in
+**Status:** x64 builds and runs on Linux Mint. Native arm64 builds and runs on aarch64 Linux (`bash build-arm64.sh`). Build steps are in
 **[INSTALLER.md](INSTALLER.md)**. Host notes: **[LINUXMINT.md](LINUXMINT.md)**.
 
 Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
@@ -14,9 +14,20 @@ Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 `Forth/Resources/Library` stay common; OS-specific code lives under
 `Forth/host/linux/` and the Linux editor IPC path.
 
+### 2.5.5.2 highlights
+
+- Linux stand-alone emit builds an X11 program (`emit-lin.c`) instead of the Mac packer
+- GCLOCK stays open, the hands meet the tick ring, and the title plus Esc/Enter/Space lines are drawn
+- arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero
+
+### 2.5.5.1 highlights
+
+- Brought forward from EditForthWin 2.5.5.1: background Hyper reindex, FORGET wordlist cleanup, newer shipped files, Ask Forth session file and context window, line comments, and Open EditForthLin Folder
+- Native arm64 and the x64 Linux host stay in this tree
+
 ### 0.1.6 highlights
 
-- Native aarch64 kernel and `./build-arm64.sh`
+- Native aarch64 kernel and `bash build-arm64.sh`
 - Editor launches `fortharm64` on arm64 and `forthx64` on x64
 - View, debugger step, and the Ask Forth window checked on aarch64
 
@@ -70,7 +81,7 @@ On Linux Mint / Debian-ish:
 
 ```bash
 ./scripts/mint-deps.sh    # apt packages (Qt6, cmake, nasm, build-essential)
-./build-x64.sh            # translate, assemble, link forthx64, build editor
+bash build-x64.sh            # translate, assemble, link forthx64, build editor
 ./Edit/build/x64/editforthlinx64
 Forth/build/x64/forthx64 --agent -e '2 3 + .'
 ```
@@ -80,13 +91,13 @@ Full steps: **[INSTALLER.md](INSTALLER.md)**.
 On aarch64 Linux:
 
 ```bash
-./build-arm64.sh
+bash build-arm64.sh
 ./Edit/build/arm64/editforthlinarm64
 Forth/build/arm64/fortharm64 --agent -e '2 3 + .'
 ```
 
-On macOS, `./build-x64.sh` translates, assembles ELF objects, and
-compile-checks host C; ELF link needs Linux. `./build-arm64.sh` is aarch64 only.
+On macOS, `bash build-x64.sh` translates, assembles ELF objects, and
+compile-checks host C; ELF link needs Linux. `bash build-arm64.sh` is aarch64 only.
 
 Full Mint guide: **[LINUXMINT.md](LINUXMINT.md)**. Also
 [docs/linux-host.md](docs/linux-host.md) and [PORT.md](PORT.md).
@@ -94,8 +105,7 @@ Full Mint guide: **[LINUXMINT.md](LINUXMINT.md)**. Also
 ## Console banner (expected after Mint link)
 
 ```
-=== EditForthLin 0.1.6-arm64 === Oct 21, 2026 9:23 PM ===
-=== EditForthLin 0.1.6-x64 === Oct 21, 2026 9:23 PM ===
+=== EditForthLin 2.5.5.2 === Oct 26, 2026 12:31 PM ===
 ```
 
 (`Forth/kernel/x64-linux/identity.asm`, `Forth/kernel/arm64-linux/identity.s`)

@@ -3,7 +3,7 @@
 Target: **Linux Mint** (Ubuntu/Debian package names). Other Debian-ish distros
 should work with the same packages.
 
-Version **0.1.6** — install steps: **[INSTALLER.md](../INSTALLER.md)**. Full Mint guide: **[LINUXMINT.md](../LINUXMINT.md)**.
+Version **2.5.5.2** — install steps: **[INSTALLER.md](../INSTALLER.md)**. Full Mint guide: **[LINUXMINT.md](../LINUXMINT.md)**.
 
 ## Packages
 
@@ -50,7 +50,7 @@ cmake -S Edit -B Edit/build/x64 \
 ## Build order
 
 1. `./scripts/mint-deps.sh`
-2. `./build-x64.sh` — translate / assemble linux-x64 kernel, link
+2. `bash build-x64.sh` — translate / assemble linux-x64 kernel, link
    `Forth/build/x64/forthx64`, build editor `Edit/build/x64/editforthlinx64`
 3. Smoke agent: `Forth/build/x64/forthx64 --agent -e '2 3 + .'`
 4. Run editor; it should start `forthx64 --companion <socket-name>` once

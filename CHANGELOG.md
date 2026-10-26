@@ -1,5 +1,47 @@
 # Changelog
 
+## 2.5.5.2 — 2026-10-26
+
+Linux fixes after the EditForthWin 2.5.5.1 merge. The kernel banner is
+`2.5.5.2` / `Oct 26, 2026 12:31 PM` / `EditForthLin arm64` or `EditForthLin x64`.
+
+### In this release
+
+- Stand-alone `EMIT-APP` on Linux builds an X11 ELF from `Forth/Resources/Library/Emitter/runner/emit-lin.c`. `app-build.sh` compiles that runner when `uname` is Linux
+- `MS@` returns monotonic milliseconds and `MS` sleeps that many milliseconds, matching the Linux kernel. GCLOCK no longer closes as soon as the window opens
+- The pixel buffer is already top-down, so the runner does not flip it. Twelve o'clock stays at the top
+- Character cells are drawn on the 8×16 grid over the pixels. The GCLOCK title and the Esc / Enter / Space line show
+- The emitter copies `_udivmod128` when alignment NOPs sit between that helper and `UM/MOD`. Stand-alone `*/` divides, and the clock hands meet the tick ring
+- arm64 `ANS-VALIDATE`: 394 passed, 0 failed. Hayes: all counts zero, including `FPERRORS`
+
+### Still open
+
+- Interactive GRAPHICS host (the in-process window is still a stub; stand-alone emit uses the X11 runner)
+- Ask Forth key storage on Linux
+- Hayes / ANS-VALIDATE on x64 (checked on aarch64 only)
+- Packaging (`.deb` / AppImage)
+
+## 2.5.5.1 — 2026-10-26
+
+Merged EditForthWin 2.5.5.1 into the Linux tree. The version number now
+matches EditForthWin. arm64 and x64 stay one product.
+
+### In this release
+
+- `(HX-BG-REINDEX)` and `host_hyper_reindex`: a background `forth --agent` rebuilds `Config/HYPER.NDX`, then the companion reloads it
+- `FORGET` drops wordlists whose bodies are at or above the cut
+- Shipped Library, AutoLoad, and Docs files copy when they are missing or newer than the user copy
+- Ask Forth session file, context window, line comments, and Open EditForthLin Folder
+- Editor status line shows companion `status` notes, including Hyper reindex
+- Kernel banner `2.5.5.1` / `Oct 26, 2026 11:34 AM` / `EditForthLin arm64` or `EditForthLin x64`
+
+### Still open at 2.5.5.1
+
+- Hayes / ANS-VALIDATE on Linux (run later; see 2.5.5.2)
+- GRAPHICS and clipboard (stubs return failure)
+- Ask Forth key storage on Linux
+- Packaging (`.deb` / AppImage)
+
 ## 0.1.6 — 2026-10-21
 
 Native Linux arm64. The Windows ARM64 armasm kernel is translated to GNU

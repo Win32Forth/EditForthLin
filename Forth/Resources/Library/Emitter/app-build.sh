@@ -21,6 +21,19 @@ if [ ! -f "$IMG" ]; then
   exit 1
 fi
 
+# Linux: native ELF beside the image. The Mac path below builds a .app.
+if [ "$(uname -s)" = "Linux" ]; then
+  cc -O2 -std=c11 -o "$RUNNER/emit-lin" "$RUNNER/emit-lin.c" -lX11 -lm
+  mkdir -p "$OUT"
+  cp "$RUNNER/emit-lin" "$OUT/$BIN"
+  chmod +x "$OUT/$BIN"
+  cp "$IMG" "$OUT/app.img"
+  echo "app-build: built $OUT/$BIN"
+  echo "  image: $IMG"
+  echo "  run: $OUT/$BIN"
+  exit 0
+fi
+
 # 1) Build / refresh emit-run
 ( cd "$RUNNER" && ./build-run.sh )
 

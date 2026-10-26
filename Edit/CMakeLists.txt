@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(EditForthLinEditor VERSION 0.1.6 LANGUAGES CXX)
+project(EditForthLinEditor VERSION 2.5.5.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -19,6 +19,7 @@ qt_add_executable(editforthlin
     src/ForthPipe.cpp
     src/WebTab.cpp
     src/AskForth.cpp
+    src/AskForthSession.cpp
     src/AskForthEmbed.cpp
 )
 

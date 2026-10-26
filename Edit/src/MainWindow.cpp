@@ -38,6 +38,7 @@
 #include <QStandardPaths>
 #include <QStatusBar>
 #include <QTabWidget>
+#include <QTimer>
 #include <QTextBlock>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -55,6 +56,17 @@ const QString kSourceFilter =
 
 bool isBye(const QString &line) {
     return line.trimmed().compare(QLatin1String("BYE"), Qt::CaseInsensitive) == 0;
+}
+
+QString searchSummary(const SearchOutcome &outcome) {
+    QString summary = QStringLiteral("%1 hit%2 in %3 file%4")
+                          .arg(outcome.hits.size())
+                          .arg(outcome.hits.size() == 1 ? QString() : QStringLiteral("s"))
+                          .arg(outcome.filesScanned)
+                          .arg(outcome.filesScanned == 1 ? QString() : QStringLiteral("s"));
+    if (outcome.truncated)
+        summary += QStringLiteral(" (stopped at 5000)");
+    return summary;
 }
 
 // Whole line is one of these words. A name after the word is a normal eval.
@@ -323,6 +335,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
                 m_float->setWindowTitle(consoleName);
         }
     });
+    connect(m_pipe, &ForthPipe::statusReceived, this, [this](const QString &text) {
+        QString trimmed = text;
+        trimmed.replace(QLatin1Char('\n'), QLatin1Char(' '));
+        trimmed.replace(QLatin1Char('\r'), QLatin1Char(' '));
+        trimmed = trimmed.simplified();
+        if (trimmed.isEmpty())
+            return;
+        const int gen = ++m_statusGen;
+        m_debug->setNote(trimmed);
+        QTimer::singleShot(3000, this, [this, gen, trimmed] {
+            if (m_statusGen != gen || m_debug->noteText() != trimmed)
+                return;
+            m_debug->setNote(QString());
+        });
+    });
     connect(m_debug, &DebugBar::includeRequested, this, &MainWindow::includeCurrent);
     connect(m_debug, &DebugBar::runRequested, this, [this] { prepareRun(RunKind::Execute); });
     connect(m_debug, &DebugBar::pauseRequested, this, &MainWindow::pauseNow);
@@ -380,6 +407,33 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
                 return edit;
         }
         return nullptr;
+    });
+    m_askPanel->setOpenTabs([this] {
+        QStringList paths;
+        for (int i = 0; i < m_tabs->count(); ++i) {
+            CodeEdit *edit = editAt(i);
+            if (edit == nullptr)
+                continue;
+            const QString path = edit->property(kPath).toString();
+            if (!path.isEmpty())
+                paths << QFileInfo(path).absoluteFilePath();
+        }
+        return paths;
+    });
+    m_askPanel->setTabReader([this](const QString &path, QString *text) {
+        if (text == nullptr)
+            return false;
+        const QString canonical = QFileInfo(path).absoluteFilePath();
+        for (int i = 0; i < m_tabs->count(); ++i) {
+            CodeEdit *edit = editAt(i);
+            if (edit == nullptr)
+                continue;
+            if (edit->property(kPath).toString().compare(canonical, Qt::CaseInsensitive) == 0) {
+                *text = edit->toPlainText();
+                return true;
+            }
+        }
+        return false;
     });
     connect(m_askPanel, &AskForthPanel::placeToggleRequested, this, &MainWindow::toggleAskPlace);
     m_editors->addWidget(m_askPanel);
@@ -494,6 +548,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         showFind(true);
         m_find->replaceAll();
     });
+    editMenu->addSeparator();
+    editMenu->addAction(QStringLiteral("Toggle Line &Comment"),
+                        QKeySequence(Qt::CTRL | Qt::Key_Slash), this, [this] {
+                            CodeEdit *edit = nullptr;
+                            for (QWidget *widget = QApplication::focusWidget(); widget != nullptr;
+                                 widget = widget->parentWidget()) {
+                                if (auto *found = qobject_cast<CodeEdit *>(widget)) {
+                                    edit = found;
+                                    break;
+                                }
+                            }
+                            if (edit == nullptr)
+                                edit = currentEdit();
+                            if (edit != nullptr)
+                                edit->toggleLineComment();
+                        });
     editMenu->addSeparator();
     editMenu->addAction(QStringLiteral("Search in &Folders..."),
                         QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F), this,
@@ -653,10 +723,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     });
     forthMenu->addAction(QStringLiteral("&Restore Shipped Files..."), this, &MainWindow::restoreShipped);
     forthMenu->addSeparator();
-    forthMenu->addAction(QStringLiteral("Show &Library"), this, [this] { showUserFolder(QStringLiteral("Library")); });
-    forthMenu->addAction(QStringLiteral("Show &AutoLoad"), this, [this] { showUserFolder(QStringLiteral("AutoLoad")); });
-    forthMenu->addAction(QStringLiteral("Show &Docs"), this, [this] { showUserFolder(QStringLiteral("Docs")); });
-    forthMenu->addAction(QStringLiteral("Show &Config"), this, [this] { showUserFolder(QStringLiteral("Config")); });
+    forthMenu->addAction(QStringLiteral("Open EditForthLin &Folder"), this, [this] { showUserFolder(); });
 
     auto *helpMenu = menuBar()->addMenu(QStringLiteral("&Help"));
     helpMenu->addAction(QStringLiteral("EditForthLin Startup &Messages"), this,
@@ -969,13 +1036,18 @@ bool MainWindow::saveEdit(CodeEdit *edit) {
 }
 
 bool MainWindow::saveEditAs(CodeEdit *edit) {
+    const QString before = edit->property(kPath).toString();
     QString path = QFileDialog::getSaveFileName(
         this, QStringLiteral("Save As"), edit->property(kPath).toString(),
         QStringLiteral("Forth files (*.fth);;All files (*.*)"));
     if (path.isEmpty())
         return false;
     edit->setProperty(kPath, QFileInfo(path).absoluteFilePath());
-    return saveEdit(edit);
+    if (!saveEdit(edit))
+        return false;
+    if (m_askPanel != nullptr)
+        m_askPanel->noteFileMoved(edit, before);
+    return true;
 }
 
 bool MainWindow::maybeSave(CodeEdit *edit) {
@@ -1328,6 +1400,37 @@ void MainWindow::includeCurrent() {
         m_debug->setError(QStringLiteral("INCLUDE needs a source tab."));
         return;
     }
+    const bool cleanUntitled =
+        edit->property(kPath).toString().isEmpty() && !edit->document()->isModified();
+    if (cleanUntitled) {
+        const QString picked = QFileDialog::getOpenFileName(
+            this, QStringLiteral("FLOAD"), m_forthDir, kSourceFilter);
+        if (picked.isEmpty())
+            return;
+        if (!pathAccepts(picked)) {
+            m_debug->setError(QStringLiteral("That path cannot be INCLUDEd."));
+            return;
+        }
+        int untitledIndex = -1;
+        for (int i = 0; i < m_tabs->count(); ++i) {
+            if (editAt(i) == edit) {
+                untitledIndex = i;
+                break;
+            }
+        }
+        openFile(picked);
+        CodeEdit *opened = currentEdit();
+        const QString openedPath = opened != nullptr ? opened->property(kPath).toString() : QString();
+        if (openedPath.isEmpty() || !pathAccepts(openedPath)) {
+            m_debug->setError(QStringLiteral("INCLUDE could not open that file."));
+            return;
+        }
+        if (untitledIndex >= 0 && editAt(untitledIndex) == edit && opened != edit)
+            closeTab(untitledIndex);
+        m_debug->setError(QString());
+        m_pipe->eval(QStringLiteral("ANEW %1 %2").arg(moduleMarker(openedPath), includedLine(openedPath)));
+        return;
+    }
     if (edit->document()->isModified() && !saveEdit(edit))
         return;
     const QString path = edit->property(kPath).toString();
@@ -1456,16 +1559,27 @@ void MainWindow::searchInFolders() {
     QApplication::setOverrideCursor(Qt::WaitCursor);
     const SearchOutcome outcome = searchFolders(request);
     QApplication::restoreOverrideCursor();
-    QString summary = QStringLiteral("%1 hit%2 in %3 file%4")
-                          .arg(outcome.hits.size())
-                          .arg(outcome.hits.size() == 1 ? QString() : QStringLiteral("s"))
-                          .arg(outcome.filesScanned)
-                          .arg(outcome.filesScanned == 1 ? QString() : QStringLiteral("s"));
-    if (outcome.truncated)
-        summary += QStringLiteral(" (stopped at 5000)");
-    auto *results = new SearchResults(summary, outcome.hits);
+    auto *results = new SearchResults(searchSummary(outcome), outcome.hits);
     connect(results, &SearchResults::openHit, this, [this](const QString &path, int line, int column) {
         revealLine(path, line, column);
+    });
+    connect(results, &SearchResults::modifyRequested, this, [this, results] {
+        SearchRequest again;
+        QString againStart = m_forthDir;
+        if (CodeEdit *edit = currentEdit()) {
+            const QString path = edit->property(kPath).toString();
+            if (!path.isEmpty())
+                againStart = QFileInfo(path).absolutePath();
+        }
+        if (!runFolderSearchDialog(this, againStart, &again))
+            return;
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        const SearchOutcome next = searchFolders(again);
+        QApplication::restoreOverrideCursor();
+        results->showHits(searchSummary(next), next.hits);
+        const int tab = m_tabs->indexOf(results);
+        if (tab >= 0)
+            m_tabs->setCurrentIndex(tab);
     });
     const int index = m_tabs->addTab(results, QStringLiteral("Search"));
     m_tabs->setCurrentIndex(index);
@@ -1659,8 +1773,13 @@ void MainWindow::restoreShipped() {
         m_pipe->requestTree(QStringLiteral("replace"));
 }
 
-void MainWindow::showUserFolder(const QString &child) {
-    const QString path = QDir(userFolder()).filePath(child);
+void MainWindow::showUserFolder() {
+    QString path = userFolder();
+    if (!QFileInfo::exists(path)) {
+        const QString parent = QFileInfo(path).absolutePath();
+        if (QFileInfo::exists(parent))
+            path = parent;
+    }
     QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 

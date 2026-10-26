@@ -54,6 +54,7 @@ HOST_SRCS=(
   "$HOSTDIR/facility_linux.c"
   "$HOSTDIR/debug_linux.c"
   "$HOSTDIR/gfx_linux.c"
+  "$HOSTDIR/hyper_linux.c"
   "$HOSTDIR/bigint.c"
 )
 

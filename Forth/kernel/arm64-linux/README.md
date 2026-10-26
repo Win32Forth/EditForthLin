@@ -16,9 +16,9 @@ Regenerate:
 python3 GrokTools/arm64_to_gas_linux.py
 ```
 
-`./build-arm64.sh` translates, assembles, and links
+`bash build-arm64.sh` translates, assembles, and links
 `Forth/build/arm64/fortharm64` on aarch64 Linux. The C host is
 `Forth/host/linux/`. `_find_word` is a normal AAPCS64 function, so the
 companion calls it directly.
 
-Version strings live in `identity.s` (`0.1.6-arm64`).
+Version strings live in `identity.s` (`2.5.5.2`, console `EditForthLin arm64`).

@@ -1470,10 +1470,52 @@ if __name__ == "__main__":
                 return 1
             calls |= translator.c_calls
             dest = os.path.join(OUT, name)
-            with open(dest, "w", encoding="utf-8", newline="") as handle:
-                handle.write(text)
-            print(f"{name}: {len(fused)} lines -> {len(text.splitlines())}")
+            written = write_split(dest, text)
+            shown = ", ".join(os.path.basename(path) for path in written)
+            print(f"{name}: {len(fused)} lines -> {shown}")
         print("C calls:", ", ".join(sorted(calls)))
         return 0
 
+
+def write_split(dest: str, text: str, limit: int = 100000) -> list[str]:
+    """Write NASM text, splitting on line boundaries past `limit` bytes.
+
+    build-x64.sh concatenates dest + dest.partN before assembling.
+    """
+    raw = text.encode("utf-8")
+    paths = [dest + f".part{index + 1}" for index in range(1, 12)]
+    if len(raw) <= limit:
+        with open(dest, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(text)
+        for stale in paths:
+            if os.path.isfile(stale):
+                os.remove(stale)
+        return [dest]
+    lines = text.splitlines(keepends=True)
+    parts: list[str] = []
+    buf: list[str] = []
+    size = 0
+    for line in lines:
+        encoded = len(line.encode("utf-8"))
+        if buf and size + encoded > limit:
+            parts.append("".join(buf))
+            buf = []
+            size = 0
+        buf.append(line)
+        size += encoded
+    if buf:
+        parts.append("".join(buf))
+    written = []
+    for index, part in enumerate(parts):
+        path = dest if index == 0 else dest + f".part{index + 1}"
+        with open(path, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(part)
+        written.append(path)
+    for stale in paths[len(parts) - 1 :]:
+        if os.path.isfile(stale):
+            os.remove(stale)
+    return written
+
+
+if __name__ == "__main__":
     sys.exit(run())
