@@ -8,7 +8,7 @@ Other Debian/Ubuntu-based distros use the same packages and steps.
 | Product | EditForthLin |
 | Marketing version | **2.5.6.1** |
 | Repo | https://github.com/Win32Forth/EditForthLin |
-| Tag / release | source **2.5.6.1** is not tagged yet; last release is [v2.5.5.3](https://github.com/Win32Forth/EditForthLin/releases/tag/v2.5.5.3) |
+| Tag / release | [v2.5.6.1](https://github.com/Win32Forth/EditForthLin/releases/tag/v2.5.6.1) |
 | Install | [INSTALLER.md](INSTALLER.md) |
 | Kernel banner | `=== EditForthLin 2.5.6.1 === Oct 26, 2026 4:20 PM ===` |
 | Agent binary | `Forth/build/x64/forthx64` (aarch64: `Forth/build/arm64/fortharm64`) |
