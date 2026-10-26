@@ -69,6 +69,7 @@ private:
     void syncAskChrome();
     void floadDialog();
     void chdirDialog();
+    void pickDirectory(const QString &start);
     void restoreShipped();
     void showUserFolder();
     void toggleBrowse(bool on);

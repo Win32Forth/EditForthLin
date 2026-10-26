@@ -6,11 +6,11 @@ Other Debian/Ubuntu-based distros use the same packages and steps.
 | Item | Value |
 | --- | --- |
 | Product | EditForthLin |
-| Marketing version | **2.5.6.1** |
+| Marketing version | **2.5.6.2** |
 | Repo | https://github.com/Win32Forth/EditForthLin |
-| Tag / release | [v2.5.6.1](https://github.com/Win32Forth/EditForthLin/releases/tag/v2.5.6.1) |
+| Tag / release | [v2.5.6.2](https://github.com/Win32Forth/EditForthLin/releases/tag/v2.5.6.2) |
 | Install | [INSTALLER.md](INSTALLER.md) |
-| Kernel banner | `=== EditForthLin 2.5.6.1 === Oct 26, 2026 4:20 PM ===` |
+| Kernel banner | `=== EditForthLin 2.5.6.2 === Oct 26, 2026 5:33 PM ===` |
 | Agent binary | `Forth/build/x64/forthx64` (aarch64: `Forth/build/arm64/fortharm64`) |
 | Editor binary | `Edit/build/x64/editforthlinx64` (aarch64: `Edit/build/arm64/editforthlinarm64`) |
 | User data | `~/Documents/EditForthLin` (override with absolute `EDITFORTHLIN`) |
@@ -77,7 +77,7 @@ Same lane as the Win11 **Arm64** UTM VM: snappy, native virtualization.
 Use this for a native arm64 Linux desktop. Guest `uname -m` is `aarch64`.
 Build with `bash build-arm64.sh`, not `bash build-x64.sh`. The engine is
 `Forth/build/arm64/fortharm64` and the editor is
-`Edit/build/arm64/editforthlinarm64`. Banner: `2.5.6.1`.
+`Edit/build/arm64/editforthlinarm64`. Banner: `2.5.6.2`.
 
 UTM can also enable **Rosetta (x86_64 Emulation)** inside an ARM64 Linux
 guest so some Intel binaries run there. That is optional and separate from a
@@ -94,7 +94,7 @@ uname -m    # expect x86_64
 
 ---
 
-## Mint build / smoke walkthrough (2.5.6.1 x64)
+## Mint build / smoke walkthrough (2.5.6.2 x64)
 
 Do this on a **Linux Mint x64** machine or VM (on Apple Silicon Mac hosts, use
 [UTM Guest A](#guest-a--emulate-mint-amd64-primary-for-015) above).
@@ -179,7 +179,7 @@ Forth/build/x64/forthx64 --agent -e '2 3 + .'
 
 Look for:
 
-- Cold-load / banner with `2.5.6.1` and `EditForthLin x64`
+- Cold-load / banner with `2.5.6.2` and `EditForthLin x64`
 - Printed `5`
 - Clean exit, or return to a prompt if `-e` leaves the REPL (either is fine
   for a first smoke)
@@ -218,7 +218,7 @@ Socket path: `$TMPDIR/<name>` (default `/tmp/<name>`), matching Qt `QLocalSocket
 | `mint-deps.sh` | |
 | `build-x64.sh` → `forthx64` | |
 | `--agent -e '2 3 + .'` | |
-| Banner shows `2.5.6.1` | |
+| Banner shows `2.5.6.2` | |
 | `~/Documents/EditForthLin` seeded | |
 | Editor starts (if built) | |
 | Companion socket accepted | |

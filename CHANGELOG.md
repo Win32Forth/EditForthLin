@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.5.6.2 — 2026-10-26
+
+Bare `CHDIR` opens a directory dialog. The kernel banner is `2.5.6.2` / `Oct 26, 2026 5:33 PM` / `EditForthLin arm64` or `EditForthLin x64`. The x64 kernel and editor were rebuilt on Linux Mint. The arm64 programs were not rebuilt on this host. Hayes and ANS-VALIDATE were not run.
+
+### In this release
+
+- `CHDIR` with no path asks the editor for a folder, starting in the current directory. Choosing one changes to it. Cancel leaves the directory as it is
+- `CHDIR` with a path still changes directory and does not open a dialog
+- A terminal with a display can use zenity for the same bare call. A non-interactive run does not open a dialog
+- The x64 companion socket was checked: the request carries the current directory, the reply changes to that folder, cancel keeps it, and `CHDIR "/tmp"` does not ask
+
+### Still open
+
+- Interactive GRAPHICS host (the in-process window is still a stub; stand-alone emit uses the X11 runner)
+- Ask Forth key storage on Linux
+- Hayes / ANS-VALIDATE on x64 (checked on aarch64 at 2.5.6.1)
+- Packaging (`.deb` / AppImage)
+- arm64 rebuild of 2.5.6.2 (same sources; `bash build-arm64.sh` on aarch64 Linux)
+
 ## 2.5.6.1 — 2026-10-26
 
 Ask Forth help dialogs use the EditForthWin 2.5.6.1 layout. The information icon sits at the top left, and the help text wraps in a block 440 pixels wide. The kernel banner is `2.5.6.1` / `Oct 26, 2026 4:20 PM` / `EditForthLin arm64` or `EditForthLin x64`. The arm64 kernel and editor were rebuilt. arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero, including `FPERRORS`. x64 was not run on this host.

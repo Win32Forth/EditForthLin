@@ -1,11 +1,17 @@
 # EditForthWin → EditForthLin port checklist
 
 Scaffold date: 2026-10-20. Source snapshot: EditForthWin 1.3.1.  
-**Marketing version:** **2.5.6.1** (EditForth 2.5.6). Install steps: [INSTALLER.md](INSTALLER.md).
+**Marketing version:** **2.5.6.2** (EditForth 2.5.6). Install steps: [INSTALLER.md](INSTALLER.md).
 
 Linux is a desktop sibling of Windows (Qt + process companion), not an
 in-process Android-style embed. Prefer System V ABI growth in the translator,
 not a second OS-specific kernel dialect beyond ABI and host calls.
+
+## Done for 2.5.6.2
+
+- [x] Linux kernel banners `2.5.6.2` / `Oct 26, 2026 5:33 PM` / `EditForthLin arm64` and `EditForthLin x64`
+- [x] Bare `CHDIR` asks the editor for a directory. Cancel leaves the current directory. A path does not open a dialog
+- [x] x64 kernel and editor rebuilt on Linux Mint. Companion socket checked for choose, cancel, and `CHDIR "/tmp"`. arm64 was not rebuilt on this host. Hayes and ANS-VALIDATE were not run
 
 ## Done for 2.5.6.1
 

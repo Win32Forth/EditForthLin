@@ -3,7 +3,7 @@
 Linux sibling of [EditForthWin](https://github.com/Win32Forth/EditForthWin).  
 Public domain (same spirit as the other EditForth trees).
 
-**Version:** 2.5.6.1 (`EditForthLin arm64` and `EditForthLin x64`)
+**Version:** 2.5.6.2 (`EditForthLin arm64` and `EditForthLin x64`)
 
 **Target:** Linux Mint first (Ubuntu/Debian package base), **x64** and **arm64**.  
 **Status:** x64 builds and runs on Linux Mint. Native arm64 builds and runs on aarch64 Linux (`bash build-arm64.sh`). Build steps are in
@@ -13,6 +13,11 @@ Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 (`--companion`). Shared Forth cold-load `.fth`, `kernel_api.h`, and
 `Forth/Resources/Library` stay common; OS-specific code lives under
 `Forth/host/linux/` and the Linux editor IPC path.
+
+### 2.5.6.2 highlights
+
+- Bare `CHDIR` opens a directory dialog. Cancel leaves the current directory. A path still changes directory without a dialog
+- x64 kernel and editor rebuilt on Linux Mint. The companion socket accepted a chosen folder and a cancel. arm64 was not rebuilt on this host
 
 ### 2.5.6.1 highlights
 
@@ -123,7 +128,7 @@ Full Mint guide: **[LINUXMINT.md](LINUXMINT.md)**. Also
 ## Console banner (expected after Mint link)
 
 ```
-=== EditForthLin 2.5.6.1 === Oct 26, 2026 4:20 PM ===
+=== EditForthLin 2.5.6.2 === Oct 26, 2026 5:33 PM ===
 ```
 
 (`Forth/kernel/x64-linux/identity.asm`, `Forth/kernel/arm64-linux/identity.s`)

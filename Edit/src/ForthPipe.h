@@ -35,6 +35,7 @@ public:
     void requestView(const QString &name);
     void requestTree(const QString &mode);
     void requestRunTo(int utf8Offset);
+    void replyPickDir(const QString &path);
     bool signalBreak();
     QString forthPath() const;
 
@@ -52,6 +53,7 @@ public slots:
     void noteLast(const QString &name);
     void noteVersion(const QString &text);
     void noteStatus(const QString &text);
+    void notePickDir(const QString &start);
 
 signals:
     void outputReceived(const QString &text);
@@ -66,6 +68,7 @@ signals:
     void lastReceived(const QString &name);
     void versionReceived(const QString &text);
     void statusReceived(const QString &text);
+    void pickDirRequested(const QString &start);
 
 private:
     void post(const QByteArray &json);

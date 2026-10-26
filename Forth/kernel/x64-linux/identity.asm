@@ -10,9 +10,9 @@ global kernel_version
 global kernel_built
 global kernel_console
 
-kernel_version: db "2.5.6.1", 0
+kernel_version: db "2.5.6.2", 0
 align 8
-kernel_built: db "Oct 26, 2026 4:20 PM", 0
+kernel_built: db "Oct 26, 2026 5:33 PM", 0
 align 8
 kernel_console: db "EditForthLin x64", 0
 align 8
