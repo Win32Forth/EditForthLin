@@ -25,6 +25,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <pthread.h>
+#include <time.h>
 #include <unistd.h>
 
 void host_debug_set_notify(void (*flush)(void), void (*send)(const char *json));
@@ -361,14 +362,45 @@ static void companion_sink(const void *p, size_t n)
     }
 }
 
-static int read_full(void *dst, int n)
+/* 1 = filled, 0 = socket closed, -1 = timeout. timeout_ms < 0 waits forever. */
+static int read_full(void *dst, int n, int timeout_ms)
 {
     char *p = (char *)dst;
+    struct timespec t0;
+    int limited = timeout_ms >= 0;
 
+    if (limited && clock_gettime(CLOCK_MONOTONIC, &t0) != 0)
+        return 0;
     while (n > 0) {
+        struct pollfd pfd;
+        int wait_ms = timeout_ms;
+        int pr;
         ssize_t got;
+
         if (g_sock < 0)
             return 0;
+        if (limited) {
+            struct timespec now;
+            long long elapsed;
+            if (clock_gettime(CLOCK_MONOTONIC, &now) != 0)
+                return 0;
+            elapsed = (now.tv_sec - t0.tv_sec) * 1000LL +
+                      (now.tv_nsec - t0.tv_nsec) / 1000000LL;
+            if (elapsed >= timeout_ms)
+                return -1;
+            wait_ms = timeout_ms - (int)elapsed;
+        }
+        pfd.fd = g_sock;
+        pfd.events = POLLIN;
+        pfd.revents = 0;
+        pr = poll(&pfd, 1, wait_ms);
+        if (pr == 0)
+            return -1;
+        if (pr < 0) {
+            if (errno == EINTR)
+                continue;
+            return 0;
+        }
         got = read(g_sock, p, (size_t)n);
         if (got < 0) {
             if (errno == EINTR)
@@ -738,18 +770,21 @@ static int handle_side(const char *op, const char *text)
     return 0;
 }
 
-/* 1 = a message, 0 = socket closed, -1 = skip this body. */
-static int read_message(char *op, int opcap, char *text, int textcap)
+/* 1 = a message, 0 = socket closed, -1 = skip this body, -2 = timeout.
+   timeout_ms < 0 waits forever. */
+static int read_message_ms(char *op, int opcap, char *text, int textcap, int timeout_ms)
 {
     unsigned char hdr[4];
     unsigned long n;
     char *body;
     int tn;
+    int rc;
 
     op[0] = '\0';
     text[0] = '\0';
-    if (!read_full(hdr, 4))
-        return 0;
+    rc = read_full(hdr, 4, timeout_ms);
+    if (rc <= 0)
+        return rc == -1 ? -2 : 0;
     n = (unsigned long)hdr[0] | ((unsigned long)hdr[1] << 8) |
         ((unsigned long)hdr[2] << 16) | ((unsigned long)hdr[3] << 24);
     if (n == 0 || n > COMPANION_MSG)
@@ -757,9 +792,10 @@ static int read_message(char *op, int opcap, char *text, int textcap)
     body = (char *)malloc(n + 1);
     if (body == NULL)
         return 0;
-    if (!read_full(body, (int)n)) {
+    rc = read_full(body, (int)n, timeout_ms);
+    if (rc <= 0) {
         free(body);
-        return 0;
+        return rc == -1 ? -2 : 0;
     }
     body[n] = '\0';
     if (json_string_field(body, "op", op, opcap) < 0) {
@@ -771,6 +807,70 @@ static int read_message(char *op, int opcap, char *text, int textcap)
         text[0] = '\0';
     free(body);
     return 1;
+}
+
+static int read_message(char *op, int opcap, char *text, int textcap)
+{
+    return read_message_ms(op, opcap, text, textcap, -1);
+}
+
+/* Bare CHDIR. Blocks until the editor answers, the socket closes, or 120s pass.
+   Writes a NUL-terminated path and returns its length. 0 leaves the directory. */
+int companion_pick_dir(char *dst, int cap)
+{
+    char cwd[1024];
+    char op[32];
+    char text[1024];
+    struct timespec t0;
+    const int budget_ms = 120000;
+
+    if (dst == NULL || cap < 2 || g_sock < 0 || g_companion_active == 0)
+        return 0;
+    dst[0] = '\0';
+    if (getcwd(cwd, sizeof cwd) == NULL)
+        cwd[0] = '\0';
+    if (!pipe_send_text("pickdir", cwd, (int)strlen(cwd)))
+        return 0;
+    if (clock_gettime(CLOCK_MONOTONIC, &t0) != 0)
+        return 0;
+    for (;;) {
+        struct timespec now;
+        long long elapsed;
+        int remain;
+        int got;
+
+        if (g_quit_req)
+            return 0;
+        if (clock_gettime(CLOCK_MONOTONIC, &now) != 0)
+            return 0;
+        elapsed = (now.tv_sec - t0.tv_sec) * 1000LL +
+                  (now.tv_nsec - t0.tv_nsec) / 1000000LL;
+        if (elapsed >= budget_ms)
+            return 0;
+        remain = budget_ms - (int)elapsed;
+        got = read_message_ms(op, (int)sizeof op, text, (int)sizeof text, remain);
+        if (got == -2)
+            return 0;
+        if (got == 0) {
+            g_quit_req = 1;
+            return 0;
+        }
+        if (got < 0)
+            continue;
+        if (strcmp(op, "quit") == 0) {
+            g_quit_req = 1;
+            return 0;
+        }
+        if (strcmp(op, "pickdir") == 0) {
+            int n = (int)strlen(text);
+            if (n <= 0 || n >= cap)
+                return 0;
+            memcpy(dst, text, (size_t)n + 1);
+            return n;
+        }
+        if (handle_side(op, text))
+            continue;
+    }
 }
 
 static int companion_key(void)

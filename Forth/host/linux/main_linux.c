@@ -2395,13 +2395,101 @@ void host_time_date(long long *out)
     out[5] = tm.tm_year + 1900;
 }
 
+/* Editor companion fills the buffer. 0 means cancel or no dialog. */
+extern int companion_is_active(void);
+extern int companion_pick_dir(char *dst, int cap);
+
+/* Terminal REPL: zenity folder panel. A non-interactive host gets no dialog. */
+static int host_pick_zenity(char *dst, size_t cap)
+{
+    int pipefd[2];
+    pid_t pid;
+    char cwd[HOST_PATH];
+    char filename[HOST_PATH + 2];
+    size_t got;
+    size_t cwd_n;
+    int status;
+
+    if (!isatty(STDIN_FILENO) || getenv("DISPLAY") == NULL || cap < 2)
+        return 0;
+    if (pipe(pipefd) != 0)
+        return 0;
+    if (getcwd(cwd, sizeof cwd) == NULL)
+        cwd[0] = '\0';
+    cwd_n = strlen(cwd);
+    if (cwd_n + 2 >= sizeof filename) {
+        close(pipefd[0]);
+        close(pipefd[1]);
+        return 0;
+    }
+    memcpy(filename, cwd, cwd_n);
+    if (cwd_n > 0 && filename[cwd_n - 1] != '/')
+        filename[cwd_n++] = '/';
+    filename[cwd_n] = '\0';
+
+    pid = fork();
+    if (pid < 0) {
+        close(pipefd[0]);
+        close(pipefd[1]);
+        return 0;
+    }
+    if (pid == 0) {
+        close(pipefd[0]);
+        if (dup2(pipefd[1], STDOUT_FILENO) < 0)
+            _exit(127);
+        if (pipefd[1] != STDOUT_FILENO)
+            close(pipefd[1]);
+        execlp("zenity", "zenity", "--file-selection", "--directory",
+               "--title=CHDIR", "--filename", filename, (char *)NULL);
+        _exit(127);
+    }
+    close(pipefd[1]);
+    got = 0;
+    while (got + 1 < cap) {
+        ssize_t nread = read(pipefd[0], dst + got, cap - 1 - got);
+        if (nread < 0) {
+            if (errno == EINTR)
+                continue;
+            break;
+        }
+        if (nread == 0)
+            break;
+        got += (size_t)nread;
+    }
+    dst[got] = '\0';
+    close(pipefd[0]);
+    while (waitpid(pid, &status, 0) < 0 && errno == EINTR)
+        ;
+    while (got > 0 && (dst[got - 1] == '\n' || dst[got - 1] == '\r'))
+        dst[--got] = '\0';
+    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0 || got == 0)
+        return 0;
+    return 1;
+}
+
+static int host_pick_directory(char *dst, size_t cap)
+{
+    int n;
+
+    if (companion_is_active()) {
+        n = companion_pick_dir(dst, (int)cap);
+        return n > 0;
+    }
+    return host_pick_zenity(dst, cap);
+}
+
 long long host_chdir(const char *p, long long n)
 {
     char path[HOST_PATH];
 
-    if (!host_copy_path(p, n, path, sizeof path))
+    /* n == 0 is bare CHDIR: the editor (or zenity) picks the folder. */
+    if (n <= 0) {
+        if (!host_pick_directory(path, sizeof path))
+            return -1;
+        host_slashes(path);
+    } else if (!host_copy_path(p, n, path, sizeof path)) {
         return -1;
-    host_slashes(path);
+    }
     return chdir(path) == 0 ? 0 : -1;
 }
 
