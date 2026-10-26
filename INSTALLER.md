@@ -1,6 +1,6 @@
 # Installing EditForthLin
 
-**Version 2.5.6.0.** Linux Mint, or another Debian/Ubuntu system with the same packages. The kernel banner is `EditForthLin arm64` or `EditForthLin x64`.
+**Version 2.5.6.1.** Linux Mint, or another Debian/Ubuntu system with the same packages. The kernel banner is `EditForthLin arm64` or `EditForthLin x64`.
 
 There is no downloaded program and no installer package. Clone the source and build it on the machine that will run it. The built programs stay in the repository tree. They are linked to that machine's Qt 6, so copying `editforthlinx64` to another distribution will not run.
 
@@ -12,7 +12,7 @@ cd EditForthLin
 git checkout main
 ```
 
-`main` tracks the latest commit. This tree is **2.5.6.0**.
+`main` tracks the latest commit. This tree is **2.5.6.1**.
 
 ## 2. Install the build tools
 
@@ -47,7 +47,7 @@ Forth/build/arm64/fortharm64 --agent -e '2 3 + .'
 Expect:
 
 ```
-=== EditForthLin 2.5.6.0 === Oct 26, 2026 3:26 PM ===
+=== EditForthLin 2.5.6.1 === Oct 26, 2026 4:20 PM ===
 ```
 
 and the number `5`. `bash build-arm64.sh` links `Forth/build/arm64/fortharm64` and `Edit/build/arm64/editforthlinarm64`.
@@ -90,7 +90,7 @@ Forth/build/x64/forthx64 --agent -e '2 3 + .'
 Expect the banner, the number `5`, and exit code 0:
 
 ```
-=== EditForthLin 2.5.6.0 === Oct 26, 2026 3:26 PM ===
+=== EditForthLin 2.5.6.1 === Oct 26, 2026 4:20 PM ===
 ```
 
 The first run creates `~/Documents/EditForthLin` and copies `Library`, `AutoLoad`, and `Docs` from `Forth/Resources`. That folder is your Forth tree. Set `EDITFORTHLIN` to an absolute path to use a different one.
@@ -101,7 +101,7 @@ Nothing is copied to `/usr` or added to the desktop menu. To start it later, use
 
 - A `.deb`, AppImage, or desktop entry
 - Saved Ask Forth API keys (Linux storage is still open)
-- A full Hayes or ANS-VALIDATE run
+- Hayes / ANS-VALIDATE on x64 (arm64 passed: ANS-VALIDATE 394/0, Hayes all counts zero)
 - GRAPHICS or the system clipboard (those host calls still fail)
 
 More detail: [LINUXMINT.md](LINUXMINT.md), [CHANGELOG.md](CHANGELOG.md), [PORT.md](PORT.md).
