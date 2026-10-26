@@ -34,7 +34,12 @@ ASM_FILES=(
   sa_print sa_files sa_float prims_dbg dict entry cold boot_end
 )
 for name in "${ASM_FILES[@]}"; do
-  "$NASM" -f elf64 -o "$OBJDIR/$name.o" "$ASMDIR/$name.asm"
+  src="$ASMDIR/$name.asm"
+  if compgen -G "$ASMDIR/$name.asm.part*" >/dev/null; then
+    src="$OBJDIR/$name.asm"
+    cat "$ASMDIR/$name.asm" "$ASMDIR/$name.asm.part"* > "$src"
+  fi
+  "$NASM" -f elf64 -o "$OBJDIR/$name.o" "$src"
 done
 "$NASM" -f elf64 -o "$OBJDIR/vmregs.o" Forth/kernel/x64-linux/vmregs.asm
 "$NASM" -f elf64 -o "$OBJDIR/identity.o" Forth/kernel/x64-linux/identity.asm
@@ -51,6 +56,7 @@ HOST_SRCS=(
   "$HOSTDIR/facility_linux.c"
   "$HOSTDIR/debug_linux.c"
   "$HOSTDIR/gfx_linux.c"
+  "$HOSTDIR/hyper_linux.c"
   "$HOSTDIR/bigint.c"
 )
 
