@@ -5,16 +5,16 @@
 \ basename matches the word (not LAST-INCLUDED — a nested REQUIRE like
 \ big-int.fth must not rename PIMAIN.app):
 \   FROMLIB FLOAD Emitter/emitter.fth
-\   EMIT-APP MAIN                      \ → <dir of last included file>\MAIN
-\   FROMLIB EMIT-APP MAIN              \ "." still beside that file
-\   S" /tmp" EMIT-APP-TO MAIN          \ → /tmp/MAIN.app
+\   EMIT-APP MAIN                      \ → <source-dir>\<STEM>\MAIN
+\   FROMLIB EMIT-APP MAIN              \ no file yet → "." beside cwd
+\   S" /tmp" EMIT-APP-TO MAIN          \ → /tmp/MAIN.exe
 \
 \ Window wrapper (APP-NAME + WINDOW … WINDOW-OFF). Basename = parsed
 \ word; window title = stem of LAST-INCLUDED when set, else the word:
 \   FROMLIB FLOAD Emitter/emitter.fth
 \   S" …/tetra/tetra.fth" INCLUDED
-\   EMIT-WINDOW-APP GAME               \ → …/tetra/GAME , title TETRA
-\   S" /tmp" EMIT-WINDOW-APP-TO GAME
+\   EMIT-WINDOW-APP GAME               \ → …\tetra\TETRA\GAME , title TETRA
+\   S" /tmp" EMIT-WINDOW-APP-TO GAME   \ explicit outdir, no stem folder
 \ Pass a body that expects an open window (e.g. GAME), not MAIN.
 \
 \ Stack-based (xt) variants — naming follows NAME>STRING of the xt
@@ -246,6 +246,8 @@ CREATE EMIT-TITLE      64 ALLOT         \ counted title for SLITERAL into wrappe
 : (EMIT-PACK)  ( -- )  \ uses EMIT-NAMEBUF, EMIT-IMGBUF, outdir left in EMIT-TMP
   (EMIT-RESOLVE-SH)
   EMIT-CMDBUF (EMIT-S0)
+  \ sh so a 644 copy still runs (GitHub does not store the executable bit here).
+  S" sh " EMIT-CMDBUF (EMIT-S+)
   EMIT-APP-BUILD COUNT EMIT-CMDBUF (EMIT-QUOTE+)
   BL EMIT-CMDBUF (EMIT-CH+)
   EMIT-NAMEBUF COUNT EMIT-CMDBUF (EMIT-QUOTE+)
@@ -448,9 +450,6 @@ S" CR"         (EMIT-GFX-XT) CONSTANT (EMIT-GFX-CR)
   xt (EMIT-CATCH-WRAP) TO xt
   xt a u (EMIT-SAVE+PACK-NAMED) ;
 
-: EMIT-APP-XT  ( xt -- )
-  S" ." EMIT-APP-XT-TO ;
-
 : EMIT-WINDOW-APP-XT-TO  ( xt c-addr u -- )
   {: xt a u -- :}
   (EMIT-RESET-GFX)
@@ -461,22 +460,13 @@ S" CR"         (EMIT-GFX-XT) CONSTANT (EMIT-GFX-CR)
   xt EMIT-TITLE COUNT (EMIT-WIN-WRAP) TO xt
   xt a u (EMIT-SAVE+PACK-NAMED) ;
 
-: EMIT-WINDOW-APP-XT  ( xt -- )
-  S" ." EMIT-WINDOW-APP-XT-TO ;
-
 \ --- public: parse name from input; path on stack for *-TO ---
 
 : EMIT-APP-TO  ( c-addr u -- )        \ S" /tmp" EMIT-APP-TO MAIN
   (EMIT-PARSE-XT) -ROT EMIT-APP-XT-TO ;
 
-: EMIT-APP  ( -- )                    \ EMIT-APP MAIN  (beside the source file)
-  S" ." EMIT-APP-TO ;
-
 : EMIT-WINDOW-APP-TO  ( c-addr u -- ) \ S" /tmp" EMIT-WINDOW-APP-TO PIMAIN
   (EMIT-PARSE-XT) -ROT EMIT-WINDOW-APP-XT-TO ;
-
-: EMIT-WINDOW-APP  ( -- )             \ EMIT-WINDOW-APP PIMAIN
-  S" ." EMIT-WINDOW-APP-TO ;
 
 \ =============================================================================
 \ SYSTEM helpers — open Terminal / launch .app / run last EMIT product.
@@ -607,6 +597,30 @@ VARIABLE EMIT-OPT
   THEN
   EMIT-NAMEBUF COUNT EMIT-OUTDIR (EMIT-S+)
   ;
+
+\ Default outdir when the caller does not pass one.
+\ Last included file → <source-dir>/<STEM>/ (exe, image, and log beside it).
+\ No file yet → "." so cwd / FROMLIB still apply.
+: (EMIT-BESIDE-OUT)  ( -- c-addr u )
+  LAST-INCLUDED DUP 0= IF
+    2DROP S" ." EXIT
+  THEN
+  FROMLIB-OFF
+  2DUP (EMIT-AUTO-STEM-FROM)
+  (EMIT-AUTO-OUTDIR!)
+  EMIT-OUTDIR COUNT ;
+
+: EMIT-APP-XT  ( xt -- )
+  (EMIT-BESIDE-OUT) EMIT-APP-XT-TO ;
+
+: EMIT-WINDOW-APP-XT  ( xt -- )
+  (EMIT-BESIDE-OUT) EMIT-WINDOW-APP-XT-TO ;
+
+: EMIT-APP  ( -- )                    \ EMIT-APP MAIN
+  (EMIT-BESIDE-OUT) EMIT-APP-TO ;
+
+: EMIT-WINDOW-APP  ( -- )             \ EMIT-WINDOW-APP PIMAIN
+  (EMIT-BESIDE-OUT) EMIT-WINDOW-APP-TO ;
 
 \ Editor EMIT: S" /path/main.fth" EMIT-AUTO-FILE-TO <outdir>
 : EMIT-AUTO-FILE-TO  ( file-addr file-u out-addr out-u -- )
