@@ -1,6 +1,6 @@
 # Installing EditForthLin
 
-**Version 0.1.6** (`0.1.6-arm64` on aarch64, `0.1.6-x64` on x86_64). Linux Mint, or another Debian/Ubuntu system with the same packages.
+**Version 2.5.5.2.** Linux Mint, or another Debian/Ubuntu system with the same packages. The kernel banner is `EditForthLin arm64` or `EditForthLin x64`.
 
 There is no downloaded program and no installer package. Clone the source and build it on the machine that will run it. The built programs stay in the repository tree. They are linked to that machine's Qt 6, so copying `editforthlinx64` to another distribution will not run.
 
@@ -9,10 +9,10 @@ There is no downloaded program and no installer package. Clone the source and bu
 ```bash
 git clone https://github.com/Win32Forth/EditForthLin.git
 cd EditForthLin
-git checkout v0.1.6
+git checkout main
 ```
 
-`main` tracks the latest commit. `v0.1.6` is this release.
+`main` tracks the latest commit. This tree is **2.5.5.2**.
 
 ## 2. Install the build tools
 
@@ -47,7 +47,7 @@ Forth/build/arm64/fortharm64 --agent -e '2 3 + .'
 Expect:
 
 ```
-=== EditForthLin 0.1.6-arm64 === Oct 21, 2026 9:23 PM ===
+=== EditForthLin 2.5.5.2 === Oct 26, 2026 12:31 PM ===
 ```
 
 and the number `5`. `./build-arm64.sh` links `Forth/build/arm64/fortharm64` and `Edit/build/arm64/editforthlinarm64`.
@@ -90,7 +90,7 @@ Forth/build/x64/forthx64 --agent -e '2 3 + .'
 Expect the banner, the number `5`, and exit code 0:
 
 ```
-=== EditForthLin 0.1.6-x64 === Oct 21, 2026 9:23 PM ===
+=== EditForthLin 2.5.5.2 === Oct 26, 2026 12:31 PM ===
 ```
 
 The first run creates `~/Documents/EditForthLin` and copies `Library`, `AutoLoad`, and `Docs` from `Forth/Resources`. That folder is your Forth tree. Set `EDITFORTHLIN` to an absolute path to use a different one.
