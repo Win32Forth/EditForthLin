@@ -472,10 +472,8 @@ static int64_t host_app_pblit(int64_t addr, int64_t nbytes) {
     return host_app_cblit_depth(addr, nbytes, 1);
 }
 
-__attribute__((noinline, optimize("O0")))
-static int64_t host_app_cblit_slot(int64_t addr, int64_t nbytes) {
-    int64_t depth;
-    __asm__ volatile("mov %0, x2" : "=r"(depth));
+/* Depth is the third host argument (ARM x2, SysV rdx). */
+static int64_t host_app_cblit_slot(int64_t addr, int64_t nbytes, int64_t depth) {
     return host_app_cblit_depth(addr, nbytes, depth);
 }
 
@@ -552,18 +550,12 @@ static int64_t host_free(int64_t ptr, int64_t unused) {
     return 0;
 }
 
-__attribute__((noinline, optimize("O0")))
-static int64_t host_bi_mul_slot(int64_t a, int64_t b) {
-    int64_t r;
-    __asm__ volatile("mov %0, x2" : "=r"(r));
+static int64_t host_bi_mul_slot(int64_t a, int64_t b, int64_t r) {
     emit_bi_mul(a, b, r);
     return 0;
 }
 
-__attribute__((noinline, optimize("O0")))
-static int64_t host_bi_divmod_slot(int64_t num, int64_t den) {
-    int64_t quot, rem;
-    __asm__ volatile("mov %0, x2\n\tmov %1, x3" : "=r"(quot), "=r"(rem));
+static int64_t host_bi_divmod_slot(int64_t num, int64_t den, int64_t quot, int64_t rem) {
     emit_bi_divmod(num, den, quot, rem);
     return 0;
 }
@@ -574,14 +566,10 @@ static int64_t host_bi_isqrt_slot(int64_t a, int64_t r) {
     return 0;
 }
 
-__attribute__((noinline, optimize("O0")))
-static int64_t host_app_mouse_slot(int64_t x_ptr, int64_t y_ptr) {
-    int64_t buttons_ptr;
+static int64_t host_app_mouse_slot(int64_t x_ptr, int64_t y_ptr, int64_t buttons_ptr) {
     int64_t *x = (int64_t *)(uintptr_t)x_ptr;
     int64_t *y = (int64_t *)(uintptr_t)y_ptr;
-    int64_t *buttons;
-    __asm__ volatile("mov %0, x2" : "=r"(buttons_ptr));
-    buttons = (int64_t *)(uintptr_t)buttons_ptr;
+    int64_t *buttons = (int64_t *)(uintptr_t)buttons_ptr;
     if (x)
         *x = emit_mouse_x;
     if (y)
@@ -686,11 +674,11 @@ static emit_host_fn host_fn[33] = {
     host_ms_now,
     host_malloc,
     host_free,
-    host_bi_mul_slot,
-    host_bi_divmod_slot,
+    (emit_host_fn)host_bi_mul_slot,
+    (emit_host_fn)host_bi_divmod_slot,
     host_bi_isqrt_slot,
-    host_app_mouse_slot,
-    host_app_cblit_slot,
+    (emit_host_fn)host_app_mouse_slot,
+    (emit_host_fn)host_app_cblit_slot,
     host_stub,
     host_stub,
     host_stub,
@@ -709,6 +697,42 @@ static emit_host_fn host_fn[33] = {
     host_sleep_ms
 };
 
+#if defined(__x86_64__)
+#define EMIT_DSP0_MAGIC 0xC0DE0000000000D0ull
+
+extern void run_itc_x64(void *dsp, void *rp, void *cfa, void *exit_xt, void *regfile);
+
+/* The x64 image keeps arm_xN in the last 256 bytes of the data segment.
+   SA-DSP0-MAGIC is replaced with the empty data-stack pointer. */
+static void bind_dsp0(uint8_t *data, uint64_t data_len, void *dsp) {
+    uint64_t off;
+    uint64_t v;
+    if (!data || !dsp)
+        return;
+    v = (uint64_t)(uintptr_t)dsp;
+    for (off = 0; off + 8 <= data_len; off += 8) {
+        if (rd_u64(data + off) == EMIT_DSP0_MAGIC)
+            memcpy(data + off, &v, 8);
+    }
+}
+
+/* Pop the Forth return stack through arm_x23 and jump there. The exit xt
+   lives at gadget+40 and points at the code pointer at gadget+32. */
+static void build_x64_gadget(uint8_t *gadget, uint8_t *regfile) {
+    uint64_t x23 = (uint64_t)(uintptr_t)(regfile + 23 * 8);
+    uint64_t *q;
+    gadget[0] = 0x48; gadget[1] = 0xB8;
+    memcpy(gadget + 2, &x23, 8);
+    gadget[10] = 0x48; gadget[11] = 0x8B; gadget[12] = 0x08;
+    gadget[13] = 0x48; gadget[14] = 0x8B; gadget[15] = 0x11;
+    gadget[16] = 0x48; gadget[17] = 0x83; gadget[18] = 0xC1; gadget[19] = 0x08;
+    gadget[20] = 0x48; gadget[21] = 0x89; gadget[22] = 0x08;
+    gadget[23] = 0xFF; gadget[24] = 0xE2;
+    q = (uint64_t *)(gadget + 32);
+    q[0] = (uint64_t)(uintptr_t)gadget;
+    q[1] = (uint64_t)(uintptr_t)(gadget + 32);
+}
+#else
 static void __attribute__((noinline)) run_itc(void *cfa, void *dsp, void *rp) {
     uint8_t *g = (uint8_t *)mmap(NULL, EMIT_PAGE, PROT_READ | PROT_WRITE,
                                  MAP_ANON | MAP_PRIVATE, -1, 0);
@@ -752,6 +776,7 @@ static void __attribute__((noinline)) run_itc(void *cfa, void *dsp, void *rp) {
         : "x0", "x1", "x2", "x3", "x16", "x17",
           "x19", "x20", "x21", "x22", "x23", "x28", "x30", "memory");
 }
+#endif
 
 int main(int argc, char **argv) {
     const char *path = NULL;
@@ -814,10 +839,26 @@ int main(int argc, char **argv) {
     need = EMIT_HDR + code_len + data_len + host_bytes + 8 + ptr_n * 8;
     if ((uint64_t)flen < need)
         die("truncated image (ptr)");
+#if defined(__x86_64__)
+    {
+        long pagesz = sysconf(_SC_PAGESIZE);
+        if (pagesz < 1)
+            pagesz = 4096;
+        if (data_len < 256)
+            die("x64 image has no register file");
+        if (code_len == 0 || (code_len % (uint64_t)pagesz) != 0)
+            die("x64 code is not a multiple of the page size");
+        /* RIP-relative fixups address the register file as code_len + offset,
+           so the data segment must begin at the first byte after the code. */
+        code_bytes = (uint32_t)code_len;
+        data_bytes = (uint32_t)((data_len + (uint64_t)pagesz - 1) & ~((uint64_t)pagesz - 1));
+    }
+#else
     code_bytes = (uint32_t)((code_len + EMIT_PAGE - 1) & ~(uint64_t)(EMIT_PAGE - 1));
     data_bytes = (uint32_t)((data_len + EMIT_PAGE - 1) & ~(uint64_t)(EMIT_PAGE - 1));
     if (data_bytes < EMIT_PAGE)
         data_bytes = EMIT_PAGE;
+#endif
     total = code_bytes + data_bytes + EMIT_STACK_BYTES;
     buf = (uint8_t *)mmap(NULL, total, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
     if (buf == MAP_FAILED)
@@ -825,7 +866,11 @@ int main(int argc, char **argv) {
     memcpy(buf, file + EMIT_HDR, (size_t)code_len);
     g_code = buf;
     g_code_len = code_len;
+#if defined(__x86_64__)
+    data = buf + code_len;
+#else
     data = buf + code_bytes;
+#endif
     if (data_len)
         memcpy(data, file + EMIT_HDR + code_len, (size_t)data_len);
     ptrs = rel + host_bytes + 8;
@@ -858,6 +903,23 @@ int main(int argc, char **argv) {
     dsp = buf + total - 64;
     rp = (uint8_t *)dsp - EMIT_RP_BYTES;
     cfa = buf + entry_off;
+#if defined(__x86_64__)
+    {
+        uint8_t *gadget = (uint8_t *)mmap(NULL, EMIT_PAGE, PROT_READ | PROT_WRITE,
+                                          MAP_ANON | MAP_PRIVATE, -1, 0);
+        uint8_t *regfile;
+        if (gadget == MAP_FAILED)
+            die("gadget mmap");
+        regfile = data + data_len - 256;
+        build_x64_gadget(gadget, regfile);
+        if (mprotect(gadget, EMIT_PAGE, PROT_READ | PROT_EXEC) != 0)
+            die("gadget mprotect");
+        __builtin___clear_cache((char *)gadget, (char *)gadget + 64);
+        bind_dsp0(data, data_len, dsp);
+        run_itc_x64(dsp, rp, cfa, gadget + 40, regfile);
+    }
+#else
     run_itc(cfa, dsp, rp);
+#endif
     return 0;
 }

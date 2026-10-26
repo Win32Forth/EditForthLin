@@ -1,11 +1,17 @@
 # EditForthWin → EditForthLin port checklist
 
 Scaffold date: 2026-10-20. Source snapshot: EditForthWin 1.3.1.  
-**Marketing version:** **2.5.5.2** (EditForthWin 2.5.5.1, plus the Linux fixes in that release). Install steps: [INSTALLER.md](INSTALLER.md).
+**Marketing version:** **2.5.5.3** (EditForthWin 2.5.5.1, plus the Linux fixes through this release). Install steps: [INSTALLER.md](INSTALLER.md).
 
 Linux is a desktop sibling of Windows (Qt + process companion), not an
 in-process Android-style embed. Prefer System V ABI growth in the translator,
 not a second OS-specific kernel dialect beyond ABI and host calls.
+
+## Done for 2.5.5.3
+
+- [x] Linux kernel banners `2.5.5.3` / `Oct 26, 2026 1:29 PM` / `EditForthLin arm64` and `EditForthLin x64`
+- [x] x64 `EMIT-APP` links `emit-lin-run-x64.s`. The register file follows the code, and extra host arguments are C parameters
+- [x] Mint x64 rebuild of the saved `GCLOCK.img` stayed running
 
 ## Done for 2.5.5.2
 

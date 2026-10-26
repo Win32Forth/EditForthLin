@@ -3,7 +3,7 @@
 Linux sibling of [EditForthWin](https://github.com/Win32Forth/EditForthWin).  
 Public domain (same spirit as the other EditForth trees).
 
-**Version:** 2.5.5.2 (`EditForthLin arm64` and `EditForthLin x64`)
+**Version:** 2.5.5.3 (`EditForthLin arm64` and `EditForthLin x64`)
 
 **Target:** Linux Mint first (Ubuntu/Debian package base), **x64** and **arm64**.  
 **Status:** x64 builds and runs on Linux Mint. Native arm64 builds and runs on aarch64 Linux (`bash build-arm64.sh`). Build steps are in
@@ -13,6 +13,12 @@ Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 (`--companion`). Shared Forth cold-load `.fth`, `kernel_api.h`, and
 `Forth/Resources/Library` stay common; OS-specific code lives under
 `Forth/host/linux/` and the Linux editor IPC path.
+
+### 2.5.5.3 highlights
+
+- Linux x64 `EMIT-APP` links `emit-lin-run-x64.s` instead of the ARM64 startup
+- The register file stays immediately after the code, and host slots take their extra arguments as C parameters
+- Rebuilt `GCLOCK.img` on Mint x64 and the program stayed running
 
 ### 2.5.5.2 highlights
 
@@ -105,7 +111,7 @@ Full Mint guide: **[LINUXMINT.md](LINUXMINT.md)**. Also
 ## Console banner (expected after Mint link)
 
 ```
-=== EditForthLin 2.5.5.2 === Oct 26, 2026 12:31 PM ===
+=== EditForthLin 2.5.5.3 === Oct 26, 2026 1:29 PM ===
 ```
 
 (`Forth/kernel/x64-linux/identity.asm`, `Forth/kernel/arm64-linux/identity.s`)

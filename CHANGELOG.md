@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.5.5.3 — 2026-10-26
+
+The Linux x64 stand-alone emitter was compiling the ARM64 runner, so `EMIT-APP` failed in `cc` on `x30` and the other ARM registers. The kernel banner is `2.5.5.3` / `Oct 26, 2026 1:29 PM` / `EditForthLin arm64` or `EditForthLin x64`.
+
+### In this release
+
+- On x86_64, `app-build.sh` compiles `emit-lin.c` with `runner/emit-lin-run-x64.s` and links that runner
+- The x64 image keeps its register file in the last 256 bytes of the data segment, placed immediately after the code so the RIP-relative fixups still reach it
+- `cblit` depth, bigint multiply and divide, and the mouse-button pointer are real C parameters. The runner no longer reads ARM `x2` and `x3`
+- The saved `GCLOCK.img` rebuilt on Mint x64 and the program stayed running
+
+### Still open
+
+- Interactive GRAPHICS host (the in-process window is still a stub; stand-alone emit uses the X11 runner)
+- Ask Forth key storage on Linux
+- Hayes / ANS-VALIDATE on x64 (checked on aarch64 only)
+- Packaging (`.deb` / AppImage)
+
 ## 2.5.5.2 — 2026-10-26
 
 Linux fixes after the EditForthWin 2.5.5.1 merge. The kernel banner is

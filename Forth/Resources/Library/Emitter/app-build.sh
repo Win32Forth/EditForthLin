@@ -23,7 +23,13 @@ fi
 
 # Linux: native ELF beside the image. The Mac path below builds a .app.
 if [ "$(uname -s)" = "Linux" ]; then
-  cc -O2 -std=c11 -o "$RUNNER/emit-lin" "$RUNNER/emit-lin.c" -lX11 -lm
+  if [ "$(uname -m)" = "x86_64" ]; then
+    cc -O2 -std=c11 -c -o "$RUNNER/emit-lin.o" "$RUNNER/emit-lin.c"
+    cc -c -o "$RUNNER/emit-lin-run-x64.o" "$RUNNER/emit-lin-run-x64.s"
+    cc -o "$RUNNER/emit-lin" "$RUNNER/emit-lin.o" "$RUNNER/emit-lin-run-x64.o" -lX11 -lm
+  else
+    cc -O2 -std=c11 -o "$RUNNER/emit-lin" "$RUNNER/emit-lin.c" -lX11 -lm
+  fi
   mkdir -p "$OUT"
   cp "$RUNNER/emit-lin" "$OUT/$BIN"
   chmod +x "$OUT/$BIN"
