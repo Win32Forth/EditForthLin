@@ -24,7 +24,7 @@ nasm -f elf64 -o Forth/build/x64-linux/state.o Forth/kernel/x64-linux/asm/state.
 # …same for each generated file, plus vmregs / identity / find_host
 ```
 
-`./build-x64.sh` owns translate + assemble + host compile + ELF link of
+`bash build-x64.sh` owns translate + assemble + host compile + ELF link of
 `Forth/build/x64/forthx64` on Linux. On macOS it stops after assemble and
 host compile-check.
 

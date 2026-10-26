@@ -20,7 +20,7 @@ Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 `Forth/Resources/Library` stay common; OS-specific code lives under
 `Forth/host/linux/` and the Linux editor IPC path.
 
-On **macOS**, `./build-x64.sh` translates, assembles ELF objects, and
+On **macOS**, `bash build-x64.sh` translates, assembles ELF objects, and
 compile-checks host C. The ELF **link** of `forthx64` needs Linux (this
 checklist).
 
@@ -38,8 +38,8 @@ habit. Install UTM from [mac.getutm.app](https://mac.getutm.app).
 
 | Mode | Guest | Speed | Role for EditForthLin |
 | --- | --- | --- | --- |
-| **Virtualize** | Linux **ARM64** (Ubuntu/Debian desktop) | Near-native | Native `./build-arm64.sh` / `fortharm64` |
-| **Emulate** | Linux **x86_64** (Mint or Ubuntu amd64) | Slower | `./build-x64.sh` / `forthx64` |
+| **Virtualize** | Linux **ARM64** (Ubuntu/Debian desktop) | Near-native | Native `bash build-arm64.sh` / `fortharm64` |
+| **Emulate** | Linux **x86_64** (Mint or Ubuntu amd64) | Slower | `bash build-x64.sh` / `forthx64` |
 
 Windows 11 has official Arm64 **and** x64 SKUs. Official **Linux Mint** is
 **amd64 only** (no official ARM ISO). So a true Mint guest is the same *kind*
@@ -75,7 +75,7 @@ Same lane as the Win11 **Arm64** UTM VM: snappy, native virtualization.
 4. Install, remove ISO, boot from disk.
 
 Use this for a native arm64 Linux desktop. Guest `uname -m` is `aarch64`.
-Build with `./build-arm64.sh`, not `./build-x64.sh`. The engine is
+Build with `bash build-arm64.sh`, not `bash build-x64.sh`. The engine is
 `Forth/build/arm64/fortharm64` and the editor is
 `Edit/build/arm64/editforthlinarm64`. Banner: `2.5.5.2`.
 
@@ -141,7 +141,7 @@ Optional later:
 ### 2. Build
 
 ```bash
-./build-x64.sh
+bash build-x64.sh
 ```
 
 Expect:
@@ -155,7 +155,7 @@ Expect:
 Agent only (skip Qt):
 
 ```bash
-EDITFORTHLIN_SKIP_EDITOR=1 ./build-x64.sh
+EDITFORTHLIN_SKIP_EDITOR=1 bash build-x64.sh
 ```
 
 Custom Qt prefix (offline installer):
@@ -168,7 +168,7 @@ cmake -S Edit -B Edit/build/x64 \
 cmake --build Edit/build/x64 -j"$(nproc)"
 ```
 
-(Normally `./build-x64.sh` runs the editor cmake step after linking
+(Normally `bash build-x64.sh` runs the editor cmake step after linking
 `forthx64`.)
 
 ### 3. Agent smoke (x64)
@@ -241,7 +241,7 @@ or open a GitHub issue.
 
 ## Verified on Mint x64 (2026-10-21)
 
-- `./build-x64.sh` links `forthx64` and `editforthlinx64`
+- `bash build-x64.sh` links `forthx64` and `editforthlinx64`
 - `forthx64 --agent -e '2 3 + .'` prints `5` and exits 0
 - Autoload finishes, including Hyper
 - The editor starts the companion. A debugger pause opens source; F6 and F7 step

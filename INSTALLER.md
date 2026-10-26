@@ -34,12 +34,12 @@ sudo apt install -y \
   qt6-base-dev qt6-base-dev-tools libgl1-mesa-dev
 ```
 
-On **x86_64**, `uname -m` prints `x86_64`. Continue with `./build-x64.sh` below.
+On **x86_64**, `uname -m` prints `x86_64`. Continue with `bash build-x64.sh` below.
 
 On **aarch64**, `uname -m` prints `aarch64`. Use this instead of the x64 steps:
 
 ```bash
-./build-arm64.sh
+bash build-arm64.sh
 ./Edit/build/arm64/editforthlinarm64
 Forth/build/arm64/fortharm64 --agent -e '2 3 + .'
 ```
@@ -50,14 +50,14 @@ Expect:
 === EditForthLin 2.5.5.2 === Oct 26, 2026 12:31 PM ===
 ```
 
-and the number `5`. `./build-arm64.sh` links `Forth/build/arm64/fortharm64` and `Edit/build/arm64/editforthlinarm64`.
+and the number `5`. `bash build-arm64.sh` links `Forth/build/arm64/fortharm64` and `Edit/build/arm64/editforthlinarm64`.
 
 ## 3. Build
 
 From the repository root:
 
 ```bash
-./build-x64.sh
+bash build-x64.sh
 ```
 
 That translates the ARM64 kernel to NASM System V, assembles ELF64 objects, compiles the Linux host, links the Forth engine, and builds the Qt editor.
@@ -70,7 +70,7 @@ That translates the ARM64 kernel to NASM System V, assembles ELF64 objects, comp
 Forth only, without the editor:
 
 ```bash
-EDITFORTHLIN_SKIP_EDITOR=1 ./build-x64.sh
+EDITFORTHLIN_SKIP_EDITOR=1 bash build-x64.sh
 ```
 
 ## 4. Run

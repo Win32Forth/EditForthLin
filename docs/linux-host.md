@@ -49,18 +49,18 @@ Unchanged from Windows: 4-byte little-endian length + UTF-8 JSON.
 
 ```bash
 ./scripts/mint-deps.sh
-./build-x64.sh
+bash build-x64.sh
 # forthx64 at Forth/build/x64/forthx64
 Forth/build/x64/forthx64 --agent -e '2 3 + .'
 ```
 
-On macOS, `./build-x64.sh` assembles ELF objects and compile-checks host C;
+On macOS, `bash build-x64.sh` assembles ELF objects and compile-checks host C;
 link happens on Linux. Full Mint steps: [LINUXMINT.md](../LINUXMINT.md).
 
 **2.5.5.2** kernel identity: `2.5.5.2` / `EditForthLin x64`
 (`Forth/kernel/x64-linux/identity.asm`).
 
-On aarch64, `./build-arm64.sh` links the same host with the native ARM64
+On aarch64, `bash build-arm64.sh` links the same host with the native ARM64
 kernel. Identity is `2.5.5.2` / `EditForthLin arm64`
 (`Forth/kernel/arm64-linux/identity.s`). The binary is
 `Forth/build/arm64/fortharm64`.

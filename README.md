@@ -6,7 +6,7 @@ Public domain (same spirit as the other EditForth trees).
 **Version:** 2.5.5.2 (`EditForthLin arm64` and `EditForthLin x64`)
 
 **Target:** Linux Mint first (Ubuntu/Debian package base), **x64** and **arm64**.  
-**Status:** x64 builds and runs on Linux Mint. Native arm64 builds and runs on aarch64 Linux (`./build-arm64.sh`). Build steps are in
+**Status:** x64 builds and runs on Linux Mint. Native arm64 builds and runs on aarch64 Linux (`bash build-arm64.sh`). Build steps are in
 **[INSTALLER.md](INSTALLER.md)**. Host notes: **[LINUXMINT.md](LINUXMINT.md)**.
 
 Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
@@ -27,7 +27,7 @@ Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 
 ### 0.1.6 highlights
 
-- Native aarch64 kernel and `./build-arm64.sh`
+- Native aarch64 kernel and `bash build-arm64.sh`
 - Editor launches `fortharm64` on arm64 and `forthx64` on x64
 - View, debugger step, and the Ask Forth window checked on aarch64
 
@@ -81,7 +81,7 @@ On Linux Mint / Debian-ish:
 
 ```bash
 ./scripts/mint-deps.sh    # apt packages (Qt6, cmake, nasm, build-essential)
-./build-x64.sh            # translate, assemble, link forthx64, build editor
+bash build-x64.sh            # translate, assemble, link forthx64, build editor
 ./Edit/build/x64/editforthlinx64
 Forth/build/x64/forthx64 --agent -e '2 3 + .'
 ```
@@ -91,13 +91,13 @@ Full steps: **[INSTALLER.md](INSTALLER.md)**.
 On aarch64 Linux:
 
 ```bash
-./build-arm64.sh
+bash build-arm64.sh
 ./Edit/build/arm64/editforthlinarm64
 Forth/build/arm64/fortharm64 --agent -e '2 3 + .'
 ```
 
-On macOS, `./build-x64.sh` translates, assembles ELF objects, and
-compile-checks host C; ELF link needs Linux. `./build-arm64.sh` is aarch64 only.
+On macOS, `bash build-x64.sh` translates, assembles ELF objects, and
+compile-checks host C; ELF link needs Linux. `bash build-arm64.sh` is aarch64 only.
 
 Full Mint guide: **[LINUXMINT.md](LINUXMINT.md)**. Also
 [docs/linux-host.md](docs/linux-host.md) and [PORT.md](PORT.md).
