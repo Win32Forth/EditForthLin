@@ -1,0 +1,35 @@
+name: Attach amd64 deb
+
+on:
+  push:
+    paths:
+      - .github/workflows/attach-amd64-deb.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  attach:
+    name: Upload the amd64 package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Attach the package to v2.5.6.2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git clone --branch main "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" repo
+          cd repo
+          echo "88db77d0cddaced308fd1751f29583be6c23526beaf33b18e4c91cb02debb538  Releases/editforthlin_2.5.6.2_amd64.deb" | sha256sum -c -
+          gh release upload v2.5.6.2 \
+            "Releases/editforthlin_2.5.6.2_amd64.deb#EditForthLin 2.5.6.2 amd64 (Linux Mint 22.3 / Ubuntu 24.04)" \
+            --clobber \
+            --repo "${{ github.repository }}"
+          python3 -c 'import json,pathlib; pathlib.Path("/tmp/rel.json").write_text(json.dumps({"body": pathlib.Path(".github/release-notes-v2562.md").read_text()}))'
+          gh api --method PATCH "repos/${{ github.repository }}/releases/424845267" --input /tmp/rel.json
+          git rm -f .github/workflows/attach-amd64-deb.yml .github/release-notes-v2562.md
+          git config user.name "Tom Zimmer"
+          git config user.email "131190463+Win32Forth@users.noreply.github.com"
+          git commit -m "Remove the amd64 package upload workflow."
+          git push origin HEAD:main
