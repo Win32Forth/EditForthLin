@@ -23,11 +23,10 @@ jobs:
           cd repo
           git fetch origin deb-parts
           git checkout origin/deb-parts -- Releases/debparts .gitignore
-          mkdir -p Releases
           cat Releases/debparts/part-* | base64 -d > Releases/editforthlin_2.5.6.2_arm64.deb
           echo "4f22ad0b165b6decb3596a8b3f03fc9f7746cfa0d861738f6ec7220766d7d2cb  Releases/editforthlin_2.5.6.2_arm64.deb" | sha256sum -c -
           git add -f Releases/editforthlin_2.5.6.2_arm64.deb .gitignore
-          git rm -r Releases/debparts
+          git rm -rf Releases/debparts
           git rm -f .github/workflows/place-arm64-deb.yml
           git config user.name "Tom Zimmer"
           git config user.email "131190463+Win32Forth@users.noreply.github.com"
