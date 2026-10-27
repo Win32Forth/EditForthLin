@@ -1,0 +1,35 @@
+name: Place amd64 deb
+
+on:
+  push:
+    paths:
+      - .github/workflows/place-amd64-deb.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  place:
+    name: Commit the amd64 package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assemble the package onto main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git clone --branch main "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" repo
+          cd repo
+          git fetch origin deb-amd64-parts
+          git checkout origin/deb-amd64-parts -- Releases/debparts .gitignore
+          cat Releases/debparts/part-* | base64 -d > Releases/editforthlin_2.5.6.2_amd64.deb
+          echo "88db77d0cddaced308fd1751f29583be6c23526beaf33b18e4c91cb02debb538  Releases/editforthlin_2.5.6.2_amd64.deb" | sha256sum -c -
+          git add -f Releases/editforthlin_2.5.6.2_amd64.deb .gitignore
+          git rm -rf Releases/debparts
+          git rm -f .github/workflows/place-amd64-deb.yml
+          git config user.name "Tom Zimmer"
+          git config user.email "131190463+Win32Forth@users.noreply.github.com"
+          git commit -m "Add the EditForthLin 2.5.6.2 amd64 package."
+          git push origin HEAD:main
+          git push origin --delete deb-amd64-parts
