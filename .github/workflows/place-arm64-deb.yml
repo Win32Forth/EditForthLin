@@ -1,0 +1,36 @@
+name: Place arm64 deb
+
+on:
+  push:
+    paths:
+      - .github/workflows/place-arm64-deb.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  place:
+    name: Commit the arm64 package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assemble the package onto main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git clone --branch main "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" repo
+          cd repo
+          git fetch origin deb-parts
+          git checkout origin/deb-parts -- Releases/debparts .gitignore
+          mkdir -p Releases
+          cat Releases/debparts/part-* | base64 -d > Releases/editforthlin_2.5.6.2_arm64.deb
+          echo "4f22ad0b165b6decb3596a8b3f03fc9f7746cfa0d861738f6ec7220766d7d2cb  Releases/editforthlin_2.5.6.2_arm64.deb" | sha256sum -c -
+          git add -f Releases/editforthlin_2.5.6.2_arm64.deb .gitignore
+          git rm -r Releases/debparts
+          git rm -f .github/workflows/place-arm64-deb.yml
+          git config user.name "Tom Zimmer"
+          git config user.email "131190463+Win32Forth@users.noreply.github.com"
+          git commit -m "Add the EditForthLin 2.5.6.2 arm64 package."
+          git push origin HEAD:main
+          git push origin --delete deb-parts
