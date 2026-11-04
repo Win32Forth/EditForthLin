@@ -1,0 +1,43 @@
+name: Place EditForthLin 2.6.3
+
+on:
+  push:
+    paths:
+      - .github/workflows/place-v263.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  place:
+    name: Commit EditForthLin 2.6.3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assemble the tree onto main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git clone --branch main "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" repo
+          cd repo
+          git fetch origin v263-parts
+          git checkout origin/v263-parts -- Releases/v263parts
+          cat Releases/v263parts/patch-* | base64 -d | gzip -d > /tmp/src.patch
+          git apply --index --whitespace=nowarn /tmp/src.patch
+          mkdir -p Forth/Resources/Library/Forth1968CM/Resources
+          cat Releases/v263parts/pdf-* | base64 -d > Forth/Resources/Library/Forth1968CM/Resources/FORTH-1968-CM.pdf
+          cat Releases/v263parts/deb-* | base64 -d > Releases/editforthlin_2.6.3_arm64.deb
+          echo "df24caef2b905544f528601614df1d84da7be4a9c895f7cdc6cb4f6c49f0311f  Forth/Resources/Library/Forth1968CM/Resources/FORTH-1968-CM.pdf" | sha256sum -c -
+          echo "2dd7bdcb831c89c4eea69927ac1dcad81573b9d0aa4499ed3a043e361862d2bf  Releases/editforthlin_2.6.3_arm64.deb" | sha256sum -c -
+          git add -f Forth/Resources/Library/Forth1968CM/Resources/FORTH-1968-CM.pdf Releases/editforthlin_2.6.3_arm64.deb
+          git rm -rf Releases/v263parts
+          git rm -f .github/workflows/place-v263.yml
+          tree=$(git write-tree)
+          echo "tree $tree"
+          test "$tree" = "df278c3fb3a9bbd179abd3f80e3d168ff0470650"
+          git config user.name "Tom Zimmer"
+          git config user.email "131190463+Win32Forth@users.noreply.github.com"
+          git commit -m "Release EditForthLin 2.6.3 and pack the arm64 installer." -m "Port the EditForthWin 2.6.3 editor and System layout, fix .S, and add PAUSE. The arm64 .deb records the libraries the binaries link, plus the Qt platform plugin, so apt install downloads them."
+          git push origin HEAD:main
+          git push origin --delete v263-parts
