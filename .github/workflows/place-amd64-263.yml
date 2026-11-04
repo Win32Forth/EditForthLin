@@ -1,0 +1,35 @@
+name: Place amd64 2.6.3 deb
+
+on:
+  push:
+    paths:
+      - .github/workflows/place-amd64-263.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  place:
+    name: Commit the amd64 package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assemble the package onto main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git clone --branch main "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" repo
+          cd repo
+          git fetch origin deb-amd64-263
+          git checkout origin/deb-amd64-263 -- Releases/debparts .gitignore CHANGELOG.md README.md PORT.md LINUXMINT.md
+          cat Releases/debparts/part-* | base64 -d > Releases/editforthlin_2.6.3_amd64.deb
+          echo "99b8f43f46efe06c9b16041fcebb99ceb6e3899d608f3d7cb2ab1ae92e98c37b  Releases/editforthlin_2.6.3_amd64.deb" | sha256sum -c -
+          git add -f Releases/editforthlin_2.6.3_amd64.deb .gitignore CHANGELOG.md README.md PORT.md LINUXMINT.md
+          git rm -rf Releases/debparts
+          git rm -f .github/workflows/place-amd64-263.yml
+          git config user.name "Tom Zimmer"
+          git config user.email "131190463+Win32Forth@users.noreply.github.com"
+          git commit -m "Add the EditForthLin 2.6.3 amd64 package."
+          git push origin HEAD:main
+          git push origin --delete deb-amd64-263
