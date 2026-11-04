@@ -106,7 +106,7 @@ static void agent_help(void)
         "  -c, --cwd <path>        Change directory before work\n"
         "  -o, --out <path>        Write the transcript to path (stdout always)\n"
         "  --repl                  Read further lines from stdin until EOF or BYE\n"
-        "  --no-autoload           Skip ~/Documents/EditForthLin/AutoLoad/autoload.fth\n"
+        "  --no-autoload           Skip ~/Documents/EditForthLin/System/AutoLoad/autoload.fth\n"
         "  -h, --help              This help\n"
         "\n"
         "Environment:\n"

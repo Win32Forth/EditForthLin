@@ -43,6 +43,7 @@ C_PROCS = {
     "kernel_eval",
     "kernel_set_emit",
     "kernel_set_key",
+    "kernel_set_pause",
     "kernel_set_facility_op",
 }
 

@@ -1358,6 +1358,17 @@ _print_dots:
     mov rax, qword [rel arm_x25]
     add rax, 0x1000
     mov qword [rel arm_x25], rax
+    ; cmp     x22, x25
+    mov rax, qword [rel arm_x22]
+    mov rcx, qword [rel arm_x25]
+    cmp rax, rcx
+    seto byte [rel arm_v]
+    sets byte [rel arm_n]
+    setz byte [rel arm_z]
+    setnc byte [rel arm_c]
+    ; b.hs    _print_dots_empty
+    cmp byte [rel arm_c], 0
+    jne _print_dots_empty
     ; sub     x26, x25, x22
     mov rax, qword [rel arm_x25]
     mov rcx, qword [rel arm_x22]
@@ -1367,9 +1378,8 @@ _print_dots:
     mov rax, qword [rel arm_x26]
     shr rax, 3
     mov qword [rel arm_x26], rax
-    ; add     x0, x26, #1
+    ; mov     x0, x26
     mov rax, qword [rel arm_x26]
-    add rax, 1
     mov qword [rel arm_x0], rax
     ; bl      _print_signed
     lea rax, [rel xret_14]
@@ -1384,9 +1394,9 @@ _print_dots:
     mov qword [rel arm_x30], rax
     jmp emit_cstr
     xret_15:
-    ; sub     x25, x25, #8
+    ; sub     x25, x25, #16
     mov rax, qword [rel arm_x25]
-    sub rax, 8
+    sub rax, 0x10
     mov qword [rel arm_x25], rax
 _print_dots_loop:
     ; cmp     x25, x22
@@ -1440,6 +1450,26 @@ _print_dots_tos:
     mov qword [rel arm_x30], rax
     jmp _putchar
     xret_19:
+    ; b       _print_dots_done
+    jmp _print_dots_done
+_print_dots_empty:
+    ; mov     x0, #0
+    mov rax, 0
+    mov qword [rel arm_x0], rax
+    ; bl      _print_signed
+    lea rax, [rel xret_20]
+    mov qword [rel arm_x30], rax
+    jmp _print_signed
+    xret_20:
+    ; lea x0, msg_mid
+    lea rax, [rel msg_mid]
+    mov qword [rel arm_x0], rax
+    ; bl      emit_cstr
+    lea rax, [rel xret_21]
+    mov qword [rel arm_x30], rax
+    jmp emit_cstr
+    xret_21:
+_print_dots_done:
     ; ldp     x25, x26, [sp, #48]
     lea r10, [rsp]
     add r10, 0x30
@@ -1508,10 +1538,10 @@ _print_rstack:
     setnc byte [rel arm_c]
     ; b.hi    _pr_floor_keep
     cmp byte [rel arm_c], 0
-    je xsk_20
+    je xsk_22
     cmp byte [rel arm_z], 0
     je _pr_floor_keep
-    xsk_20:
+    xsk_22:
     ; cmp     x0, x23
     mov rax, qword [rel arm_x0]
     mov rcx, qword [rel arm_x23]
@@ -1646,28 +1676,28 @@ _pr_counted:
     lea rax, [rel msg_open]
     mov qword [rel arm_x0], rax
     ; bl      emit_cstr
-    lea rax, [rel xret_21]
+    lea rax, [rel xret_23]
     mov qword [rel arm_x30], rax
     jmp emit_cstr
-    xret_21:
+    xret_23:
     ; ldr     x0, [sp, #80]
     lea r10, [rsp]
     add r10, 0x50
     mov rax, qword [r10]
     mov qword [rel arm_x0], rax
     ; bl      _print_unsigned
-    lea rax, [rel xret_22]
+    lea rax, [rel xret_24]
     mov qword [rel arm_x30], rax
     jmp _print_unsigned
-    xret_22:
+    xret_24:
     ; lea x0, msg_mid
     lea rax, [rel msg_mid]
     mov qword [rel arm_x0], rax
     ; bl      emit_cstr
-    lea rax, [rel xret_23]
+    lea rax, [rel xret_25]
     mov qword [rel arm_x30], rax
     jmp emit_cstr
-    xret_23:
+    xret_25:
     ; mov     x25, #0
     mov rax, 0
     mov qword [rel arm_x25], rax
@@ -1729,18 +1759,18 @@ _pr_show_one:
     mov rax, qword [r10]
     mov qword [rel arm_x0], rax
     ; bl      _print_unsigned
-    lea rax, [rel xret_24]
+    lea rax, [rel xret_26]
     mov qword [rel arm_x30], rax
     jmp _print_unsigned
-    xret_24:
+    xret_26:
     ; mov     x0, #32
     mov rax, 0x20
     mov qword [rel arm_x0], rax
     ; bl      _putchar
-    lea rax, [rel xret_25]
+    lea rax, [rel xret_27]
     mov qword [rel arm_x30], rax
     jmp _putchar
-    xret_25:
+    xret_27:
     ; add     x25, x25, #1
     mov rax, qword [rel arm_x25]
     add rax, 1
@@ -1752,26 +1782,26 @@ _pr_empty:
     lea rax, [rel msg_open]
     mov qword [rel arm_x0], rax
     ; bl      emit_cstr
-    lea rax, [rel xret_26]
-    mov qword [rel arm_x30], rax
-    jmp emit_cstr
-    xret_26:
-    ; mov     x0, #0
-    mov rax, 0
-    mov qword [rel arm_x0], rax
-    ; bl      _print_unsigned
-    lea rax, [rel xret_27]
-    mov qword [rel arm_x30], rax
-    jmp _print_unsigned
-    xret_27:
-    ; lea x0, msg_mid
-    lea rax, [rel msg_mid]
-    mov qword [rel arm_x0], rax
-    ; bl      emit_cstr
     lea rax, [rel xret_28]
     mov qword [rel arm_x30], rax
     jmp emit_cstr
     xret_28:
+    ; mov     x0, #0
+    mov rax, 0
+    mov qword [rel arm_x0], rax
+    ; bl      _print_unsigned
+    lea rax, [rel xret_29]
+    mov qword [rel arm_x30], rax
+    jmp _print_unsigned
+    xret_29:
+    ; lea x0, msg_mid
+    lea rax, [rel msg_mid]
+    mov qword [rel arm_x0], rax
+    ; bl      emit_cstr
+    lea rax, [rel xret_30]
+    mov qword [rel arm_x30], rax
+    jmp emit_cstr
+    xret_30:
 _pr_done:
     ; ldp     x25, x26, [sp, #48]
     lea r10, [rsp]

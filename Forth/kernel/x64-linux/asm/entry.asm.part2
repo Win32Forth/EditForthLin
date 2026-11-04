@@ -1,0 +1,25 @@
+    db "(C", 0x22, ")", 0
+boot_cmp_execute:
+    ; DCB    "EXECUTE", 0
+    db "EXECUTE", 0
+boot_cmp_comma:
+    ; DCB     0x2C, 0
+    db 0x2c, 0
+boot_cmp_flit:
+    ; DCB     "FLIT", 0
+    db "FLIT", 0
+boot_cmp_linit:
+    ; DCB     "LOCAL-INIT", 0
+    db "LOCAL-INIT", 0
+boot_cmp_lat:
+    ; DCB     "(LOCAL@)", 0
+    db "(LOCAL@)", 0
+boot_cmp_lstore:
+    ; DCB     "(LOCAL!)", 0
+    db "(LOCAL!)", 0
+boot_cmp_loop:
+    ; DCB     "(LOOP)", 0
+    db "(LOOP)", 0
+boot_cmp_ploop:
+    ; DCB     "(+LOOP)", 0
+    db "(+LOOP)", 0

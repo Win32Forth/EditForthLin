@@ -51,7 +51,7 @@ QString ollamaBase() { return QStringLiteral("http://127.0.0.1:11434"); }
 
 QString referenceRoot() {
     return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) +
-           QStringLiteral("/EditForthLin/Library/Reference");
+           QStringLiteral("/EditForthLin/System/Reference");
 }
 
 QString indexDirectory() {

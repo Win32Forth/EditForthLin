@@ -102,10 +102,10 @@ done
 echo "Linked: $OUTBIN"
 
 # Copy kernel sources into Resources for VIEW (like Windows build-x64.bat)
-mkdir -p Forth/Resources/Library/Sources/x64-linux
-cp -f "$ASMDIR"/*.asm Forth/Resources/Library/Sources/x64-linux/ 2>/dev/null || true
+mkdir -p Forth/Resources/System/Sources/x64-linux
+cp -f "$ASMDIR"/*.asm Forth/Resources/System/Sources/x64-linux/ 2>/dev/null || true
 cp -f Forth/kernel/x64-linux/identity.asm Forth/kernel/x64-linux/vmregs.asm \
-      Forth/kernel/x64-linux/find_host.asm Forth/Resources/Library/Sources/x64-linux/ 2>/dev/null || true
+      Forth/kernel/x64-linux/find_host.asm Forth/Resources/System/Sources/x64-linux/ 2>/dev/null || true
 
 # --- 4. Qt editor -------------------------------------------------------------
 if [[ "${EDITFORTHLIN_SKIP_EDITOR:-0}" == "1" ]]; then

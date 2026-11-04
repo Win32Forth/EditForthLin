@@ -449,7 +449,7 @@ static int hyper_launch(const char *building, pid_t *pid, HyperCapture **out_cap
     char body[HYPER_PATH + 2];
     char eval_load[] =
         "ONLY FORTH DEFINITIONS VOCABULARY HYPER-VOC ONLY FORTH ALSO HYPER-VOC "
-        "DEFINITIONS S\" Library/Hyper/hyper-index.fth\" INCLUDED";
+        "DEFINITIONS S\" System/Hyper/hyper-index.fth\" INCLUDED";
     char eval_build[HYPER_PATH + 80];
     int fd;
     int fds[2];

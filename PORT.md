@@ -1,11 +1,18 @@
 # EditForthWin → EditForthLin port checklist
 
 Scaffold date: 2026-10-20. Source snapshot: EditForthWin 1.3.1.  
-**Marketing version:** **2.5.6.2** (EditForth 2.5.6). Install steps: [INSTALLER.md](INSTALLER.md).
+**Marketing version:** **2.6.3** (EditForth 2.6.3). Install steps: [INSTALLER.md](INSTALLER.md).
 
 Linux is a desktop sibling of Windows (Qt + process companion), not an
 in-process Android-style embed. Prefer System V ABI growth in the translator,
 not a second OS-specific kernel dialect beyond ABI and host calls.
+
+## Done for 2.6.3
+
+- [x] Linux kernel banners `2.6.3` / `Nov 3, 2026 12:03 PM` / `EditForthLin arm64` and `EditForthLin x64`
+- [x] `.S` prints the real depth. System folders moved out of Library. Forth1968CM stays in Library
+- [x] Debug bar Restart, RUN of the last included definition, and debugger word highlight (clean-buffer span, including CR LF sources)
+- [x] `PAUSE`, line-at-a-time companion output, and KEY while a command is running
 
 ## Done for 2.5.6.2
 
@@ -97,8 +104,11 @@ not a second OS-specific kernel dialect beyond ABI and host calls.
 
 ## Packaging (Mint)
 
-- [ ] `.deb` or AppImage for x64
-- [ ] Desktop entry + icon
+- [x] `bash scripts/pack-deb.sh arm64` writes `Releases/editforthlin_2.6.3_arm64.deb`. `Depends` comes from `dpkg-shlibdeps` plus `qt6-qpa-plugins`, `libgl1`, and `libxkbcommon0`, so `sudo apt install` downloads them
+- [x] The same script writes the amd64 package after `bash build-x64.sh` on an x64 machine. This aarch64 host cannot link that package
+- [x] Desktop entry `packaging/editforthlin.desktop`, installed as `/usr/share/applications/editforthlin.desktop`, with the generic `text-editor` icon
+- [ ] AppImage
+- [ ] A drawn icon
 - [x] Seed `~/Documents/EditForthLin` from `Forth/Resources` on first run (verified on Mint, 2026-10-21)
 
 ## Validation

@@ -5,6 +5,8 @@
 .global kernel_set_emit
 .global _kernel_set_key
 .global kernel_set_key
+.global _kernel_set_pause
+.global kernel_set_pause
 .global _kernel_set_facility_op
 .global kernel_set_facility_op
 .global _kernel_init
@@ -144,6 +146,14 @@ kernel_set_key:
     str     x0, [x1]
     ret
 .size kernel_set_key, .-kernel_set_key
+_kernel_set_pause:
+.type kernel_set_pause, %function
+kernel_set_pause:
+    adrp    x1, pause_hook
+    add x1, x1, :lo12:pause_hook
+    str     x0, [x1]
+    ret
+.size kernel_set_pause, .-kernel_set_pause
 _kernel_set_facility_op:
 .type kernel_set_facility_op, %function
 kernel_set_facility_op:

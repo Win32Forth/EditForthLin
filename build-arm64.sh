@@ -79,8 +79,8 @@ done
 "$CC" -o "$OUTBIN" "${HOST_OBJS[@]}" "${ASM_OBJS[@]}" -lm -ldl -lpthread
 echo "Linked: $OUTBIN"
 
-mkdir -p Forth/Resources/Library/Sources/arm64
-cp -f Forth/kernel/arm64/*.asm Forth/kernel/arm64/*.inc Forth/Resources/Library/Sources/arm64/
+mkdir -p Forth/Resources/System/Sources/arm64
+cp -f Forth/kernel/arm64/*.asm Forth/kernel/arm64/*.inc Forth/Resources/System/Sources/arm64/
 
 # --- 4. Qt editor -------------------------------------------------------------
 if [[ "${EDITFORTHLIN_SKIP_EDITOR:-0}" == "1" ]]; then

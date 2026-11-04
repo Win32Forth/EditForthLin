@@ -406,7 +406,7 @@ QString systemPrompt(const QString &fileName, bool enhance, bool continuing) {
         QStringLiteral("You are a Forth programming assistant for EditForthLin (ANS-style ITC Forth on Windows, the sibling of EditForth / 64Forth)."),
         QStringLiteral("Prefer idiomatic Forth: clear stack comments ( a b -- c ), short words, and explanations that match classic Forth style."),
         QStringLiteral("When asked for code, return Forth source the user can paste inside a ```forth fenced block when possible."),
-        QStringLiteral("Never invent ANS or EditForthLin word names, stack effects, or APIs. If you are unsure, say so and suggest looking in Library/Reference or forth-standard.org."),
+        QStringLiteral("Never invent ANS or EditForthLin word names, stack effects, or APIs. If you are unsure, say so and suggest looking in System/Reference or forth-standard.org."),
         QStringLiteral("Stack comments must match real argument order (e.g. c-addr u for strings, not a single invented string cell)."),
         QStringLiteral("Line comments use one backslash and run to the end of the line. Never start a word with \\\\, \\S, or \\\\S. Those swallow or stop the rest of an INCLUDE. Close every ( comment with ). Do not wrap Forth to a fixed column width."),
         QStringLiteral("Be concise.")};
@@ -422,7 +422,7 @@ QString systemPrompt(const QString &fileName, bool enhance, bool continuing) {
                     .arg(fileName);
     if (enhance) {
         lines << QStringLiteral("You are correcting Forth that failed or needs improvement after a real kernel eval.");
-        lines << QStringLiteral("Prefer Library/Reference stack effects and Sample idioms when they match.");
+        lines << QStringLiteral("Prefer System/Reference stack effects and Sample idioms when they match.");
         lines << QStringLiteral("Do not claim a fix unless the change is concrete; keep stack comments accurate.");
     }
     return lines.join(QLatin1Char('\n'));
@@ -1488,7 +1488,7 @@ void AskForthPanel::buildUi() {
     m_web = new QCheckBox(QStringLiteral("Include web search"), this);
     m_tools = new QCheckBox(QStringLiteral("Tool agent"), this);
     m_library->setToolTip(QStringLiteral(
-        "Search Library/Sample plus Library/Reference. Hybrid and Semantic use a local nomic-embed-text index."));
+        "Search Library/Sample plus System/Reference. Hybrid and Semantic use a local nomic-embed-text index."));
     m_urls->setToolTip(QStringLiteral("Fetch http(s) links in the Prompt and add the page text. Ignored while Tool agent is on."));
     m_web->setToolTip(QStringLiteral("Search DuckDuckGo Lite. Default off. Ignored while Tool agent is on."));
     m_tools->setToolTip(QStringLiteral(
@@ -1957,7 +1957,7 @@ void AskForthPanel::editLibrary() {
     chars->setValue(opts.chars);
     auto *note = new QLabel(QStringLiteral(
         "Hybrid blends nomic-embed-text similarity with keyword scores. Semantic uses the embed index only. "
-        "Keyword stays on token search. The index is built on local Ollama (~274 MB) and includes Library/Reference. "
+        "Keyword stays on token search. The index is built on local Ollama (~274 MB) and includes System/Reference. "
         "Until it is ready, Ask falls back to keyword and the status line says so."),
                             &dialog);
     note->setWordWrap(true);

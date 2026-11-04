@@ -122,6 +122,7 @@ extern host_library_path
 extern host_mprotect
 extern host_ms
 extern host_native_ret7
+extern host_pause
 extern host_pwd
 extern host_read
 extern host_register
@@ -149,6 +150,7 @@ extern msg_huh
 extern native_dsp_end
 extern next_debug
 extern pad_buffer
+extern pause_hook
 extern redef_warn
 extern resolve_buf
 extern scr_var
@@ -3992,4 +3994,3 @@ XDLESS:
     ; ldr     x2, [x22], #8
     mov r10, qword [rel arm_x22]
     mov rax, qword [r10]
-    mov qword [rel arm_x2], rax

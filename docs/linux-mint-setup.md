@@ -3,7 +3,9 @@
 Target: **Linux Mint** (Ubuntu/Debian package names). Other Debian-ish distros
 should work with the same packages.
 
-Version **2.5.6.2** — install steps: **[INSTALLER.md](../INSTALLER.md)**. Full Mint guide: **[LINUXMINT.md](../LINUXMINT.md)**.
+Version **2.6.3** — install steps: **[INSTALLER.md](../INSTALLER.md)**. Full Mint guide: **[LINUXMINT.md](../LINUXMINT.md)**.
+
+To run a packed build without the compiler toolchain, `sudo apt install ./editforthlin_<version>_<arch>.deb`. `apt` downloads the Qt 6 libraries named in that package. The commands below are the from-source build.
 
 ## Packages
 
@@ -61,4 +63,4 @@ cmake -S Edit -B Edit/build/x64 \
 Runtime user data: `~/Documents/EditForthLin`  
 (`XDG_DOCUMENTS_DIR` when set; otherwise `~/Documents`).
 
-Shipped seeds: `Forth/Resources/{Library,AutoLoad,Docs,Config}`.
+Shipped seeds: `Forth/Resources/{Library,System,Docs,Config}`.

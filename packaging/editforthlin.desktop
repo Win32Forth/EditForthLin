@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=EditForthLin
+GenericName=Forth editor
+Comment=EditForthLin editor and Forth companion
+Exec=editforthlin
+Icon=text-editor
+Terminal=false
+Categories=Development;
+StartupNotify=true

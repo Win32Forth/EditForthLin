@@ -1,3 +1,50 @@
+    b.hi    XCOMPARE_END
+    mov     x20, #-1
+    cbnz    x28, next_debug_gate
+    adrp    x1, debug_break_asap
+    add x1, x1, :lo12:debug_break_asap
+    ldr     x1, [x1]
+    cbnz    x1, next_debug_gate
+    ldr     x21, [x19], #8
+    ldr     x1, [x21]
+    br      x1
+_cmp_len:
+    cmp     x1, x3
+    b.eq    _cmp_eq
+    mov     x20, #1
+    b.hi    XCOMPARE_END
+    mov     x20, #-1
+    cbnz    x28, next_debug_gate
+    adrp    x1, debug_break_asap
+    add x1, x1, :lo12:debug_break_asap
+    ldr     x1, [x1]
+    cbnz    x1, next_debug_gate
+    ldr     x21, [x19], #8
+    ldr     x1, [x21]
+    br      x1
+_cmp_eq:
+    mov     x20, #0
+XCOMPARE_END:
+    cbnz    x28, next_debug_gate
+    adrp    x1, debug_break_asap
+    add x1, x1, :lo12:debug_break_asap
+    ldr     x1, [x1]
+    cbnz    x1, next_debug_gate
+    ldr     x21, [x19], #8
+    ldr     x1, [x21]
+    br      x1
+.section .bwstr, "a", %progbits
+nm_XLATEST:
+    .byte 76, 65, 84, 69, 83, 84, 0
+hl_XLATEST:
+    .byte 76, 65, 84, 69, 83, 84, 32, 40, 32, 45, 45, 32, 97, 100, 100, 114
+    .byte 32, 41, 32, 70, 79, 82, 84, 72, 32, 119, 111, 114, 100, 108, 105, 115
+    .byte 116, 32, 104, 101, 97, 100, 32, 97, 114, 114, 97, 121, 0
+.section .bootword, "a", %progbits
+.balign 8
+    .balign 8
+row_XLATEST:
+    .quad nm_XLATEST, hl_XLATEST
     .quad 0
     .quad XLATEST, 0
 .section .bootptr, "a", %progbits
@@ -2730,9 +2777,7 @@ row_XCHDIR:
 XCHDIR:
     stp     x29, x30, [sp, #-16]!
     bl      _parse_filespec
-    cbz     x1, _chdir_done
     bl      host_chdir
-_chdir_done:
     ldp     x29, x30, [sp], #16
     cbnz    x28, next_debug_gate
     adrp    x1, debug_break_asap
@@ -3974,47 +4019,3 @@ nm_XSAVE_INPUT:
     .byte 83, 65, 86, 69, 45, 73, 78, 80, 85, 84, 0
 hl_XSAVE_INPUT:
     .byte 83, 65, 86, 69, 45, 73, 78, 80, 85, 84, 32, 40, 32, 45, 45, 32
-    .byte 120, 110, 32, 46, 46, 32, 120, 49, 32, 110, 32, 41, 32, 115, 97, 118
-    .byte 101, 32, 116, 104, 101, 32, 99, 117, 114, 114, 101, 110, 116, 32, 105, 110
-    .byte 112, 117, 116, 32, 115, 111, 117, 114, 99, 101, 0
-.section .bootword, "a", %progbits
-.balign 8
-    .balign 8
-row_XSAVE_INPUT:
-    .quad nm_XSAVE_INPUT, hl_XSAVE_INPUT
-    .quad 0
-    .quad XSAVE_INPUT, 0
-.section .bootptr, "a", %progbits
-.balign 8
-    .balign 8
-    .quad row_XSAVE_INPUT
-.section .text, "ax", %progbits
-.balign 16
-XSAVE_INPUT:
-    str     x20, [x22, #-8]!
-    adrp    x0, source_base
-    add x0, x0, :lo12:source_base
-    ldr     x20, [x0]
-    str     x20, [x22, #-8]!
-    adrp    x1, source_end
-    add x1, x1, :lo12:source_end
-    ldr     x1, [x1]
-    sub     x20, x1, x20
-    str     x20, [x22, #-8]!
-    adrp    x0, to_in
-    add x0, x0, :lo12:to_in
-    ldr     x20, [x0]
-    str     x20, [x22, #-8]!
-    adrp    x0, source_id
-    add x0, x0, :lo12:source_id
-    ldr     x20, [x0]
-    str     x20, [x22, #-8]!
-    adrp    x0, blk_var
-    add x0, x0, :lo12:blk_var
-    ldr     x20, [x0]
-    str     x20, [x22, #-8]!
-    mov     x20, #5
-    cbnz    x28, next_debug_gate
-    adrp    x1, debug_break_asap
-    add x1, x1, :lo12:debug_break_asap
-    ldr     x1, [x1]

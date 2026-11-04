@@ -6,18 +6,18 @@ Other Debian/Ubuntu-based distros use the same packages and steps.
 | Item | Value |
 | --- | --- |
 | Product | EditForthLin |
-| Marketing version | **2.5.6.2** |
+| Marketing version | **2.6.3** |
 | Repo | https://github.com/Win32Forth/EditForthLin |
-| Tag / release | [v2.5.6.2](https://github.com/Win32Forth/EditForthLin/releases/tag/v2.5.6.2) |
-| Install | [INSTALLER.md](INSTALLER.md) |
-| Kernel banner | `=== EditForthLin 2.5.6.2 === Oct 26, 2026 5:33 PM ===` |
+| Tag / release | [v2.5.6.2](https://github.com/Win32Forth/EditForthLin/releases/tag/v2.5.6.2) (published tag; 2.6.3 is on `main`) |
+| Install | [INSTALLER.md](INSTALLER.md). Arm64 package: `sudo apt install ./editforthlin_2.6.3_arm64.deb` |
+| Kernel banner | `=== EditForthLin 2.6.3 === Nov 3, 2026 12:03 PM ===` |
 | Agent binary | `Forth/build/x64/forthx64` (aarch64: `Forth/build/arm64/fortharm64`) |
 | Editor binary | `Edit/build/x64/editforthlinx64` (aarch64: `Edit/build/arm64/editforthlinarm64`) |
 | User data | `~/Documents/EditForthLin` (override with absolute `EDITFORTHLIN`) |
 
 Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 (`--companion`). Shared Forth cold-load `.fth`, `kernel_api.h`, and
-`Forth/Resources/Library` stay common; OS-specific code lives under
+`Forth/Resources/Library` and `Forth/Resources/System` stay common; OS-specific code lives under
 `Forth/host/linux/` and the Linux editor IPC path.
 
 On **macOS**, `bash build-x64.sh` translates, assembles ELF objects, and
@@ -77,7 +77,7 @@ Same lane as the Win11 **Arm64** UTM VM: snappy, native virtualization.
 Use this for a native arm64 Linux desktop. Guest `uname -m` is `aarch64`.
 Build with `bash build-arm64.sh`, not `bash build-x64.sh`. The engine is
 `Forth/build/arm64/fortharm64` and the editor is
-`Edit/build/arm64/editforthlinarm64`. Banner: `2.5.6.2`.
+`Edit/build/arm64/editforthlinarm64`. Banner: `2.6.3`.
 
 UTM can also enable **Rosetta (x86_64 Emulation)** inside an ARM64 Linux
 guest so some Intel binaries run there. That is optional and separate from a
@@ -179,11 +179,11 @@ Forth/build/x64/forthx64 --agent -e '2 3 + .'
 
 Look for:
 
-- Cold-load / banner with `2.5.6.2` and `EditForthLin x64`
+- Cold-load / banner with `2.6.3` and `EditForthLin x64`
 - Printed `5`
 - Clean exit, or return to a prompt if `-e` leaves the REPL (either is fine
   for a first smoke)
-- Seed of `~/Documents/EditForthLin` (`Library`, `AutoLoad`, `Docs`, `Config`)
+- Seed of `~/Documents/EditForthLin` (`Library`, `System`, `Docs`, `Config`)
 
 Interactive:
 
@@ -250,7 +250,7 @@ or open a GitHub issue.
 
 - Hayes / ANS-VALIDATE
 - GRAPHICS and clipboard (stubs return failure)
-- AskForth key storage (libsecret) and packaging (`.deb` / AppImage)
+- AskForth key storage (libsecret) and an AppImage. `bash scripts/pack-deb.sh amd64` builds the x64 `.deb` after `bash build-x64.sh`. `sudo apt install` of that file downloads its `Depends`. The arm64 package `Releases/editforthlin_2.6.3_arm64.deb` is already packed
 - `Config/HYPER.CFG` is not copied into the user tree; reindex uses the default list
 
 Port status: [PORT.md](PORT.md). Host details: [docs/linux-host.md](docs/linux-host.md).

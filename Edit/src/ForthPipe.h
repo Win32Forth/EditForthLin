@@ -53,6 +53,7 @@ public slots:
     void noteLast(const QString &name);
     void noteVersion(const QString &text);
     void noteStatus(const QString &text);
+    void noteIdle();
     void notePickDir(const QString &start);
 
 signals:
@@ -68,6 +69,7 @@ signals:
     void lastReceived(const QString &name);
     void versionReceived(const QString &text);
     void statusReceived(const QString &text);
+    void idleReceived();
     void pickDirRequested(const QString &start);
 
 private:

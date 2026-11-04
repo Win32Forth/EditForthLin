@@ -139,6 +139,7 @@ global restart_cfa
 global kernel_inited
 global emit_hook
 global key_hook
+global pause_hook
 global data_stack
 global return_stack
 global user_dict_area
@@ -206,6 +207,10 @@ float_op_hook:
     dq host_float_op
 key_hook:
 key_fn:
+    ; DCQ     0
+    dq 0
+pause_hook:
+pause_fn:
     ; DCQ     0
     dq 0
 facility_op_hook:

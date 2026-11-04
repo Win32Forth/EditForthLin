@@ -1,3 +1,133 @@
+XJIT_WPROTECT:
+    ; cmp     x20, #0
+    mov rax, qword [rel arm_x20]
+    cmp rax, 0
+    seto byte [rel arm_v]
+    sets byte [rel arm_n]
+    setz byte [rel arm_z]
+    setnc byte [rel arm_c]
+    ; cset    x1, ne
+    xor eax, eax
+    cmp byte [rel arm_z], 0
+    jne xsk_143
+    mov eax, 1
+    xsk_143:
+    mov qword [rel arm_x1], rax
+    ; lea x0, jit_exec_mode
+    lea rax, [rel jit_exec_mode]
+    mov qword [rel arm_x0], rax
+    ; str     x1, [x0]
+    mov r10, qword [rel arm_x0]
+    mov rax, qword [rel arm_x1]
+    mov qword [r10], rax
+    ; ldr     x20, [x22], #8
+    mov r10, qword [rel arm_x22]
+    mov rax, qword [r10]
+    mov qword [rel arm_x20], rax
+    mov rax, qword [rel arm_x22]
+    add rax, 8
+    mov qword [rel arm_x22], rax
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [rel arm_x28]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [rel arm_x1], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [rel arm_x1]
+    mov rax, qword [r10]
+    mov qword [rel arm_x1], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [rel arm_x1]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [rel arm_x19]
+    mov rax, qword [r10]
+    mov qword [rel arm_x21], rax
+    mov rax, qword [rel arm_x19]
+    add rax, 8
+    mov qword [rel arm_x19], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [rel arm_x21]
+    mov rax, qword [r10]
+    mov qword [rel arm_x1], rax
+    ; br      x1
+    mov rax, qword [rel arm_x1]
+    jmp rax
+section .bwstr align=1
+nm_XNATIVE_SMOKE:
+    ; DCB "NATIVE-SMOKE", 0
+    db "NATIVE-SMOKE", 0
+hl_XNATIVE_SMOKE:
+    ; DCB "NATIVE-SMOKE ( -- ior ) test RW map then RX call", 0
+    db "NATIVE-SMOKE ( -- ior ) test RW map then RX call", 0
+section .bootword align=8
+    ; ALIGN 8
+align 8
+row_XNATIVE_SMOKE:
+    ; DCQ     nm_XNATIVE_SMOKE, hl_XNATIVE_SMOKE
+    dq nm_XNATIVE_SMOKE, hl_XNATIVE_SMOKE
+    ; DCQ     0
+    dq 0
+    ; DCQ     XNATIVE_SMOKE, 0
+    dq XNATIVE_SMOKE, 0
+section .bootptr align=8
+    ; ALIGN 8
+align 8
+    ; DCQ     row_XNATIVE_SMOKE
+    dq row_XNATIVE_SMOKE
+section .text
+XNATIVE_SMOKE:
+    ; sub     sp, sp, #96
+    mov rax, rsp
+    sub rax, 0x60
+    mov rsp, rax
+    ; stp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [rel arm_x29]
+    mov qword [r10+0], rax
+    mov rax, qword [rel arm_x30]
+    mov qword [r10+8], rax
+    ; mov     x0, #0x1000
+    mov rax, 0x1000
+    mov qword [rel arm_x0], rax
+    ; add     x1, sp, #48
+    mov rax, rsp
+    add rax, 0x30
+    mov qword [rel arm_x1], rax
+    ; str     xzr, [sp, #48]
+    lea r10, [rsp]
+    add r10, 0x30
+    mov qword [r10], 0
+    ; bl      host_alloc_exec
+    push rbx
+    mov rbx, rsp
+    and rsp, -16
+    sub rsp, 32
+    mov rdi, qword [rel arm_x0]
+    mov rsi, qword [rel arm_x1]
+    mov rdx, qword [rel arm_x2]
+    mov rcx, qword [rel arm_x3]
+    mov r8, qword [rel arm_x4]
+    mov r9, qword [rel arm_x5]
+    mov rax, qword [rel arm_x6]
+    mov qword [rsp], rax
+    mov rax, qword [rel arm_x7]
+    mov qword [rsp+8], rax
+    mov rax, qword [rbx+8]
+    mov qword [rsp+16], rax
+    call host_alloc_exec
+    mov qword [rel arm_x0], rax
+    mov rsp, rbx
+    pop rbx
+    ; cbnz    x0, _ns_bad
+    mov rax, qword [rel arm_x0]
+    cmp rax, 0
+    jne _ns_bad
+    ; ldr     x0, [sp, #48]
     lea r10, [rsp]
     add r10, 0x30
     mov rax, qword [r10]

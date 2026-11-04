@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.6.3 — 2026-11-03
+
+Linux port of EditForthWin 2.6.3. The kernel banner is `2.6.3` / `Nov 3, 2026 12:03 PM` / `EditForthLin arm64` or `EditForthLin x64`. The arm64 kernel and editor were rebuilt on this host. `1 2 3 4 .S` prints `( 4 ) 1 2 3 4`. Forth1968CM assembled `0900–0DC3`, entry `09FA`, listing matches, and printed `HI THERE`. After that sign-on the 1968 machine waits for a key, so the agent run stays in `KEY`. Hayes and ANS-VALIDATE were not run. The x64 kernel sources are at the same 2.6.3 banner. Link that binary on Linux Mint with `bash build-x64.sh`.
+
+### In this release
+
+- `.S` prints the real stack depth. An empty stack is `( 0 )`
+- Assembler, AutoLoad, Debugger, Emitter, Hyper, Reference, Sources, and Testing live in `System`. Library keeps the samples, including Forth1968CM
+- The debug bar has Restart. It shuts down and starts the companion again. The editor, file list, and open tabs stay
+- RUN uses a real selection. A bare caret is not a highlight. With nothing selected, RUN uses the last definition in the file just included
+- A debug highlight uses the file span when the buffer is clean, and drops one byte per CR so a CR LF source lines up. A dirty buffer uses the word name
+- `PAUSE` is a boot word. The companion sends each finished line as it is produced, and Return while Forth is running is delivered to `KEY`
+- Find in the Forth console does not replace text above the input line
+- Arm64 installer `Releases/editforthlin_2.6.3_arm64.deb`. `sudo apt install` downloads the Qt 6 libraries the binaries link, plus `qt6-qpa-plugins`, `libgl1`, and `libxkbcommon0`
+
+### Still open
+
+- Interactive GRAPHICS host (the in-process window is still a stub; stand-alone emit uses the X11 runner)
+- Ask Forth key storage on Linux
+- Hayes / ANS-VALIDATE on this 2.6.3 build (checked on aarch64 at 2.5.6.1)
+- Link `forthx64` and the x64 editor on Linux Mint with `bash build-x64.sh` (sources are already 2.6.3). Then `bash scripts/pack-deb.sh amd64`
+- An AppImage
+
 ## 2.5.6.2 — 2026-10-26
 
 Bare `CHDIR` opens a directory dialog. The kernel banner is `2.5.6.2` / `Oct 26, 2026 5:33 PM` / `EditForthLin arm64` or `EditForthLin x64`. The x64 kernel and editor were rebuilt on Linux Mint. The arm64 programs were not rebuilt on this host. Hayes and ANS-VALIDATE were not run.
@@ -17,7 +40,7 @@ Bare `CHDIR` opens a directory dialog. The kernel banner is `2.5.6.2` / `Oct 26,
 - Ask Forth key storage on Linux
 - Hayes / ANS-VALIDATE on x64 (checked on aarch64 at 2.5.6.1)
 - Packaging (`.deb` / AppImage)
-- arm64 rebuild of 2.5.6.2 (same sources; `bash build-arm64.sh` on aarch64 Linux)
+- AppImage and a custom icon. `bash scripts/pack-deb.sh` builds the arm64 or amd64 `.deb` on the machine that linked that architecture. The arm64 package can be built on this host. The amd64 package is linked on x64
 
 ## 2.5.6.1 — 2026-10-26
 

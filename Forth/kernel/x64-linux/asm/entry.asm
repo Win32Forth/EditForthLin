@@ -96,6 +96,7 @@ extern line_origin
 extern local_frame_depth
 extern next_debug
 extern noname_xt
+extern pause_hook
 extern restart_cell
 extern return_stack
 extern source_base
@@ -122,6 +123,8 @@ global kernel_set_emit
 global _kernel_set_emit
 global kernel_set_key
 global _kernel_set_key
+global kernel_set_pause
+global _kernel_set_pause
 global kernel_set_facility_op
 global _kernel_set_facility_op
 global _kernel_cold_common
@@ -176,6 +179,23 @@ kernel_set_key:
     mov qword [rel arm_x3], rcx
     ; lea x1, key_hook
     lea rax, [rel key_hook]
+    mov qword [rel arm_x1], rax
+    ; str     x0, [x1]
+    mov r10, qword [rel arm_x1]
+    mov rax, qword [rel arm_x0]
+    mov qword [r10], rax
+    ; ret
+    mov rax, qword [rel arm_x0]
+    ret
+_kernel_set_pause:
+global kernel_set_pause
+kernel_set_pause:
+    mov qword [rel arm_x0], rdi
+    mov qword [rel arm_x1], rsi
+    mov qword [rel arm_x2], rdx
+    mov qword [rel arm_x3], rcx
+    ; lea x1, pause_hook
+    lea rax, [rel pause_hook]
     mov qword [rel arm_x1], rax
     ; str     x0, [x1]
     mov r10, qword [rel arm_x1]
@@ -3895,28 +3915,3 @@ boot_cmp_slit:
     db "(S", 0x22, ")", 0
 boot_cmp_cstr:
     ; DCB     "(C", 0x22, ")", 0
-    db "(C", 0x22, ")", 0
-boot_cmp_execute:
-    ; DCB    "EXECUTE", 0
-    db "EXECUTE", 0
-boot_cmp_comma:
-    ; DCB     0x2C, 0
-    db 0x2c, 0
-boot_cmp_flit:
-    ; DCB     "FLIT", 0
-    db "FLIT", 0
-boot_cmp_linit:
-    ; DCB     "LOCAL-INIT", 0
-    db "LOCAL-INIT", 0
-boot_cmp_lat:
-    ; DCB     "(LOCAL@)", 0
-    db "(LOCAL@)", 0
-boot_cmp_lstore:
-    ; DCB     "(LOCAL!)", 0
-    db "(LOCAL!)", 0
-boot_cmp_loop:
-    ; DCB     "(LOOP)", 0
-    db "(LOOP)", 0
-boot_cmp_ploop:
-    ; DCB     "(+LOOP)", 0
-    db "(+LOOP)", 0

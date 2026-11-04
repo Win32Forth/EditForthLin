@@ -373,6 +373,13 @@
 .local row_XKEYQ
 .local XKEYQ
 .local XKEYQ_END
+.local nm_XPAUSE
+.local hl_XPAUSE
+.local row_XPAUSE
+.local XPAUSE
+.local _pause_sleep
+.local _pause_done
+.local XPAUSE_END
 .local nm_XFIND
 .local hl_XFIND
 .local row_XFIND
@@ -786,7 +793,6 @@
 .local hl_XCHDIR
 .local row_XCHDIR
 .local XCHDIR
-.local _chdir_done
 .local nm_XPWD
 .local hl_XPWD
 .local row_XPWD
@@ -3760,6 +3766,50 @@ XKEYQ_END:
     ldr     x1, [x21]
     br      x1
 .section .bwstr, "a", %progbits
+nm_XPAUSE:
+    .byte 80, 65, 85, 83, 69, 0
+hl_XPAUSE:
+    .byte 80, 65, 85, 83, 69, 32, 40, 32, 45, 45, 32, 41, 32, 115, 104, 111
+    .byte 119, 32, 112, 101, 110, 100, 105, 110, 103, 32, 99, 111, 110, 115, 111, 108
+    .byte 101, 32, 111, 117, 116, 112, 117, 116, 32, 116, 104, 101, 110, 32, 119, 97
+    .byte 105, 116, 32, 49, 32, 109, 115, 0
+.section .bootword, "a", %progbits
+.balign 8
+    .balign 8
+row_XPAUSE:
+    .quad nm_XPAUSE, hl_XPAUSE
+    .quad 0
+    .quad XPAUSE, XPAUSE_END
+.section .bootptr, "a", %progbits
+.balign 8
+    .balign 8
+    .quad row_XPAUSE
+.section .text, "ax", %progbits
+.balign 16
+XPAUSE:
+    sub     sp, sp, #64
+    stp     x29, x30, [sp, #32]
+    adrp    x1, pause_hook
+    add x1, x1, :lo12:pause_hook
+    ldr     x1, [x1]
+    cbz     x1, _pause_sleep
+    blr     x1
+    b       _pause_done
+_pause_sleep:
+    bl      host_pause
+_pause_done:
+    ldp     x29, x30, [sp, #32]
+    add     sp, sp, #64
+XPAUSE_END:
+    cbnz    x28, next_debug_gate
+    adrp    x1, debug_break_asap
+    add x1, x1, :lo12:debug_break_asap
+    ldr     x1, [x1]
+    cbnz    x1, next_debug_gate
+    ldr     x21, [x19], #8
+    ldr     x1, [x21]
+    br      x1
+.section .bwstr, "a", %progbits
 nm_XFIND:
     .byte 70, 73, 78, 68, 0
 hl_XFIND:
@@ -4573,50 +4623,3 @@ _cmp_loop:
     b       _cmp_loop
 _cmp_diff:
     mov     x20, #1
-    b.hi    XCOMPARE_END
-    mov     x20, #-1
-    cbnz    x28, next_debug_gate
-    adrp    x1, debug_break_asap
-    add x1, x1, :lo12:debug_break_asap
-    ldr     x1, [x1]
-    cbnz    x1, next_debug_gate
-    ldr     x21, [x19], #8
-    ldr     x1, [x21]
-    br      x1
-_cmp_len:
-    cmp     x1, x3
-    b.eq    _cmp_eq
-    mov     x20, #1
-    b.hi    XCOMPARE_END
-    mov     x20, #-1
-    cbnz    x28, next_debug_gate
-    adrp    x1, debug_break_asap
-    add x1, x1, :lo12:debug_break_asap
-    ldr     x1, [x1]
-    cbnz    x1, next_debug_gate
-    ldr     x21, [x19], #8
-    ldr     x1, [x21]
-    br      x1
-_cmp_eq:
-    mov     x20, #0
-XCOMPARE_END:
-    cbnz    x28, next_debug_gate
-    adrp    x1, debug_break_asap
-    add x1, x1, :lo12:debug_break_asap
-    ldr     x1, [x1]
-    cbnz    x1, next_debug_gate
-    ldr     x21, [x19], #8
-    ldr     x1, [x21]
-    br      x1
-.section .bwstr, "a", %progbits
-nm_XLATEST:
-    .byte 76, 65, 84, 69, 83, 84, 0
-hl_XLATEST:
-    .byte 76, 65, 84, 69, 83, 84, 32, 40, 32, 45, 45, 32, 97, 100, 100, 114
-    .byte 32, 41, 32, 70, 79, 82, 84, 72, 32, 119, 111, 114, 100, 108, 105, 115
-    .byte 116, 32, 104, 101, 97, 100, 32, 97, 114, 114, 97, 121, 0
-.section .bootword, "a", %progbits
-.balign 8
-    .balign 8
-row_XLATEST:
-    .quad nm_XLATEST, hl_XLATEST

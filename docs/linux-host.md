@@ -20,7 +20,8 @@ Agent mode: `forthx64 --agent` on the launching TTY.
 | User tree | `~/Documents/EditForthLin` (or `$XDG_DOCUMENTS_DIR/EditForthLin`) |
 | Override | absolute `EDITFORTHLIN` |
 | Library | `…/Library` |
-| Autoload | `…/AutoLoad/autoload.fth` |
+| System | `…/System` (Assembler, AutoLoad, Debugger, Emitter, Hyper, Reference, Sources, Testing) |
+| Autoload | `…/System/AutoLoad/autoload.fth` |
 | Shipped seeds | `Forth/Resources/` (walk-up from `/proc/self/exe`) |
 
 ## Boot order (companion)
@@ -57,10 +58,10 @@ Forth/build/x64/forthx64 --agent -e '2 3 + .'
 On macOS, `bash build-x64.sh` assembles ELF objects and compile-checks host C;
 link happens on Linux. Full Mint steps: [LINUXMINT.md](../LINUXMINT.md).
 
-**2.5.6.2** kernel identity: `2.5.6.2` / `EditForthLin x64`
+**2.6.3** kernel identity: `2.6.3` / `EditForthLin x64`
 (`Forth/kernel/x64-linux/identity.asm`).
 
 On aarch64, `bash build-arm64.sh` links the same host with the native ARM64
-kernel. Identity is `2.5.6.2` / `EditForthLin arm64`
+kernel. Identity is `2.6.3` / `EditForthLin arm64`
 (`Forth/kernel/arm64-linux/identity.s`). The binary is
 `Forth/build/arm64/fortharm64`.

@@ -22,6 +22,8 @@
 .global float_op_hook
 .global key_hook
 .global key_fn
+.global pause_hook
+.local pause_fn
 .global facility_op_hook
 .global vm_tos
 .global vm_dsp
@@ -154,6 +156,9 @@ float_op_hook:
     .quad host_float_op
 key_hook:
 key_fn:
+    .quad 0
+pause_hook:
+pause_fn:
     .quad 0
 facility_op_hook:
     .quad 0

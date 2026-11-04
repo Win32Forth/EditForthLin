@@ -93,6 +93,8 @@
 .local _print_dots
 .local _print_dots_loop
 .local _print_dots_tos
+.local _print_dots_empty
+.local _print_dots_done
 .local _print_rstack
 .local _pr_floor_keep
 .local _pr_count
@@ -696,14 +698,16 @@ _print_dots:
     adrp    x25, dstack
     add x25, x25, :lo12:dstack
     add     x25, x25, #1, lsl #12
+    cmp     x22, x25
+    b.hs    _print_dots_empty
     sub     x26, x25, x22
     lsr     x26, x26, #3
-    add     x0, x26, #1
+    mov     x0, x26
     bl      _print_signed
     adrp    x0, msg_mid
     add x0, x0, :lo12:msg_mid
     bl      emit_cstr
-    sub     x25, x25, #8
+    sub     x25, x25, #16
 _print_dots_loop:
     cmp     x25, x22
     b.lo    _print_dots_tos
@@ -718,6 +722,14 @@ _print_dots_tos:
     bl      _print_signed
     mov     x0, #32
     bl      _putchar
+    b       _print_dots_done
+_print_dots_empty:
+    mov     x0, #0
+    bl      _print_signed
+    adrp    x0, msg_mid
+    add x0, x0, :lo12:msg_mid
+    bl      emit_cstr
+_print_dots_done:
     ldp     x25, x26, [sp, #48]
     ldp     x29, x30, [sp, #32]
     add     sp, sp, #80

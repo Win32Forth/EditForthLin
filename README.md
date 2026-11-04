@@ -3,7 +3,7 @@
 Linux sibling of [EditForthWin](https://github.com/Win32Forth/EditForthWin).  
 Public domain (same spirit as the other EditForth trees).
 
-**Version:** 2.5.6.2 (`EditForthLin arm64` and `EditForthLin x64`)
+**Version:** 2.6.3 (`EditForthLin arm64` and `EditForthLin x64`)
 
 **Target:** Linux Mint first (Ubuntu/Debian package base), **x64** and **arm64**.  
 **Status:** x64 builds and runs on Linux Mint. Native arm64 builds and runs on aarch64 Linux (`bash build-arm64.sh`). Build steps are in
@@ -11,8 +11,17 @@ Public domain (same spirit as the other EditForth trees).
 
 Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 (`--companion`). Shared Forth cold-load `.fth`, `kernel_api.h`, and
-`Forth/Resources/Library` stay common; OS-specific code lives under
+`Forth/Resources/Library` and `Forth/Resources/System` stay common; OS-specific code lives under
 `Forth/host/linux/` and the Linux editor IPC path.
+
+### 2.6.3 highlights
+
+- `.S` prints the real stack depth. `1 2 3 4 .S` shows four items
+- Assembler, AutoLoad, Debugger, Emitter, Hyper, Reference, Sources, and Testing live in `System`. `Library` keeps the samples, including Forth1968CM
+- The debug bar has Restart. RUN uses the last definition in the file just included when nothing is selected. A debug highlight follows the word in a clean buffer, including sources saved with CR LF
+- `PAUSE` is a boot word. The companion sends each finished line as it is produced, and Return while Forth is running is delivered to `KEY`
+- The kernel banner is `2.6.3` / `Nov 3, 2026 12:03 PM` / `EditForthLin arm64` or `EditForthLin x64`
+- The arm64 installer is `Releases/editforthlin_2.6.3_arm64.deb`. `sudo apt install ./editforthlin_2.6.3_arm64.deb` downloads Qt 6 and the other libraries in the package `Depends` line. The amd64 `.deb` is packed on Linux Mint after `bash build-x64.sh`
 
 ### 2.5.6.2 highlights
 
@@ -94,7 +103,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 ## Working directory
 
 Forth starts under `~/Documents/EditForthLin` (XDG Documents), mirroring
-`Documents\EditForthWin` on Windows. First run seeds `Library`, `AutoLoad`,
+`Documents\EditForthWin` on Windows. First run seeds `Library`, `System`,
 `Docs`, and `Config` from `Forth/Resources`. Override with absolute
 `EDITFORTHLIN`.
 
@@ -128,7 +137,7 @@ Full Mint guide: **[LINUXMINT.md](LINUXMINT.md)**. Also
 ## Console banner (expected after Mint link)
 
 ```
-=== EditForthLin 2.5.6.2 === Oct 26, 2026 5:33 PM ===
+=== EditForthLin 2.6.3 === Nov 3, 2026 12:03 PM ===
 ```
 
 (`Forth/kernel/x64-linux/identity.asm`, `Forth/kernel/arm64-linux/identity.s`)
