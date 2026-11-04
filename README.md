@@ -21,7 +21,7 @@ Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 - The debug bar has Restart. RUN uses the last definition in the file just included when nothing is selected. A debug highlight follows the word in a clean buffer, including sources saved with CR LF
 - `PAUSE` is a boot word. The companion sends each finished line as it is produced, and Return while Forth is running is delivered to `KEY`
 - The kernel banner is `2.6.3` / `Nov 3, 2026 12:03 PM` / `EditForthLin arm64` or `EditForthLin x64`
-- The arm64 installer is `Releases/editforthlin_2.6.3_arm64.deb`. `sudo apt install ./editforthlin_2.6.3_arm64.deb` downloads Qt 6 and the other libraries in the package `Depends` line. The amd64 `.deb` is packed on Linux Mint after `bash build-x64.sh`
+- The installers are `Releases/editforthlin_2.6.3_arm64.deb` and `Releases/editforthlin_2.6.3_amd64.deb`. `sudo apt install` of either file downloads Qt 6 and the other libraries in that package's `Depends` line. The amd64 package was built on Linux Mint 22.3
 
 ### 2.5.6.2 highlights
 

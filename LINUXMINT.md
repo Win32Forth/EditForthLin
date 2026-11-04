@@ -250,7 +250,7 @@ or open a GitHub issue.
 
 - Hayes / ANS-VALIDATE
 - GRAPHICS and clipboard (stubs return failure)
-- AskForth key storage (libsecret) and an AppImage. `bash scripts/pack-deb.sh amd64` builds the x64 `.deb` after `bash build-x64.sh`. `sudo apt install` of that file downloads its `Depends`. The arm64 package `Releases/editforthlin_2.6.3_arm64.deb` is already packed
+- AskForth key storage (libsecret) and an AppImage. The packed installers are `Releases/editforthlin_2.6.3_amd64.deb` (Linux Mint 22.3) and `Releases/editforthlin_2.6.3_arm64.deb`. `sudo apt install` of either file downloads its `Depends`
 - `Config/HYPER.CFG` is not copied into the user tree; reindex uses the default list
 
 Port status: [PORT.md](PORT.md). Host details: [docs/linux-host.md](docs/linux-host.md).

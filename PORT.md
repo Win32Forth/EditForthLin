@@ -105,7 +105,7 @@ not a second OS-specific kernel dialect beyond ABI and host calls.
 ## Packaging (Mint)
 
 - [x] `bash scripts/pack-deb.sh arm64` writes `Releases/editforthlin_2.6.3_arm64.deb`. `Depends` comes from `dpkg-shlibdeps` plus `qt6-qpa-plugins`, `libgl1`, and `libxkbcommon0`, so `sudo apt install` downloads them
-- [x] The same script writes the amd64 package after `bash build-x64.sh` on an x64 machine. This aarch64 host cannot link that package
+- [x] `bash scripts/pack-deb.sh amd64` on Linux Mint 22.3 wrote `Releases/editforthlin_2.6.3_amd64.deb`. `sudo apt install` downloads its `Depends`
 - [x] Desktop entry `packaging/editforthlin.desktop`, installed as `/usr/share/applications/editforthlin.desktop`, with the generic `text-editor` icon
 - [ ] AppImage
 - [ ] A drawn icon

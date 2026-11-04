@@ -14,13 +14,13 @@ Linux port of EditForthWin 2.6.3. The kernel banner is `2.6.3` / `Nov 3, 2026 12
 - `PAUSE` is a boot word. The companion sends each finished line as it is produced, and Return while Forth is running is delivered to `KEY`
 - Find in the Forth console does not replace text above the input line
 - Arm64 installer `Releases/editforthlin_2.6.3_arm64.deb`. `sudo apt install` downloads the Qt 6 libraries the binaries link, plus `qt6-qpa-plugins`, `libgl1`, and `libxkbcommon0`
+- Amd64 installer `Releases/editforthlin_2.6.3_amd64.deb`, built on Linux Mint 22.3. `sudo apt install ./editforthlin_2.6.3_amd64.deb` downloads the same kind of `Depends`
 
 ### Still open
 
 - Interactive GRAPHICS host (the in-process window is still a stub; stand-alone emit uses the X11 runner)
 - Ask Forth key storage on Linux
 - Hayes / ANS-VALIDATE on this 2.6.3 build (checked on aarch64 at 2.5.6.1)
-- Link `forthx64` and the x64 editor on Linux Mint with `bash build-x64.sh` (sources are already 2.6.3). Then `bash scripts/pack-deb.sh amd64`
 - An AppImage
 
 ## 2.5.6.2 — 2026-10-26
