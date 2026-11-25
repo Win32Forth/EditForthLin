@@ -28,6 +28,8 @@ jobs:
           git config core.autocrlf false
           git config user.name "Tom Zimmer"
           git config user.email "131190463+Win32Forth@users.noreply.github.com"
+          notes=.github/release-notes-v276.md
+          test -f "$notes"
           if git cat-file -e HEAD:Releases/editforthlin_2.7.6_arm64.deb 2>/dev/null; then
             sha=$(git rev-parse HEAD)
             if gh release view v2.7.6 --repo "${{ github.repository }}" >/dev/null 2>&1; then
@@ -35,40 +37,10 @@ jobs:
               exit 0
             fi
             echo "cfbf7110c932ef937a54d39c2e51cb1da4181615f45f7c5d213ce6674024350a  Releases/editforthlin_2.7.6_arm64.deb" | sha256sum -c -
-            cat > /tmp/rel.md << 'EOF'
-EditForthLin 2.7.6 for Linux.
-
-The arm64 installer is attached. It was built on Ubuntu 24.04.5 LTS. This release has no amd64 package and no AppImage. The amd64 file still in the repository is Releases/editforthlin_2.6.3_amd64.deb.
-
-Install on Ubuntu 24.04 arm64 from the directory that contains the package:
-
-sudo apt update
-sudo apt install ./editforthlin_2.7.6_arm64.deb
-
-apt downloads Qt 6, X11, zenity, and the other libraries named by the package.
-
-Package size: 5954224 bytes.
-SHA256: cfbf7110c932ef937a54d39c2e51cb1da4181615f45f7c5d213ce6674024350a
-
-This release ports EditForthWin 2.7.6.
-
-- CORES, KEY?, and INCLUDED match the 2.7.6 kernel.
-- The editor adds Markdown preview, stack-effect, stackcheck, and recent folders.
-- Restart drops the previous quit frame, so the new Forth session keeps answering.
-- Ask Forth does not save keys.
-- The X11 GRAPHICS window draws TRUECOLOR, COLOR8, and 1-bit pictures, with a green character grid, arrow keys, and the mouse.
-- S in the Julia programs opens a zenity Save Picture dialog. PNG, JPEG, and TIFF are written by the Forth picture words.
-- Image load and the small OOP windows still return cancel.
-- The stand-alone emit grid is 384 by 192.
-- On arm64, ANS-VALIDATE passed 394 and failed 0. Hayes counts were all zero, including FPERRORS.
-- Smoke: 1 2 + . prints 3. 1 2 3 4 .S shows four values.
-
-x64 objects are assembled in this tree. Link and pack the amd64 installer on Linux Mint with bash build-x64.sh and bash scripts/pack-deb.sh amd64.
-EOF
             gh release create v2.7.6 \
               "Releases/editforthlin_2.7.6_arm64.deb#EditForthLin 2.7.6 arm64 (Ubuntu 24.04.5)" \
               --title "EditForthLin 2.7.6" \
-              --notes-file /tmp/rel.md \
+              --notes-file "$notes" \
               --target "${sha}" \
               --repo "${{ github.repository }}"
             exit 0
@@ -91,7 +63,7 @@ EOF
           git apply --index --whitespace=nowarn /tmp/src.patch
           echo "cfbf7110c932ef937a54d39c2e51cb1da4181615f45f7c5d213ce6674024350a  Releases/editforthlin_2.7.6_arm64.deb" | sha256sum -c -
           git rm -rf Releases/v276parts
-          git rm -f .github/workflows/place-v276.yml
+          git rm -f .github/workflows/place-v276.yml .github/release-notes-v276.md
           tree=$(git write-tree)
           echo "tree $tree"
           if [ "$tree" != "6753fd5d948d0ee97a32a9ce10a303df6e1f0f14" ]; then
@@ -101,40 +73,10 @@ EOF
           git commit -m "Release EditForthLin 2.7.6 and pack the arm64 installer." -m "Port EditForthWin 2.7.6, including CORES, the editor stack tools, and the Restart fix. The X11 graphics window is in the Forth process, and S in the Julia programs saves PNG, JPEG, or TIFF through zenity. arm64 ANS-VALIDATE passed 394 and failed 0. Hayes counts were all zero. The arm64 .deb records the libraries the binaries link, plus zenity, so apt install downloads them."
           git push origin HEAD:main
           sha=$(git rev-parse HEAD)
-          cat > /tmp/rel.md << 'EOF'
-EditForthLin 2.7.6 for Linux.
-
-The arm64 installer is attached. It was built on Ubuntu 24.04.5 LTS. This release has no amd64 package and no AppImage. The amd64 file still in the repository is Releases/editforthlin_2.6.3_amd64.deb.
-
-Install on Ubuntu 24.04 arm64 from the directory that contains the package:
-
-sudo apt update
-sudo apt install ./editforthlin_2.7.6_arm64.deb
-
-apt downloads Qt 6, X11, zenity, and the other libraries named by the package.
-
-Package size: 5954224 bytes.
-SHA256: cfbf7110c932ef937a54d39c2e51cb1da4181615f45f7c5d213ce6674024350a
-
-This release ports EditForthWin 2.7.6.
-
-- CORES, KEY?, and INCLUDED match the 2.7.6 kernel.
-- The editor adds Markdown preview, stack-effect, stackcheck, and recent folders.
-- Restart drops the previous quit frame, so the new Forth session keeps answering.
-- Ask Forth does not save keys.
-- The X11 GRAPHICS window draws TRUECOLOR, COLOR8, and 1-bit pictures, with a green character grid, arrow keys, and the mouse.
-- S in the Julia programs opens a zenity Save Picture dialog. PNG, JPEG, and TIFF are written by the Forth picture words.
-- Image load and the small OOP windows still return cancel.
-- The stand-alone emit grid is 384 by 192.
-- On arm64, ANS-VALIDATE passed 394 and failed 0. Hayes counts were all zero, including FPERRORS.
-- Smoke: 1 2 + . prints 3. 1 2 3 4 .S shows four values.
-
-x64 objects are assembled in this tree. Link and pack the amd64 installer on Linux Mint with bash build-x64.sh and bash scripts/pack-deb.sh amd64.
-EOF
           gh release create v2.7.6 \
             "Releases/editforthlin_2.7.6_arm64.deb#EditForthLin 2.7.6 arm64 (Ubuntu 24.04.5)" \
             --title "EditForthLin 2.7.6" \
-            --notes-file /tmp/rel.md \
+            --notes-file "$notes" \
             --target "${sha}" \
             --repo "${{ github.repository }}"
           git push origin --delete v276-parts v276-p1 v276-p2 v276-p3 v276-p4 v276-p5 v276-p6
