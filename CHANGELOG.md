@@ -2,7 +2,7 @@
 
 ## 2.7.6 — 2026-11-24
 
-Linux port of EditForthWin 2.7.6. The kernel banner is `2.7.6` / `Nov 24, 2026 6:27 PM` / `EditForthLin arm64` or `EditForthLin x64`. The arm64 kernel and editor were built on this host. `1 2 + .` prints `3`. `1 2 3 4 .S` prints `( 4 ) 1 2 3 4`. arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero, including `FPERRORS`. The x64 NASM objects assembled on this host (`nasm -f elf64`, 19 objects). Link `forthx64` on Linux Mint with `bash build-x64.sh`. The arm64 installer is `Releases/editforthlin_2.7.6_arm64.deb` (5954224 bytes, SHA256 `cfbf7110c932ef937a54d39c2e51cb1da4181615f45f7c5d213ce6674024350a`). The amd64 file in `Releases/` is still the 2.6.3 package.
+Linux port of EditForthWin 2.7.6. The kernel banner is `2.7.6` / `Nov 24, 2026 6:27 PM` / `EditForthLin arm64` or `EditForthLin x64`. The arm64 kernel and editor were built on this host. `1 2 + .` prints `3`. `1 2 3 4 .S` prints `( 4 ) 1 2 3 4`. arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero, including `FPERRORS`. The x64 kernel and editor were linked on Linux Mint 22.3. `forthx64 --agent -e '2 3 + .'` printed `5`. The arm64 installer is `Releases/editforthlin_2.7.6_arm64.deb` (5954224 bytes, SHA256 `cfbf7110c932ef937a54d39c2e51cb1da4181615f45f7c5d213ce6674024350a`). The amd64 installer is `Releases/editforthlin_2.7.6_amd64.deb` (6048220 bytes, SHA256 `ab7aa9d414aa5de80ce10b09ccea99b78b0e0ca83f451c6292bf9112ff5f954f`).
 
 ### In this release
 
@@ -14,12 +14,13 @@ Linux port of EditForthWin 2.7.6. The kernel banner is `2.7.6` / `Nov 24, 2026 6
 - The editor previews Markdown, checks stack effects, and builds the `stackcheck` tool. The file pane keeps recent folders. CHDIR still asks the editor for a directory over the Unix socket. Ask Forth keys are not stored on Linux
 - Stand-alone `emit-lin` accepts 384 columns and 192 rows. The in-process GRAPHICS window is an X11 window in the Forth process: TRUECOLOR, COLOR8, and 1-bit blits, the green character grid, arrow keys, and the mouse. S in the Julia programs opens a zenity Save Picture dialog (PNG, JPEG, or TIFF) and the Forth writers save that file
 - Restart discards the shutdown quit instead of leaving it for the next companion. Return and INCLUDE reach the fresh image
+- Amd64 installer `Releases/editforthlin_2.7.6_amd64.deb`, built on Linux Mint 22.3. `sudo apt install ./editforthlin_2.7.6_amd64.deb` downloads Qt 6, X11, zenity, and the other packages in `Depends`
 
 ### Still open
 
 - Image load and the small OOP windows (those panels still return cancel)
 - Ask Forth key storage on Linux
-- The amd64 2.7.6 package, and the Mint link of `forthx64`
+- Hayes / ANS-VALIDATE on the Mint x64 build
 - An AppImage
 
 ## 2.6.3 — 2026-11-03

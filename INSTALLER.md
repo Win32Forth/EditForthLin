@@ -1,6 +1,6 @@
 # Installing EditForthLin
 
-**Version 2.7.6.** Linux Mint, or another Debian/Ubuntu system with the same packages. The kernel banner is `EditForthLin arm64` or `EditForthLin x64`, `2.7.6` / `Nov 24, 2026 6:27 PM`. The arm64 package is `Releases/editforthlin_2.7.6_arm64.deb`. The amd64 package in `Releases/` is still 2.6.3 until it is packed on Linux Mint.
+**Version 2.7.6.** Linux Mint, or another Debian/Ubuntu system with the same packages. The kernel banner is `EditForthLin arm64` or `EditForthLin x64`, `2.7.6` / `Nov 24, 2026 6:27 PM`. The packages are `Releases/editforthlin_2.7.6_arm64.deb` and `Releases/editforthlin_2.7.6_amd64.deb`.
 
 ## Install the package
 
@@ -15,15 +15,19 @@ sudo apt install ./editforthlin_2.7.6_arm64.deb
 
 Use `apt install`. `dpkg -i` does not download those libraries.
 
-The amd64 package is linked on Linux Mint x64, then packed with the same script:
+The amd64 package built on Linux Mint 22.3 is `Releases/editforthlin_2.7.6_amd64.deb` (6048220 bytes, SHA256 `ab7aa9d414aa5de80ce10b09ccea99b78b0e0ca83f451c6292bf9112ff5f954f`). From the directory that contains that file:
+
+```bash
+sudo apt update
+sudo apt install ./editforthlin_2.7.6_amd64.deb
+```
+
+To build it again on Mint x64:
 
 ```bash
 bash build-x64.sh
 bash scripts/pack-deb.sh amd64
-sudo apt install ./Releases/editforthlin_2.7.6_amd64.deb
 ```
-
-That amd64 file is not in this tree yet. `Releases/editforthlin_2.6.3_amd64.deb` is the previous Mint package.
 
 `scripts/pack-deb.sh` runs `dpkg-shlibdeps` on the binaries and writes those packages into `Depends`. It also depends on `qt6-qpa-plugins` (Qt loads that plugin when the window opens), `libgl1`, `libxkbcommon0`, and `zenity` (bare `CHDIR` and Julia picture save). The Forth engine links `libx11-6` for the GRAPHICS window. On Ubuntu 24.04 and Linux Mint 22 the Qt packages use the `t64` names. The package does not include `cmake`, `nasm`, or the other build tools.
 
@@ -41,7 +45,7 @@ cd EditForthLin
 git checkout main
 ```
 
-`main` tracks the latest commit. This tree is **2.7.6**. The arm64 installer is `Releases/editforthlin_2.7.6_arm64.deb`. The amd64 installer in `Releases/` is still 2.6.3.
+`main` tracks the latest commit. This tree is **2.7.6**. The installers are `Releases/editforthlin_2.7.6_arm64.deb` and `Releases/editforthlin_2.7.6_amd64.deb`.
 
 ### 2. Install the build tools
 

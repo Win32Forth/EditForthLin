@@ -3,7 +3,7 @@
 Target: **Linux Mint** (Ubuntu/Debian package names). Other Debian-ish distros
 should work with the same packages.
 
-Version **2.7.6** (`Nov 24, 2026 6:27 PM`) — install steps: **[INSTALLER.md](../INSTALLER.md)**. Full Mint guide: **[LINUXMINT.md](../LINUXMINT.md)**. The arm64 package is `Releases/editforthlin_2.7.6_arm64.deb`. The amd64 package in `Releases/` is still 2.6.3.
+Version **2.7.6** (`Nov 24, 2026 6:27 PM`) — install steps: **[INSTALLER.md](../INSTALLER.md)**. Full Mint guide: **[LINUXMINT.md](../LINUXMINT.md)**. The packages are `Releases/editforthlin_2.7.6_arm64.deb` and `Releases/editforthlin_2.7.6_amd64.deb`. The amd64 package was built on Linux Mint 22.3.
 
 To run a packed build without the compiler toolchain, `sudo apt install ./editforthlin_<version>_<arch>.deb`. `apt` downloads the Qt 6 libraries named in that package. The commands below are the from-source build.
 

@@ -20,8 +20,8 @@ Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 - CORES runs on ten pthread workers. `KEY?` does not consume a key. File words resolve `System/`, `Library/`, and `Config/` at those roots. A file load is `S\" path\" INCLUDED`, so it is not cut at 1023 bytes
 - The editor has Markdown preview, a stack-effect check, the `stackcheck` tool, and a recent-folder menu. Restart drops the old quit frame, so Return and INCLUDE work on the fresh image. Ask Forth keys are still not saved on Linux
 - The GRAPHICS window is an X11 window in the Forth process: TRUECOLOR, COLOR8, and 1-bit blits, the green character grid, arrow keys, and the mouse. S in the Julia programs opens a zenity Save Picture dialog and writes PNG, JPEG, or TIFF. Image load and the small OOP windows still return cancel. Stand-alone emit accepts a 384 by 192 character grid
-- arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero, including `FPERRORS`. `1 2 + .` prints `3`. `1 2 3 4 .S` prints `( 4 ) 1 2 3 4`. The x64 NASM objects assembled on this host. Link `forthx64` and pack the amd64 installer on Linux Mint
-- The arm64 installer is `Releases/editforthlin_2.7.6_arm64.deb`. `sudo apt install` downloads Qt 6, X11, zenity, and the other packages in `Depends`. The amd64 file in `Releases/` is still the 2.6.3 package
+- arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero, including `FPERRORS`. `1 2 + .` prints `3`. `1 2 3 4 .S` prints `( 4 ) 1 2 3 4`. On Linux Mint x64, `forthx64 --agent -e '2 3 + .'` printed `5`
+- The installers are `Releases/editforthlin_2.7.6_arm64.deb` and `Releases/editforthlin_2.7.6_amd64.deb`. `sudo apt install` of either file downloads Qt 6, X11, zenity, and the other packages in `Depends`. The amd64 package was built on Linux Mint 22.3
 
 ### 2.6.3 highlights
 

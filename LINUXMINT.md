@@ -9,7 +9,7 @@ Other Debian/Ubuntu-based distros use the same packages and steps.
 | Marketing version | **2.7.6** |
 | Repo | https://github.com/Win32Forth/EditForthLin |
 | Tag / release | [v2.7.6](https://github.com/Win32Forth/EditForthLin/releases/tag/v2.7.6) |
-| Install | [INSTALLER.md](INSTALLER.md). arm64: `Releases/editforthlin_2.7.6_arm64.deb`. The amd64 package in `Releases/` is still 2.6.3 |
+| Install | [INSTALLER.md](INSTALLER.md). `Releases/editforthlin_2.7.6_arm64.deb` and `Releases/editforthlin_2.7.6_amd64.deb` |
 | Kernel banner | `=== EditForthLin 2.7.6 === Nov 24, 2026 6:27 PM ===` |
 | Agent binary | `Forth/build/x64/forthx64` (aarch64: `Forth/build/arm64/fortharm64`) |
 | Editor binary | `Edit/build/x64/editforthlinx64` (aarch64: `Edit/build/arm64/editforthlinarm64`) |
@@ -251,7 +251,7 @@ or open a GitHub issue.
 
 - Hayes / ANS-VALIDATE on x64. On arm64, ANS-VALIDATE passed 394 and failed 0. Hayes counts were all zero, including `FPERRORS`
 - Image load, the small OOP windows, and the clipboard (those calls still return cancel). The X11 GRAPHICS window and Julia picture save are in this tree
-- AskForth key storage (libsecret) and an AppImage. The arm64 installer is `Releases/editforthlin_2.7.6_arm64.deb`. The amd64 file in `Releases/` is still `editforthlin_2.6.3_amd64.deb` until `bash build-x64.sh` and `bash scripts/pack-deb.sh amd64` run on Linux Mint. `sudo apt install` downloads that package's `Depends`
+- AskForth key storage (libsecret) and an AppImage. The 2.7.6 installers are `Releases/editforthlin_2.7.6_arm64.deb` and `Releases/editforthlin_2.7.6_amd64.deb`. The amd64 package was built on Linux Mint 22.3. `sudo apt install` downloads that package's `Depends`
 - `Config/HYPER.CFG` is not copied into the user tree; reindex uses the default list
 
 Port status: [PORT.md](PORT.md). Host details: [docs/linux-host.md](docs/linux-host.md).
