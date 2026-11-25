@@ -28,4 +28,4 @@ nasm -f elf64 -o Forth/build/x64-linux/state.o Forth/kernel/x64-linux/asm/state.
 `Forth/build/x64/forthx64` on Linux. On macOS it stops after assemble and
 host compile-check.
 
-Version strings live in `identity.asm` (`2.6.3`, console `EditForthLin x64`).
+Version strings live in `identity.asm` (`2.7.6`, `Nov 24, 2026 6:27 PM`, console `EditForthLin x64`).

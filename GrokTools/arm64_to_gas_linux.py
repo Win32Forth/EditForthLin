@@ -42,6 +42,7 @@ FILES = [
     "dict.asm",
     "entry.asm",
     "cold.asm",
+    "tasking.asm",
     "boot_end.asm",
 ]
 
@@ -147,6 +148,27 @@ def parse_int(text: str):
     return None
 
 
+def eval_expr(text: str, equs: dict) -> int:
+    """Fold an armasm integer expression that names earlier EQU symbols."""
+    plain = parse_int(text)
+    if plain is not None:
+        return plain
+    expr = (text.replace(":OR:", "|").replace(":AND:", "&")
+            .replace(":SHL:", "<<").replace(":SHR:", ">>")
+            .replace(":NOT:", "~").replace(":MOD:", "%"))
+
+    def repl(match: re.Match) -> str:
+        name = match.group(0)
+        if name not in equs:
+            raise AsmError(f"unknown symbol in expression: {name}")
+        return str(equs[name])
+
+    expr = re.sub(r"(?<![A-Za-z0-9_])[A-Za-z_][A-Za-z0-9_]*", repl, expr)
+    if not re.fullmatch(r"[0-9A-Fa-fXx+\-*/|&~() \t]+", expr):
+        raise AsmError(f"bad expression: {text}")
+    return int(eval(expr, {"__builtins__": {}}, {}))
+
+
 def fmt_num(value: int) -> str:
     if value < 0:
         return str(value)
@@ -207,7 +229,16 @@ def subst_hash_equs(text: str, equs: dict) -> str:
             return match.group(0)
         return "#" + fmt_num(equs[name])
 
-    return re.sub(r"#([A-Za-z_][A-Za-z0-9_]*)", repl, text)
+    text = re.sub(r"#([A-Za-z_][A-Za-z0-9_]*)", repl, text)
+
+    def repl_paren(match: re.Match) -> str:
+        try:
+            value = eval_expr(match.group(1), equs)
+        except AsmError:
+            return match.group(0)
+        return "#" + fmt_num(value)
+
+    return re.sub(r"#\(([^()]*)\)", repl_paren, text)
 
 
 def fix_lo12(line: str) -> str:
@@ -340,9 +371,10 @@ class Translator:
         if upper == "EQU":
             if not label:
                 raise AsmError(f"{self.loc}: EQU needs a name")
-            value = parse_int(args)
-            if value is None:
-                raise AsmError(f"{self.loc}: bad EQU {args!r}")
+            try:
+                value = eval_expr(args, self.equs)
+            except AsmError as exc:
+                raise AsmError(f"{self.loc}: bad EQU {args!r}: {exc}") from exc
             self.equs[label] = value
             return False
         if upper == "EXPORT":
@@ -368,9 +400,10 @@ class Translator:
         if upper == "SPACE":
             if label:
                 self.note_label(label, False)
-            number = parse_int(args)
-            if number is None:
-                raise AsmError(f"{self.loc}: bad SPACE {args!r}")
+            try:
+                number = eval_expr(args, self.equs)
+            except AsmError as exc:
+                raise AsmError(f"{self.loc}: bad SPACE {args!r}: {exc}") from exc
             self.add(("space", number))
             return False
         if upper == "INCBIN":
@@ -509,6 +542,13 @@ class Translator:
     def emit_insn(self, text: str):
         line = fix_lo12(text.strip())
         line = subst_hash_equs(line, self.equs)
+        # armasm %FT91 / %BT91 are GAS numeric local labels 91f / 91b.
+        line = re.sub(
+            r"%([FB])T?(\d+)",
+            lambda match: match.group(2) + ("f" if match.group(1).upper() == "F" else "b"),
+            line,
+            flags=re.IGNORECASE,
+        )
         self.add(("insn", line))
 
 
@@ -526,7 +566,7 @@ def emit_gas(src_name: str, unit: Translator) -> str:
     ]
     seen = set()
     for name in unit.labels:
-        if name in seen:
+        if name in seen or name.isdigit():
             continue
         seen.add(name)
         if name in unit.exports:
@@ -639,10 +679,12 @@ def main() -> int:
             print(f"error: {exc}", file=sys.stderr)
             return 1
         dest = os.path.join(OUT, os.path.splitext(name)[0] + ".s")
-        for stale in (dest + ".part2", dest + ".part3", dest + ".part4"):
-            if os.path.isfile(stale) and len(text.encode("utf-8")) <= 112000:
-                os.remove(stale)
         written = write_gas(dest, text)
+        written_set = set(written)
+        for index in range(2, 9):
+            stale = dest + f".part{index}"
+            if stale not in written_set and os.path.isfile(stale):
+                os.remove(stale)
         shown = ", ".join(os.path.relpath(path, ROOT) for path in written)
         print(f"  {name} -> {shown}")
     print(f"Translated {len(FILES)} files into {os.path.relpath(OUT, ROOT)}")

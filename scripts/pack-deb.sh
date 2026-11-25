@@ -113,6 +113,7 @@ add_dep() {
 add_dep qt6-qpa-plugins
 add_dep libgl1
 add_dep libxkbcommon0
+add_dep zenity
 
 installed_kb=$(du -sk "$stage" | awk '{print $1}')
 cat > "$stage/DEBIAN/control" << EOF

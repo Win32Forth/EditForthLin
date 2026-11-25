@@ -1,3 +1,1139 @@
+    mov rax, qword [r15+8]
+    mov rcx, qword [r15+16]
+    imul rax, rcx
+    mov qword [r15+24], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_86
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_86
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_86:
+    ; ldr     x2, [x16, #TU_SSTK_PTR]
+    mov r10, qword [r15+128]
+    add r10, 0xf0
+    mov rax, qword [r10]
+    mov qword [r15+16], rax
+    ; add     x2, x2, x3
+    mov rax, qword [r15+16]
+    mov rcx, qword [r15+24]
+    add rax, rcx
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_88
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_88
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_88:
+    ; ldr     x3, [x16, #TU_SRC_ADDR]
+    mov r10, qword [r15+128]
+    add r10, 0x68
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; str     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_90
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_90
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_90:
+    ; ldr     x3, [x16, #TU_SRC_LEN]
+    mov r10, qword [r15+128]
+    add r10, 0x70
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; str     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_92
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_92
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_92:
+    ; ldr     x3, [x16, #TU_TO_IN]
+    mov r10, qword [r15+128]
+    add r10, 0x78
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; str     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_94
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_94
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_94:
+    ; ldr     x3, [x16, #TU_SRC_ID]
+    mov r10, qword [r15+128]
+    add r10, 0x80
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; str     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_96
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_96
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_96:
+    ; ldr     x3, [x16, #TU_ECHO_POS]
+    mov r10, qword [r15+128]
+    add r10, 0xb0
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; str     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_98
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_98
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_98:
+    ; ldr     x3, [x16, #TU_BLK]
+    mov r10, qword [r15+128]
+    add r10, 0x88
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; str     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_100
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_100
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_100:
+    ; ldr     x3, [x16, #TU_LINE_MODE]
+    mov r10, qword [r15+128]
+    add r10, 0x90
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; str     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_102
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_102
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_102:
+    ; ldr     x3, [x16, #TU_LINE_ORIGIN]
+    mov r10, qword [r15+128]
+    add r10, 0x98
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; str     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_104
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_104
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_104:
+    ; ldr     x3, [x16, #TU_LINE_LIMIT]
+    mov r10, qword [r15+128]
+    add r10, 0xa0
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; str     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_106
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_106
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_106:
+    ; ldr     x3, [x16, #TU_LINE_NEXT]
+    mov r10, qword [r15+128]
+    add r10, 0xa8
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; str     x3, [x2]
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; add     x1, x1, #1
+    mov rax, qword [r15+8]
+    add rax, 1
+    mov qword [r15+8], rax
+    ; str     x1, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r15+8]
+    mov qword [r10], rax
+    ; mov     x0, #1
+    mov rax, 1
+    mov qword [r15+0], rax
+    ; ret
+    jmp qword [r15+240]
+_ps_full:
+    ; mov     x0, #0
+    mov rax, 0
+    mov qword [r15+0], rax
+    ; ret
+    jmp qword [r15+240]
+_pop_source:
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_108
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_108
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_108:
+    ; add     x0, x16, #TU_SRC_SP
+    mov rax, qword [r15+128]
+    add rax, 0xc0
+    mov qword [r15+0], rax
+    ; ldr     x1, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbz     x1, _pop_empty
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    je _pop_empty
+    ; sub     x1, x1, #1
+    mov rax, qword [r15+8]
+    sub rax, 1
+    mov qword [r15+8], rax
+    ; str     x1, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r15+8]
+    mov qword [r10], rax
+    ; mov     x2, #80
+    mov rax, 0x50
+    mov qword [r15+16], rax
+    ; mul     x3, x1, x2
+    mov rax, qword [r15+8]
+    mov rcx, qword [r15+16]
+    imul rax, rcx
+    mov qword [r15+24], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_110
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_110
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_110:
+    ; ldr     x2, [x16, #TU_SSTK_PTR]
+    mov r10, qword [r15+128]
+    add r10, 0xf0
+    mov rax, qword [r10]
+    mov qword [r15+16], rax
+    ; add     x2, x2, x3
+    mov rax, qword [r15+16]
+    mov rcx, qword [r15+24]
+    add rax, rcx
+    mov qword [r15+16], rax
+    ; ldr     x4, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r10]
+    mov qword [r15+32], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_112
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_112
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_112:
+    ; str     x4, [x16, #TU_SRC_ADDR]
+    mov r10, qword [r15+128]
+    add r10, 0x68
+    mov rax, qword [r15+32]
+    mov qword [r10], rax
+    ; ldr     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_114
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_114
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_114:
+    ; str     x3, [x16, #TU_SRC_LEN]
+    mov r10, qword [r15+128]
+    add r10, 0x70
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; ldr     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_116
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_116
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_116:
+    ; str     x3, [x16, #TU_TO_IN]
+    mov r10, qword [r15+128]
+    add r10, 0x78
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; add     x4, x4, x3
+    mov rax, qword [r15+32]
+    mov rcx, qword [r15+24]
+    add rax, rcx
+    mov qword [r15+32], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_118
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_118
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_118:
+    ; str     x4, [x16, #TU_WORD_CURSOR]
+    mov r10, qword [r15+128]
+    add r10, 0xb8
+    mov rax, qword [r15+32]
+    mov qword [r10], rax
+    ; ldr     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_120
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_120
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_120:
+    ; str     x3, [x16, #TU_SRC_ID]
+    mov r10, qword [r15+128]
+    add r10, 0x80
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; ldr     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_122
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_122
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_122:
+    ; str     x3, [x16, #TU_ECHO_POS]
+    mov r10, qword [r15+128]
+    add r10, 0xb0
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; ldr     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_124
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_124
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_124:
+    ; str     x3, [x16, #TU_BLK]
+    mov r10, qword [r15+128]
+    add r10, 0x88
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; ldr     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_126
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_126
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_126:
+    ; str     x3, [x16, #TU_LINE_MODE]
+    mov r10, qword [r15+128]
+    add r10, 0x90
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; ldr     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_128
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_128
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_128:
+    ; str     x3, [x16, #TU_LINE_ORIGIN]
+    mov r10, qword [r15+128]
+    add r10, 0x98
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; ldr     x3, [x2], #8
+    mov r10, qword [r15+16]
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    mov rax, qword [r15+16]
+    add rax, 8
+    mov qword [r15+16], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_130
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_130
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_130:
+    ; str     x3, [x16, #TU_LINE_LIMIT]
+    mov r10, qword [r15+128]
+    add r10, 0xa0
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; ldr     x3, [x2]
+    mov r10, qword [r15+16]
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_132
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_132
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_132:
+    ; str     x3, [x16, #TU_LINE_NEXT]
+    mov r10, qword [r15+128]
+    add r10, 0xa8
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; mov     x0, #1
+    mov rax, 1
+    mov qword [r15+0], rax
+    ; ret
+    jmp qword [r15+240]
+_pop_empty:
+    ; mov     x0, #0
+    mov rax, 0
+    mov qword [r15+0], rax
+    ; ret
+    jmp qword [r15+240]
+_eval_resume_push:
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_134
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_134
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_134:
+    ; add     x0, x16, #TU_EVAL_SP
+    mov rax, qword [r15+128]
+    add rax, 0xd0
+    mov qword [r15+0], rax
+    ; ldr     x1, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cmp     x1, #8
+    mov rax, qword [r15+8]
+    cmp rax, 8
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.hs    _erp_full
+    cmp byte [r15+250], 0
+    jne _erp_full
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_136
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_136
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_136:
+    ; ldr     x2, [x16, #TU_EVALSTK_PTR]
+    mov r10, qword [r15+128]
+    add r10, 0xf8
+    mov rax, qword [r10]
+    mov qword [r15+16], rax
+    ; lsl     x3, x1, #3
+    mov rax, qword [r15+8]
+    shl rax, 3
+    mov qword [r15+24], rax
+    ; str     x19, [x2, x3]
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    add r10, rax
+    mov rax, qword [r15+152]
+    mov qword [r10], rax
+    ; add     x1, x1, #1
+    mov rax, qword [r15+8]
+    add rax, 1
+    mov qword [r15+8], rax
+    ; str     x1, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r15+8]
+    mov qword [r10], rax
+_erp_full:
+    ; ret
+    jmp qword [r15+240]
+_eval_resume_pop:
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_138
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_138
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_138:
+    ; add     x0, x16, #TU_EVAL_SP
+    mov rax, qword [r15+128]
+    add rax, 0xd0
+    mov qword [r15+0], rax
+    ; ldr     x1, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbz     x1, _erpop_empty
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    je _erpop_empty
+    ; sub     x1, x1, #1
+    mov rax, qword [r15+8]
+    sub rax, 1
+    mov qword [r15+8], rax
+    ; str     x1, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r15+8]
+    mov qword [r10], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_140
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_140
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_140:
+    ; ldr     x2, [x16, #TU_EVALSTK_PTR]
+    mov r10, qword [r15+128]
+    add r10, 0xf8
+    mov rax, qword [r10]
+    mov qword [r15+16], rax
+    ; lsl     x3, x1, #3
+    mov rax, qword [r15+8]
+    shl rax, 3
+    mov qword [r15+24], rax
+    ; ldr     x0, [x2, x3]
+    mov r10, qword [r15+16]
+    mov rax, qword [r15+24]
+    add r10, rax
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; ret
+    jmp qword [r15+240]
+_erpop_empty:
+    ; mov     x0, #0
+    mov rax, 0
+    mov qword [r15+0], rax
+    ; ret
+    jmp qword [r15+240]
+_throw_unwind_to_sp:
+    ; sub     sp, sp, #64
+    mov rax, rsp
+    sub rax, 0x40
+    mov rsp, rax
+    ; stp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r15+232]
+    mov qword [r10+0], rax
+    mov rax, qword [r15+240]
+    mov qword [r10+8], rax
+    ; str     x0, [sp, #48]
+    lea r10, [rsp]
+    add r10, 0x30
+    mov rax, qword [r15+0]
+    mov qword [r10], rax
+_tu_loop:
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_142
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_142
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_142:
+    ; ldr     x1, [x16, #TU_SRC_SP]
+    mov r10, qword [r15+128]
+    add r10, 0xc0
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; ldr     x2, [sp, #48]
+    lea r10, [rsp]
+    add r10, 0x30
+    mov rax, qword [r10]
+    mov qword [r15+16], rax
+    ; cmp     x1, x2
+    mov rax, qword [r15+8]
+    mov rcx, qword [r15+16]
+    cmp rax, rcx
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.ls    _tu_done
+    cmp byte [r15+250], 0
+    je _tu_done
+    cmp byte [r15+249], 0
+    jne _tu_done
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_144
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_144
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_144:
+    ; ldr     x0, [x16, #TU_SRC_ID]
+    mov r10, qword [r15+128]
+    add r10, 0x80
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; str     x0, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r15+0]
+    mov qword [r10], rax
+    ; bl      _pop_source
+    lea rax, [rel xret_73]
+    mov qword [r15+240], rax
+    jmp _pop_source
+    xret_73:
+    ; cbz     x0, _tu_done
+    mov rax, qword [r15+0]
+    cmp rax, 0
+    je _tu_done
+    ; ldr     x0, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; cmp     x0, #0
+    mov rax, qword [r15+0]
+    cmp rax, 0
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.gt    _tu_view
+    cmp byte [r15+249], 0
+    jne xsk_74
+    mov r11b, byte [r15+248]
+    cmp r11b, byte [r15+251]
+    je _tu_view
+    xsk_74:
+    ; cmn     x0, #2
+    mov rax, qword [r15+0]
+    add rax, 2
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setc byte [r15+250]
+    ; b.ne    _tu_loop
+    cmp byte [r15+249], 0
+    je _tu_loop
+_tu_view:
+    ; bl      _view_pop_src_id
+    lea rax, [rel xret_75]
+    mov qword [r15+240], rax
+    jmp _view_pop_src_id
+    xret_75:
+    ; b       _tu_loop
+    jmp _tu_loop
+_tu_done:
+    ; ldp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r10]
+    mov rcx, qword [r10+8]
+    mov qword [r15+232], rax
+    mov qword [r15+240], rcx
+    ; add     sp, sp, #64
+    mov rax, rsp
+    add rax, 0x40
+    mov rsp, rax
+    ; ret
+    jmp qword [r15+240]
+_vm_save:
+    ; lea x0, vm_tos
+    lea rax, [rel vm_tos]
+    mov qword [r15+0], rax
+    ; str     x20, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r15+160]
+    mov qword [r10], rax
+    ; lea x0, vm_dsp
+    lea rax, [rel vm_dsp]
+    mov qword [r15+0], rax
+    ; str     x22, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r15+176]
+    mov qword [r10], rax
+    ; lea x0, vm_rsp
+    lea rax, [rel vm_rsp]
+    mov qword [r15+0], rax
+    ; str     x23, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r15+184]
+    mov qword [r10], rax
+    ; ret
+    jmp qword [r15+240]
+_vm_load:
+    ; lea x0, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+0], rax
+    ; ldr     x27, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+216], rax
+    ; lea x24, latest_var
+    lea rax, [rel latest_var]
+    mov qword [r15+192], rax
+    ; lea x0, vm_tos
+    lea rax, [rel vm_tos]
+    mov qword [r15+0], rax
+    ; ldr     x20, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+160], rax
+    ; lea x0, vm_dsp
+    lea rax, [rel vm_dsp]
+    mov qword [r15+0], rax
+    ; ldr     x22, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+176], rax
+    ; lea x0, vm_rsp
+    lea rax, [rel vm_rsp]
+    mov qword [r15+0], rax
+    ; ldr     x23, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+184], rax
+    ; lea x0, debug_armed
+    lea rax, [rel debug_armed]
+    mov qword [r15+0], rax
+    ; ldr     x28, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+224], rax
+    ; cbnz    x22, _vm_load_ok
+    mov rax, qword [r15+176]
+    cmp rax, 0
+    jne _vm_load_ok
+    ; b       _vm_reset_stacks
+    jmp _vm_reset_stacks
+_vm_load_ok:
+    ; ret
+    jmp qword [r15+240]
+_vm_reset_stacks:
+    ; lea x22, data_stack
+    lea rax, [rel data_stack]
+    mov qword [r15+176], rax
+    ; add     x22, x22, #1, lsl #12
+    mov rax, qword [r15+176]
+    add rax, 0x1000
+    mov qword [r15+176], rax
+    ; mov     x20, #0
+    mov rax, 0
+    mov qword [r15+160], rax
+    ; lea x23, return_stack
+    lea rax, [rel return_stack]
+    mov qword [r15+184], rax
+    ; add     x23, x23, #1, lsl #12
+    mov rax, qword [r15+184]
+    add rax, 0x1000
+    mov qword [r15+184], rax
+    ; lea x24, latest_var
+    lea rax, [rel latest_var]
+    mov qword [r15+192], rax
+    ; lea x0, state_var
+    lea rax, [rel state_var]
+    mov qword [r15+0], rax
+    ; str     xzr, [x0]
+    mov r10, qword [r15+0]
+    mov qword [r10], 0
+    ; lea x0, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+0], rax
+    ; ldr     x0, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; cbz     x0, _vm_reset_done
+    mov rax, qword [r15+0]
+    cmp rax, 0
+    je _vm_reset_done
+    ; str     xzr, [x0, #TU_SRC_SP]
+    mov r10, qword [r15+0]
+    add r10, 0xc0
+    mov qword [r10], 0
+_vm_reset_done:
+    ; ret
+    jmp qword [r15+240]
+next_debug_gate:
+    ; lea x16, next_debug
+    lea rax, [rel next_debug]
+    mov qword [r15+128], rax
+    ; br      x16
+    mov rax, qword [r15+128]
+    jmp rax
+section .rodata
+msg_huh:
+    ; DCB     " ?", 10, 0
+    db " ?", 0xa, 0
+msg_memfault:
+    ; DCB     "memory access error", 10, 0
+    db "memory access error", 0xa, 0
+msg_underflow:
+    ; DCB     "stack underflow", 10, 0
+    db "stack underflow", 0xa, 0
+msg_overflow:
+    ; DCB     "stack overflow", 10, 0
+    db "stack overflow", 0xa, 0
+    ; ALIGN   8
+align 8
+boot_cmp_lit:
+    ; DCB     "LIT", 0
+    db "LIT", 0
+boot_cmp_exit:
+    ; DCB     "EXIT", 0
+    db "EXIT", 0
+boot_cmp_branch:
+    ; DCB     "BRANCH", 0
+    db "BRANCH", 0
+boot_cmp_0branch:
+    ; DCB    "0BRANCH", 0
+    db "0BRANCH", 0
+boot_cmp_does:
+    ; DCB     "(DOES>)", 0
+    db "(DOES>)", 0
+boot_cmp_slit:
+    ; DCB     "(S", 0x22, ")", 0
+    db "(S", 0x22, ")", 0
+boot_cmp_cstr:
+    ; DCB     "(C", 0x22, ")", 0
     db "(C", 0x22, ")", 0
 boot_cmp_execute:
     ; DCB    "EXECUTE", 0

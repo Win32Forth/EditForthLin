@@ -3,6 +3,7 @@
 
 .local next_debug_gate
 .global next_debug
+.local nd_console
 .local nd_asap_floor
 .local nd_asap_hit
 .local nd_floor
@@ -444,6 +445,15 @@
 .balign 16
 next_debug_gate:
 next_debug:
+    adrp    x1, console_task
+    add x1, x1, :lo12:console_task
+    cmp     x27, x1
+    b.eq    nd_console
+    cbz     x27, nd_console
+    ldr     x21, [x19], #8
+    ldr     x1, [x21]
+    br      x1
+nd_console:
     adrp    x1, debug_busy
     add x1, x1, :lo12:debug_busy
     ldr     x2, [x1]
@@ -4041,28 +4051,48 @@ _view_line_now:
     add x0, x0, :lo12:view_src_id
     ldr     x0, [x0]
     cbz     x0, _vln_none
-    adrp    x0, source_id
-    add x0, x0, :lo12:source_id
-    ldr     x0, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x0, [x16, #0x80]
     cbz     x0, _vln_none
     b       _source_line_now
 _vln_none:
     mov     x0, #0
     ret
 _source_line_now:
-    adrp    x1, source_base
-    add x1, x1, :lo12:source_base
-    ldr     x1, [x1]
-    adrp    x2, to_in
-    add x2, x2, :lo12:to_in
-    ldr     x2, [x2]
-    adrp    x4, line_mode
-    add x4, x4, :lo12:line_mode
-    ldr     x4, [x4]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x1, [x16, #0x68]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x2, [x16, #0x78]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x4, [x16, #0x90]
     cbz     x4, _source_line_at
-    adrp    x3, line_origin
-    add x3, x3, :lo12:line_origin
-    ldr     x3, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x3, [x16, #0x98]
     add     x4, x1, x2
     sub     x2, x4, x3
     mov     x1, x3

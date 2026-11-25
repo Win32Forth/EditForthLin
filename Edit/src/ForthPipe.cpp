@@ -66,6 +66,15 @@ public:
 
     void run() override {
         // Match Windows: companion listens; editor connects (same as named-pipe client).
+        ForthPipe *pipe = owner;
+        const int epoch = pipe->sessionEpoch();
+        auto tellStopped = [pipe, epoch] {
+            if (pipe->stopping())
+                return;
+            QMetaObject::invokeMethod(pipe, [pipe, epoch] {
+                pipe->noteStoppedIfCurrent(epoch);
+            }, Qt::QueuedConnection);
+        };
         QLocalSocket sock;
         bool connected = false;
         for (int i = 0; i < 80; ++i) {
@@ -190,7 +199,7 @@ public:
                                               Q_ARG(QString, text));
                 } else if (op == QLatin1String("bye") || op == QLatin1String("quit")) {
                     told = true;
-                    QMetaObject::invokeMethod(owner, "noteStopped", Qt::QueuedConnection);
+                    tellStopped();
                 }
                 dst = reinterpret_cast<char *>(hdr);
                 need = 4;
@@ -202,9 +211,13 @@ public:
         }
 
     done:
+        // Shutdown sets stopping() before it queues quit. The idle loop
+        // notices that and leaves before the next flush, so deliver the
+        // quit here, on this socket, before the next companion starts.
+        flushOutgoing(owner, &sock);
         sock.disconnectFromServer();
-        if (!told && !owner->stopping())
-            QMetaObject::invokeMethod(owner, "noteStopped", Qt::QueuedConnection);
+        if (!told)
+            tellStopped();
     }
 };
 
@@ -268,6 +281,12 @@ void ForthPipe::post(const QByteArray &json) {
 void ForthPipe::start() {
     if (m_proc != nullptr)
         return;
+    // Stops queued by the companion that just exited carry the old epoch.
+    m_epoch.fetch_add(1);
+    // A quit left in the queue is for the companion that just stopped.
+    // The next image would read it after the banner and exit, so Return
+    // and INCLUDE would never reach a live engine.
+    takeOutgoing();
     const QString path = forthPath();
     if (!QFileInfo::exists(path)) {
         emit engineFailed(QStringLiteral("Can't find %1.").arg(QFileInfo(path).fileName()));
@@ -317,6 +336,8 @@ void ForthPipe::shutdown() {
         delete m_reader;
         m_reader = nullptr;
     }
+    // Drop a quit the reader did not flush. start() also clears this queue.
+    takeOutgoing();
     if (m_wake != nullptr) {
         delete static_cast<WakePair *>(m_wake);
         m_wake = nullptr;

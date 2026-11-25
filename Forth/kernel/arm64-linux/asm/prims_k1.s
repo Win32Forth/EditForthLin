@@ -146,6 +146,8 @@
 .local hl_XALLOT
 .local row_XALLOT
 .local XALLOT
+.local _allot_under
+.local _allot_over
 .local _allot_fail
 .local XALLOT_END
 .local nm_XCOMMA
@@ -240,6 +242,7 @@
 .local row_XWORDLIST
 .local XWORDLIST
 .local _wl_zero
+.local _wl_full
 .local nm_XPREVIOUS
 .local hl_XPREVIOUS
 .local row_XPREVIOUS
@@ -267,6 +270,8 @@
 .local hl_XDEPTH
 .local row_XDEPTH
 .local XDEPTH
+.local _depth_up
+.local _depth_s0
 .local _depth_fix
 .local _depth_n
 .local XDEPTH_END
@@ -274,11 +279,15 @@
 .local hl_XCLEARSTACK
 .local row_XCLEARSTACK
 .local XCLEARSTACK
+.local _clr_up
+.local _clr_s0
 .local XCLEARSTACK_END
 .local nm_XSP0
 .local hl_XSP0
 .local row_XSP0
 .local XSP0
+.local _sp0_up
+.local _sp0_s0
 .local _sp0_fix
 .local _sp0_push
 .local XSP0_END
@@ -332,6 +341,8 @@
 .local hl_X0Branch
 .local row_X0Branch
 .global X0Branch
+.local _0br_up
+.local _0br_s0
 .local _0br_empty_skip
 .local _0br_skip
 .local _0br_true
@@ -415,9 +426,11 @@
 .local _word_end
 .local _word_store
 .local _word_len_ok
+.local _word_have
 .local _word_copy
 .local _word_done
 .local _word_empty
+.local _word_empty_have
 .local XWORD_END
 .local nm_XDOTPAREN
 .local hl_XDOTPAREN
@@ -1397,8 +1410,9 @@ row_XDP:
 .section .text, "ax", %progbits
 .balign 16
 XDP:
-    adrp    x0, here_ptr
-    add x0, x0, :lo12:here_ptr
+    stp     x29, x30, [sp, #-16]!
+    bl      _task_dp_bounds
+    ldp     x29, x30, [sp], #16
     str     x20, [x22, #-8]!
     mov     x20, x0
 XDP_END:
@@ -1431,9 +1445,10 @@ row_XHERE:
 .section .text, "ax", %progbits
 .balign 16
 XHERE:
-    adrp    x0, here_ptr
-    add x0, x0, :lo12:here_ptr
+    stp     x29, x30, [sp, #-16]!
+    bl      _task_dp_bounds
     ldr     x0, [x0]
+    ldp     x29, x30, [sp], #16
     str     x20, [x22, #-8]!
     mov     x20, x0
 XHERE_END:
@@ -1466,34 +1481,22 @@ row_XALLOT:
 .section .text, "ax", %progbits
 .balign 16
 XALLOT:
+    bl      _core_console_only
+    stp     x29, x30, [sp, #-16]!
+    bl      _task_require_dict
     mov     x0, x20
     ldr     x20, [x22], #8
-    adrp    x1, here_ptr
-    add x1, x1, :lo12:here_ptr
-    ldr     x2, [x1]
-    add     x3, x2, x0
-    adrp    x4, user_dict_area
-    add x4, x4, :lo12:user_dict_area
-    cmp     x3, x4
-    b.lo    _allot_fail
-    adrp    x5, user_dict_size_cell
-    add x5, x5, :lo12:user_dict_size_cell
-    ldr     x5, [x5]
-    add     x5, x4, x5
-    cmp     x3, x5
-    b.hi    _allot_fail
-    str     x3, [x1]
-    b       XALLOT_END
-_allot_fail:
-    sub     sp, sp, #64
-    stp     x29, x30, [sp, #32]
-    adrp    x0, msg_allot
-    add x0, x0, :lo12:msg_allot
-    bl      emit_cstr
-    ldp     x29, x30, [sp, #32]
-    add     sp, sp, #64
-    b       _quit_exit
-XALLOT_END:
+    str     x0, [sp, #-16]!
+    bl      _task_dp_bounds
+    ldr     x6, [sp], #16
+    ldr     x3, [x0]
+    add     x4, x3, x6
+    cmp     x4, x2
+    b.lo    _allot_under
+    cmp     x4, x1
+    b.hi    _allot_over
+    str     x4, [x0]
+    ldp     x29, x30, [sp], #16
     cbnz    x28, next_debug_gate
     adrp    x1, debug_break_asap
     add x1, x1, :lo12:debug_break_asap
@@ -1502,6 +1505,18 @@ XALLOT_END:
     ldr     x21, [x19], #8
     ldr     x1, [x21]
     br      x1
+_allot_under:
+    adrp    x0, str_allot_under
+    add x0, x0, :lo12:str_allot_under
+    b       _allot_fail
+_allot_over:
+    adrp    x0, str_allot_over
+    add x0, x0, :lo12:str_allot_over
+_allot_fail:
+    bl      _print_string_svc
+    ldp     x29, x30, [sp], #16
+    b       _task_stop_or_abandon
+XALLOT_END:
 .section .bwstr, "a", %progbits
 nm_XCOMMA:
     .byte 44, 0
@@ -1522,13 +1537,10 @@ row_XCOMMA:
 .section .text, "ax", %progbits
 .balign 16
 XCOMMA:
+    bl      _core_console_only
     mov     x0, x20
     ldr     x20, [x22], #8
-    sub     sp, sp, #64
-    stp     x29, x30, [sp, #32]
     bl      _compile_cell
-    ldp     x29, x30, [sp, #32]
-    add     sp, sp, #64
     cbnz    x28, next_debug_gate
     adrp    x1, debug_break_asap
     add x1, x1, :lo12:debug_break_asap
@@ -1649,6 +1661,7 @@ row_XCREATE:
 .section .text, "ax", %progbits
 .balign 16
 XCREATE:
+    bl      _core_console_only
     sub     sp, sp, #96
     stp     x29, x30, [sp, #32]
     bl      _next_word
@@ -1660,11 +1673,8 @@ XCREATE:
     add x4, x4, :lo12:DOVAR
     mov     x5, #0
     bl      _header_build
-    adrp    x1, here_ptr
-    add x1, x1, :lo12:here_ptr
-    ldr     x0, [x1]
-    str     xzr, [x0], #8
-    str     x0, [x1]
+    mov     x0, #0
+    bl      _compile_cell
     ldp     x29, x30, [sp, #32]
     add     sp, sp, #96
     cbnz    x28, next_debug_gate
@@ -1843,7 +1853,7 @@ _wreg_scan:
     add     x4, x4, #1
     b       _wreg_scan
 _wreg_add:
-    cmp     x2, #32
+    cmp     x2, #128
     b.hs    _wreg_done
     str     x0, [x3, x2, lsl #3]
     add     x2, x2, #1
@@ -2244,35 +2254,29 @@ row_XWORDLIST:
 .section .text, "ax", %progbits
 .balign 16
 XWORDLIST:
-    adrp    x0, here_ptr
-    add x0, x0, :lo12:here_ptr
-    ldr     x1, [x0]
-    add     x1, x1, #7
-    bic     x1, x1, #7
-    add     x3, x1, #128
-    adrp    x4, user_dict_area
-    add x4, x4, :lo12:user_dict_area
-    cmp     x3, x4
-    b.lo    _allot_fail
-    adrp    x5, user_dict_size_cell
-    add x5, x5, :lo12:user_dict_size_cell
-    ldr     x5, [x5]
-    add     x5, x4, x5
-    cmp     x3, x5
-    b.hi    _allot_fail
-    mov     x2, x1
-    mov     x5, #16
+    stp     x29, x30, [sp, #-16]!
+    bl      _task_require_dict
+    bl      _task_dp_bounds
+    ldr     x3, [x0]
+    add     x3, x3, #7
+    bic     x3, x3, #7
+    mov     x4, #16
+    lsl     x4, x4, #3
+    add     x5, x3, x4
+    cmp     x5, x3
+    b.lo    _wl_full
+    cmp     x5, x1
+    b.hi    _wl_full
+    mov     x6, x3
+    mov     x4, #16
 _wl_zero:
-    str     xzr, [x1], #8
-    subs    x5, x5, #1
+    str     xzr, [x6], #8
+    subs    x4, x4, #1
     b.ne    _wl_zero
-    str     x1, [x0]
-    mov     x0, x2
-    sub     sp, sp, #64
-    stp     x29, x30, [sp, #32]
+    str     x5, [x0]
+    mov     x0, x3
     bl      _wordlist_register
-    ldp     x29, x30, [sp, #32]
-    add     sp, sp, #64
+    ldp     x29, x30, [sp], #16
     str     x20, [x22, #-8]!
     mov     x20, x0
     cbnz    x28, next_debug_gate
@@ -2283,6 +2287,12 @@ _wl_zero:
     ldr     x21, [x19], #8
     ldr     x1, [x21]
     br      x1
+_wl_full:
+    ldp     x29, x30, [sp], #16
+    adrp    x0, str_dict_full
+    add x0, x0, :lo12:str_dict_full
+    bl      _print_string_svc
+    b       _task_stop_or_abandon
 .section .bwstr, "a", %progbits
 nm_XPREVIOUS:
     .byte 80, 82, 69, 86, 73, 79, 85, 83, 0
@@ -2484,9 +2494,16 @@ row_XDEPTH:
 .section .text, "ax", %progbits
 .balign 16
 XDEPTH:
-    adrp    x1, data_stack
-    add x1, x1, :lo12:data_stack
-    add     x0, x1, #1, lsl #12
+    cbnz    x27, _depth_up
+    adrp    x2, up_var
+    add x2, x2, :lo12:up_var
+    ldr     x2, [x2]
+    b       _depth_s0
+_depth_up:
+    mov     x2, x27
+_depth_s0:
+    ldr     x0, [x2, #0x30]
+    sub     x1, x0, #1, lsl #12
     cmp     x22, x0
     b.hi    _depth_fix
     cmp     x22, x1
@@ -2530,9 +2547,15 @@ row_XCLEARSTACK:
 .section .text, "ax", %progbits
 .balign 16
 XCLEARSTACK:
-    adrp    x22, data_stack
-    add x22, x22, :lo12:data_stack
-    add     x22, x22, #1, lsl #12
+    cbnz    x27, _clr_up
+    adrp    x0, up_var
+    add x0, x0, :lo12:up_var
+    ldr     x0, [x0]
+    b       _clr_s0
+_clr_up:
+    mov     x0, x27
+_clr_s0:
+    ldr     x22, [x0, #0x30]
     mov     x20, #0
 XCLEARSTACK_END:
     cbnz    x28, next_debug_gate
@@ -2564,9 +2587,16 @@ row_XSP0:
 .section .text, "ax", %progbits
 .balign 16
 XSP0:
-    adrp    x1, data_stack
-    add x1, x1, :lo12:data_stack
-    add     x0, x1, #1, lsl #12
+    cbnz    x27, _sp0_up
+    adrp    x2, up_var
+    add x2, x2, :lo12:up_var
+    ldr     x2, [x2]
+    b       _sp0_s0
+_sp0_up:
+    mov     x2, x27
+_sp0_s0:
+    ldr     x0, [x2, #0x30]
+    sub     x1, x0, #1, lsl #12
     cmp     x22, x0
     b.hi    _sp0_fix
     cmp     x22, x1
@@ -2967,9 +2997,15 @@ row_X0Branch:
 .section .text, "ax", %progbits
 .balign 16
 X0Branch:
-    adrp    x1, data_stack
-    add x1, x1, :lo12:data_stack
-    add     x1, x1, #1, lsl #12
+    cbnz    x27, _0br_up
+    adrp    x1, up_var
+    add x1, x1, :lo12:up_var
+    ldr     x1, [x1]
+    b       _0br_s0
+_0br_up:
+    mov     x1, x27
+_0br_s0:
+    ldr     x1, [x1, #0x30]
     cbz     x20, _0br_true
     cmp     x22, x1
     b.hs    _0br_empty_skip
@@ -3417,9 +3453,13 @@ _throw_tos_snap:
     ldr     x0, [x23], #8
     str     x0, [x7]
     ldr     x0, [x23], #8
-    adrp    x3, eval_resume_sp
-    add x3, x3, :lo12:eval_resume_sp
-    str     x0, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x0, [x16, #0xd0]
     sub     sp, sp, #80
     stp     x29, x30, [sp, #32]
     stp     x5, x20, [sp, #48]
@@ -3495,9 +3535,15 @@ XPARSE:
     ldr     x20, [x22], #8
     bl      _cursor_load
     mov     x9, x0
-    adrp    x3, source_end
-    add x3, x3, :lo12:source_end
-    ldr     x6, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x6, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x6, x6, x17
     mov     x3, x9
 _parse_scan:
     cmp     x3, x6
@@ -3558,9 +3604,15 @@ XWORD:
     stp     x29, x30, [sp, #32]
     mov     w7, w20
     bl      _cursor_load
-    adrp    x3, source_end
-    add x3, x3, :lo12:source_end
-    ldr     x9, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x9, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x9, x9, x17
 _word_skip:
     cmp     x0, x9
     b.hs    _word_empty
@@ -3630,8 +3682,17 @@ _word_store:
     mov     x5, #63
 _word_len_ok:
     bl      _cursor_commit
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x6, [x16, #0xd8]
+    cbnz    x6, _word_have
     adrp    x6, word_scratch
     add x6, x6, :lo12:word_scratch
+_word_have:
     strb    w5, [x6]
     mov     x1, #0
 _word_copy:
@@ -3656,8 +3717,17 @@ _word_done:
     br      x1
 _word_empty:
     bl      _cursor_commit
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x6, [x16, #0xd8]
+    cbnz    x6, _word_empty_have
     adrp    x6, word_scratch
     add x6, x6, :lo12:word_scratch
+_word_empty_have:
     strb    wzr, [x6]
     mov     x20, x6
     ldp     x29, x30, [sp, #32]
@@ -3697,9 +3767,15 @@ XDOTPAREN:
     mov     w7, #41
     bl      _cursor_load
     mov     x9, x0
-    adrp    x3, source_end
-    add x3, x3, :lo12:source_end
-    ldr     x6, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x6, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x6, x6, x17
     mov     x3, x9
 _dotp_scan:
     cmp     x3, x6
@@ -3747,17 +3823,27 @@ row_XBACKSLASH:
 .section .text, "ax", %progbits
 .balign 16
 XBACKSLASH:
-    adrp    x0, blk_var
-    add x0, x0, :lo12:blk_var
-    ldr     x0, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x0, [x16, #0x88]
     cbnz    x0, _bs_block
     sub     sp, sp, #64
     stp     x29, x30, [sp, #32]
     bl      _cursor_load
     mov     x10, x0
-    adrp    x3, source_end
-    add x3, x3, :lo12:source_end
-    ldr     x9, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x9, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x9, x9, x17
 _bs_loop:
     cmp     x10, x9
     b.hs    _bs_done
@@ -3783,16 +3869,27 @@ _bs_done:
     ldr     x1, [x21]
     br      x1
 _bs_block:
-    adrp    x0, to_in
-    add x0, x0, :lo12:to_in
-    ldr     x1, [x0]
-    adrp    x2, source_base
-    add x2, x2, :lo12:source_base
-    ldr     x3, [x2]
-    adrp    x2, source_end
-    add x2, x2, :lo12:source_end
-    ldr     x2, [x2]
-    sub     x2, x2, x3
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x1, [x16, #0x78]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x3, [x16, #0x68]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x2, [x16, #0x70]
     lsr     x5, x1, #6
     add     x5, x5, #1
     lsl     x5, x5, #6
@@ -3800,11 +3897,21 @@ _bs_block:
     b.ls    _bs_blk_ok
     mov     x5, x2
 _bs_blk_ok:
-    str     x5, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x5, [x16, #0x78]
     add     x3, x3, x5
-    adrp    x0, source_cur
-    add x0, x0, :lo12:source_cur
-    str     x3, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x3, [x16, #0xb8]
     cbnz    x28, next_debug_gate
     adrp    x1, debug_break_asap
     add x1, x1, :lo12:debug_break_asap
@@ -3838,9 +3945,15 @@ XPAREN:
     stp     x29, x30, [sp, #32]
     bl      _cursor_load
     mov     x10, x0
-    adrp    x3, source_end
-    add x3, x3, :lo12:source_end
-    ldr     x9, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x9, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x9, x9, x17
 _par_loop:
     cmp     x10, x9
     b.hs    _par_eol
@@ -3854,17 +3967,27 @@ _par_found:
     add     x10, x10, #1
     b       _par_store
 _par_eol:
-    adrp    x0, line_mode
-    add x0, x0, :lo12:line_mode
-    ldr     x0, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x0, [x16, #0x90]
     cbz     x0, _par_store
     bl      _take_line
     cbz     x0, _par_eof
     bl      _cursor_load
     mov     x10, x0
-    adrp    x3, source_end
-    add x3, x3, :lo12:source_end
-    ldr     x9, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x9, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x9, x9, x17
     b       _par_loop
 _par_eof:
     bl      _cursor_load
@@ -3947,9 +4070,15 @@ XSQUOTE:
     stp     x29, x30, [sp, #32]
     bl      _cursor_load
     mov     x1, x0
-    adrp    x3, source_end
-    add x3, x3, :lo12:source_end
-    ldr     x6, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x6, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x6, x6, x17
     mov     x9, x1
 _sq_scan:
     cmp     x1, x6
@@ -3996,10 +4125,11 @@ _sq_comp:
     ldr     x0, [sp, #56]
     bl      _compile_cell
     ldr     x5, [sp, #56]
+    mov     x0, x5
+    bl      _here_reserve
+    mov     x1, x0
+    ldr     x5, [sp, #56]
     ldr     x9, [sp, #48]
-    adrp    x0, here_ptr
-    add x0, x0, :lo12:here_ptr
-    ldr     x1, [x0]
     mov     x3, #0
 _sq_cpy:
     cmp     x3, x5
@@ -4009,10 +4139,6 @@ _sq_cpy:
     add     x3, x3, #1
     b       _sq_cpy
 _sq_align:
-    add     x1, x1, x5
-    add     x1, x1, #7
-    bic     x1, x1, #7
-    str     x1, [x0]
     ldp     x29, x30, [sp, #32]
     add     sp, sp, #96
     cbnz    x28, next_debug_gate
@@ -4087,9 +4213,15 @@ XCQUOTE:
     stp     x29, x30, [sp, #32]
     bl      _cursor_load
     mov     x1, x0
-    adrp    x3, source_end
-    add x3, x3, :lo12:source_end
-    ldr     x6, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x6, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x6, x6, x17
     mov     x9, x1
 _cq_scan:
     cmp     x1, x6
@@ -4149,10 +4281,11 @@ _cq_comp:
     ldr     x0, [x0]
     bl      _compile_cell
     ldr     x5, [sp, #56]
+    add     x0, x5, #1
+    bl      _here_reserve
+    mov     x1, x0
+    ldr     x5, [sp, #56]
     ldr     x9, [sp, #48]
-    adrp    x0, here_ptr
-    add x0, x0, :lo12:here_ptr
-    ldr     x1, [x0]
     strb    w5, [x1], #1
     mov     x3, #0
 _cq_cpy:
@@ -4163,10 +4296,6 @@ _cq_cpy:
     add     x3, x3, #1
     b       _cq_cpy
 _cq_align:
-    add     x1, x1, x5
-    add     x1, x1, #7
-    bic     x1, x1, #7
-    str     x1, [x0]
     ldp     x29, x30, [sp, #32]
     add     sp, sp, #96
     cbnz    x28, next_debug_gate

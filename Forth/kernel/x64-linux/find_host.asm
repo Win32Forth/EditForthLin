@@ -1,20 +1,16 @@
 ; C-callable wrapper for the translated _find_word (System V AMD64).
 ; Public domain.
 ;
-; Same role as Forth/kernel/x64/find_host.asm on Windows: save the virtual
-; register file, pass rdi/rsi into arm_x0/arm_x1, return through a local
-; arm_x30, restore the file, and return the CFA in rax.
+; This thread's x0..x30 and NZCV live in the TLS file from arm_load_base.
+; r15 holds that base while translated code runs. Save the file, pass
+; rdi/rsi in, return through arm_x30, restore the file, and return the
+; CFA in rax. save_arm is process-global, the same limit as the Windows
+; wrapper: one host_find_word at a time.
 
 bits 64
 default rel
 
-extern arm_x0
-extern arm_x1
-extern arm_x30
-extern arm_n
-extern arm_z
-extern arm_c
-extern arm_v
+extern arm_load_base
 extern _find_word
 
 section .data
@@ -33,43 +29,45 @@ host_find_word:
     push r12
     push r13
     push r14
-    ; System V args
+    push r15
     mov rbx, rdi
     mov r12, rsi
-    ; save arm_x0..arm_x30
-    lea rsi, [rel arm_x0]
+    call arm_load_base
+    mov r15, rax
+    lea rsi, [r15]
     lea rdi, [rel save_arm]
     mov rcx, 31
     rep movsq
-    mov al, [rel arm_n]
+    mov al, [r15+248]
     mov [rel save_n], al
-    mov al, [rel arm_z]
+    mov al, [r15+249]
     mov [rel save_z], al
-    mov al, [rel arm_c]
+    mov al, [r15+250]
     mov [rel save_c], al
-    mov al, [rel arm_v]
+    mov al, [r15+251]
     mov [rel save_v], al
-    mov [rel arm_x0], rbx
-    mov [rel arm_x1], r12
+    mov qword [r15], rbx
+    mov qword [r15+8], r12
     lea rax, [rel host_find_back]
-    mov [rel arm_x30], rax
+    mov qword [r15+240], rax
     jmp _find_word
 
 host_find_back:
-    mov rbx, [rel arm_x0]
+    mov rbx, qword [r15]
     lea rsi, [rel save_arm]
-    lea rdi, [rel arm_x0]
+    lea rdi, [r15]
     mov rcx, 31
     rep movsq
     mov al, [rel save_n]
-    mov [rel arm_n], al
+    mov [r15+248], al
     mov al, [rel save_z]
-    mov [rel arm_z], al
+    mov [r15+249], al
     mov al, [rel save_c]
-    mov [rel arm_c], al
+    mov [r15+250], al
     mov al, [rel save_v]
-    mov [rel arm_v], al
+    mov [r15+251], al
     mov rax, rbx
+    pop r15
     pop r14
     pop r13
     pop r12

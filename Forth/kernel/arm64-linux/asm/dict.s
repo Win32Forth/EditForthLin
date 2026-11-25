@@ -7,6 +7,7 @@
 .local _dict_hash_2
 .local _dict_hash_empty
 .global _header_build
+.local _hb_here
 .local _hb_help_ok
 .local _hb_help_cp
 .local _hb_help_pad
@@ -18,6 +19,7 @@
 .local _hb_name_pad
 .local _hb_name_al
 .local _hb_link
+.local _hb_full
 .global _nfa_from_cfa
 .global _nfa_smudge_cfa
 .global _nfa_reveal_cfa
@@ -57,7 +59,12 @@
 .local _nw_eat
 .local _nw_store
 .local _nw_none
+.local nm_XCOMPILE_CELL
+.local hl_XCOMPILE_CELL
+.local row_XCOMPILE_CELL
+.local XCOMPILE_CELL
 .global _compile_cell
+.local XCOMPILE_CELL_END
 .global _strlen
 .local _strlen_loop
 .global _take_pending_help
@@ -122,11 +129,23 @@ _header_build:
     mov     x21, x2
     mov     x22, x3
     mov     x23, x4
+    bl      _task_require_dict
+    bl      _task_dp_bounds
+    mov     x9, x0
+    adrp    x6, here_ptr
+    add x6, x6, :lo12:here_ptr
+    cmp     x9, x6
+    b.eq    _hb_here
+    ldr     x8, [x9]
+    add     x7, x8, #512
+    cmp     x7, x8
+    b.lo    _hb_full
+    cmp     x7, x1
+    b.hi    _hb_full
+_hb_here:
     adrp    x24, current_var
     add x24, x24, :lo12:current_var
     ldr     x24, [x24]
-    adrp    x9, here_ptr
-    add x9, x9, :lo12:here_ptr
     ldr     x6, [x9]
     mov     x8, x6
     cmp     x22, #255
@@ -224,6 +243,16 @@ _hb_link:
     ldp     x29, x30, [sp, #32]
     add     sp, sp, #128
     ret
+_hb_full:
+    ldp     x23, x24, [sp, #80]
+    ldp     x21, x22, [sp, #64]
+    ldp     x19, x20, [sp, #48]
+    ldp     x29, x30, [sp, #32]
+    add     sp, sp, #128
+    adrp    x0, str_dict_full
+    add x0, x0, :lo12:str_dict_full
+    bl      _print_string_svc
+    b       _task_stop_or_abandon
 .size _header_build, .-_header_build
 _nfa_from_cfa:
     ldr     x1, [x0, #-8]
@@ -414,37 +443,67 @@ _pnum_no:
     mov     x0, #0
     ret
 _cursor_load:
-    adrp    x0, source_base
-    add x0, x0, :lo12:source_base
-    ldr     x0, [x0]
-    adrp    x1, to_in
-    add x1, x1, :lo12:to_in
-    ldr     x1, [x1]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x0, [x16, #0x68]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x1, [x16, #0x78]
     add     x0, x0, x1
-    adrp    x1, source_cur
-    add x1, x1, :lo12:source_cur
-    str     x0, [x1]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x0, [x16, #0xb8]
     ret
 _cursor_commit:
     stp     x0, x1, [sp, #-16]!
-    adrp    x1, source_cur
-    add x1, x1, :lo12:source_cur
-    str     x0, [x1]
-    adrp    x1, source_base
-    add x1, x1, :lo12:source_base
-    ldr     x1, [x1]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x0, [x16, #0xb8]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x1, [x16, #0x68]
     sub     x0, x0, x1
-    adrp    x1, to_in
-    add x1, x1, :lo12:to_in
-    str     x0, [x1]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x0, [x16, #0x78]
     ldp     x0, x1, [sp], #16
     ret
 _next_word:
     stp     x29, x30, [sp, #-16]!
     bl      _cursor_load
-    adrp    x3, source_end
-    add x3, x3, :lo12:source_end
-    ldr     x3, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x3, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x3, x3, x17
 _nw_skip:
     cmp     x0, x3
     b.hs    _nw_none
@@ -504,13 +563,38 @@ _nw_none:
     mov     x1, #0
     ldp     x29, x30, [sp], #16
     ret
+.section .bwstr, "a", %progbits
+nm_XCOMPILE_CELL:
+    .byte 40, 67, 79, 77, 80, 73, 76, 69, 45, 67, 69, 76, 76, 41, 0
+hl_XCOMPILE_CELL:
+    .byte 40, 67, 79, 77, 80, 73, 76, 69, 45, 67, 69, 76, 76, 41, 32, 40
+    .byte 32, 45, 45, 32, 41, 32, 99, 111, 109, 112, 105, 108, 101, 32, 99, 101
+    .byte 108, 108, 32, 97, 116, 32, 72, 69, 82, 69, 32, 40, 98, 111, 117, 110
+    .byte 100, 115, 45, 99, 104, 101, 99, 107, 101, 100, 41, 0
+.section .bootword, "a", %progbits
+.balign 8
+    .balign 8
+row_XCOMPILE_CELL:
+    .quad nm_XCOMPILE_CELL, hl_XCOMPILE_CELL
+    .word 0, 0x40000000
+    .quad XCOMPILE_CELL, XCOMPILE_CELL_END
+.section .bootptr, "a", %progbits
+.balign 8
+    .balign 8
+    .quad row_XCOMPILE_CELL
+.section .text, "ax", %progbits
+.balign 16
+XCOMPILE_CELL:
 _compile_cell:
-    adrp    x1, here_ptr
-    add x1, x1, :lo12:here_ptr
-    ldr     x2, [x1]
-    str     x0, [x2], #8
-    str     x2, [x1]
+    stp     x29, x30, [sp, #-16]!
+    str     x0, [sp, #-16]!
+    mov     x0, #8
+    bl      _here_reserve_exact
+    ldr     x1, [sp], #16
+    str     x1, [x0]
+    ldp     x29, x30, [sp], #16
     ret
+XCOMPILE_CELL_END:
 _strlen:
     mov     x1, x0
 _strlen_loop:
@@ -555,6 +639,7 @@ row_XCOLON:
 .section .text, "ax", %progbits
 .balign 16
 XCOLON:
+    bl      _core_console_only
     sub     sp, sp, #96
     stp     x29, x30, [sp, #32]
     bl      _local_compile_reset
@@ -568,11 +653,8 @@ XCOLON:
     mov     x5, #0
     bl      _header_build
     bl      _nfa_smudge_cfa
-    adrp    x1, here_ptr
-    add x1, x1, :lo12:here_ptr
-    ldr     x2, [x1]
-    str     xzr, [x2], #8
-    str     x2, [x1]
+    mov     x0, #0
+    bl      _compile_cell
     adrp    x1, state_var
     add x1, x1, :lo12:state_var
     mov     x2, #1
@@ -680,6 +762,7 @@ row_XNONAME:
 .section .text, "ax", %progbits
 .balign 16
 XNONAME:
+    bl      _core_console_only
     sub     sp, sp, #64
     stp     x29, x30, [sp, #32]
     bl      _local_compile_reset
@@ -692,11 +775,8 @@ XNONAME:
     mov     x5, #0
     bl      _header_build
     bl      _nfa_smudge_cfa
-    adrp    x1, here_ptr
-    add x1, x1, :lo12:here_ptr
-    ldr     x2, [x1]
-    str     xzr, [x2], #8
-    str     x2, [x1]
+    mov     x0, #0
+    bl      _compile_cell
     adrp    x1, last_cfa
     add x1, x1, :lo12:last_cfa
     ldr     x2, [x1]

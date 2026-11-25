@@ -1,41 +1,9 @@
 ; Generated from Forth/kernel/arm64/state.asm. Do not edit.
 bits 64
 default rel
-extern arm_x0
-extern arm_x1
-extern arm_x2
-extern arm_x3
-extern arm_x4
-extern arm_x5
-extern arm_x6
-extern arm_x7
-extern arm_x8
-extern arm_x9
-extern arm_x10
-extern arm_x11
-extern arm_x12
-extern arm_x13
-extern arm_x14
-extern arm_x15
-extern arm_x16
-extern arm_x17
-extern arm_x18
-extern arm_x19
-extern arm_x20
-extern arm_x21
-extern arm_x22
-extern arm_x23
-extern arm_x24
-extern arm_x25
-extern arm_x26
-extern arm_x27
-extern arm_x28
-extern arm_x29
-extern arm_x30
-extern arm_n
-extern arm_z
-extern arm_c
-extern arm_v
+extern arm_excl
+extern arm_excl_addr
+extern arm_excl_val
 extern XCATCH_OK
 extern XRESTART
 extern XTW_CONTINUE
@@ -328,8 +296,8 @@ eval_resume_sp:
     ; DCQ  0
     dq 0
 source_stack:
-    ; SPACE  512
-    times 512 db 0
+    ; SPACE  640
+    times 640 db 0
 eval_resume_stack:
     ; SPACE 64
     times 64 db 0
@@ -418,11 +386,11 @@ numbuf:
     ; SPACE   32
     times 32 db 0
 word_scratch:
-    ; SPACE  80
-    times 80 db 0
+    ; SPACE  512
+    times 512 db 0
 wordlist_reg:
-    ; SPACE  256
-    times 256 db 0
+    ; SPACE  1024
+    times 1024 db 0
 words_user_base:
     ; DCQ 0
     dq 0

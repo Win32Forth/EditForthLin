@@ -17,7 +17,9 @@ sudo apt-get install -y \
   pkg-config \
   qt6-base-dev \
   qt6-base-dev-tools \
-  libgl1-mesa-dev
+  libgl1-mesa-dev \
+  libx11-dev \
+  zenity
 
 echo "EditForthLin Mint deps installed."
 echo "Next: see docs/linux-mint-setup.md and PORT.md"

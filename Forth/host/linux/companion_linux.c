@@ -899,6 +899,17 @@ static int pipe_pending(void)
     return (pfd.revents & POLLIN) != 0;
 }
 
+/* KEY? while the companion socket is up. Does not consume a frame.
+   -1 means this process is not the companion, so the console can poll stdin. */
+int companion_key_ready(void)
+{
+    if (g_sock < 0)
+        return -1;
+    if (g_quit_req)
+        return 1;
+    return pipe_pending();
+}
+
 /* KEY while a command is running. The editor sends one "key" message per
    character. A break returns -1 so the next NEXT can pause. */
 static int companion_key(void)

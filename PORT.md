@@ -1,11 +1,20 @@
 # EditForthWin → EditForthLin port checklist
 
 Scaffold date: 2026-10-20. Source snapshot: EditForthWin 1.3.1.  
-**Marketing version:** **2.6.3** (EditForth 2.6.3). Install steps: [INSTALLER.md](INSTALLER.md).
+**Marketing version:** **2.7.6** (EditForth 2.7.6). Install steps: [INSTALLER.md](INSTALLER.md). The arm64 package is `Releases/editforthlin_2.7.6_arm64.deb`. The amd64 package in `Releases/` is still 2.6.3.
 
 Linux is a desktop sibling of Windows (Qt + process companion), not an
 in-process Android-style embed. Prefer System V ABI growth in the translator,
 not a second OS-specific kernel dialect beyond ABI and host calls.
+
+## Done for 2.7.6
+
+- [x] Linux kernel banners `2.7.6` / `Nov 24, 2026 6:27 PM` / `EditForthLin arm64` and `EditForthLin x64`
+- [x] CORES on pthreads, non-consuming `KEY?`, 128 wordlists, `System/` `Library/` `Config/` roots, and `S\" path\" INCLUDED` file loads
+- [x] Editor Markdown preview, stack-effect check, `stackcheck`, and recent folders. Restart keeps Return and INCLUDE working. Linux CHDIR directory picker kept. Ask Forth keys are not saved
+- [x] X11 GRAPHICS window: TRUECOLOR, COLOR8, 1-bit, green character grid, arrow keys, and the mouse. S in the Julia programs saves PNG, JPEG, or TIFF through zenity. Image load and the small OOP windows still return cancel
+- [x] arm64 kernel and editor built on this host. `1 2 + .` prints `3`. `1 2 3 4 .S` prints `( 4 ) 1 2 3 4`. arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero, including `FPERRORS`. x64 NASM objects assembled here. Link `forthx64` on Linux Mint with `bash build-x64.sh`
+- [x] `bash scripts/pack-deb.sh arm64` writes `Releases/editforthlin_2.7.6_arm64.deb`. The amd64 2.7.6 package is packed on Mint after that link
 
 ## Done for 2.6.3
 

@@ -1,5 +1,7 @@
-; Virtual ARM64 register file for the translated linux-x64 kernel.
-; SP is the real RSP. Generated code keeps x0-x30 here.
+; Exclusive-monitor cells for the translated linux-x64 kernel.
+; The per-thread x0..x30 file and NZCV flags live in arm_tls (cores_linux.c).
+; r15 holds that base while translated code runs. SP is the real RSP.
+; The arm_x* cells below stay so a host can still name the console image.
 ; NASM / System V. Hand-written (not produced by arm64_to_nasm_sysv.py).
 
 bits 64
@@ -12,6 +14,7 @@ global arm_x8, arm_x9, arm_x10, arm_x11, arm_x12, arm_x13, arm_x14, arm_x15
 global arm_x16, arm_x17, arm_x18, arm_x19, arm_x20, arm_x21, arm_x22, arm_x23
 global arm_x24, arm_x25, arm_x26, arm_x27, arm_x28, arm_x29, arm_x30
 global arm_n, arm_z, arm_c, arm_v
+global arm_excl, arm_excl_addr, arm_excl_val
 
 arm_x0:  dq 0
 arm_x1:  dq 0
@@ -48,3 +51,7 @@ arm_n:   db 0
 arm_z:   db 0
 arm_c:   db 0
 arm_v:   db 0
+
+arm_excl:       dq 0
+arm_excl_addr:  dq 0
+arm_excl_val:   dq 0

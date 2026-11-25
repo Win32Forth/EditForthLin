@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(EditForthLinEditor VERSION 2.6.3 LANGUAGES CXX)
+project(EditForthLinEditor VERSION 2.7.6 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,7 +21,14 @@ qt_add_executable(editforthlin
     src/AskForth.cpp
     src/AskForthSession.cpp
     src/AskForthEmbed.cpp
+    src/ForthStackEffect.cpp
 )
+
+qt_add_executable(stackcheck
+    src/stackcheck_main.cpp
+    src/ForthStackEffect.cpp
+)
+target_link_libraries(stackcheck PRIVATE Qt6::Core)
 
 target_link_libraries(editforthlin PRIVATE Qt6::Widgets Qt6::Network)
 

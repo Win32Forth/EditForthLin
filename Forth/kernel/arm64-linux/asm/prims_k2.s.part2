@@ -1,110 +1,3 @@
-    b.hi    XCOMPARE_END
-    mov     x20, #-1
-    cbnz    x28, next_debug_gate
-    adrp    x1, debug_break_asap
-    add x1, x1, :lo12:debug_break_asap
-    ldr     x1, [x1]
-    cbnz    x1, next_debug_gate
-    ldr     x21, [x19], #8
-    ldr     x1, [x21]
-    br      x1
-_cmp_len:
-    cmp     x1, x3
-    b.eq    _cmp_eq
-    mov     x20, #1
-    b.hi    XCOMPARE_END
-    mov     x20, #-1
-    cbnz    x28, next_debug_gate
-    adrp    x1, debug_break_asap
-    add x1, x1, :lo12:debug_break_asap
-    ldr     x1, [x1]
-    cbnz    x1, next_debug_gate
-    ldr     x21, [x19], #8
-    ldr     x1, [x21]
-    br      x1
-_cmp_eq:
-    mov     x20, #0
-XCOMPARE_END:
-    cbnz    x28, next_debug_gate
-    adrp    x1, debug_break_asap
-    add x1, x1, :lo12:debug_break_asap
-    ldr     x1, [x1]
-    cbnz    x1, next_debug_gate
-    ldr     x21, [x19], #8
-    ldr     x1, [x21]
-    br      x1
-.section .bwstr, "a", %progbits
-nm_XLATEST:
-    .byte 76, 65, 84, 69, 83, 84, 0
-hl_XLATEST:
-    .byte 76, 65, 84, 69, 83, 84, 32, 40, 32, 45, 45, 32, 97, 100, 100, 114
-    .byte 32, 41, 32, 70, 79, 82, 84, 72, 32, 119, 111, 114, 100, 108, 105, 115
-    .byte 116, 32, 104, 101, 97, 100, 32, 97, 114, 114, 97, 121, 0
-.section .bootword, "a", %progbits
-.balign 8
-    .balign 8
-row_XLATEST:
-    .quad nm_XLATEST, hl_XLATEST
-    .quad 0
-    .quad XLATEST, 0
-.section .bootptr, "a", %progbits
-.balign 8
-    .balign 8
-    .quad row_XLATEST
-.section .text, "ax", %progbits
-.balign 16
-XLATEST:
-    str     x20, [x22, #-8]!
-    adrp    x0, latest_var
-    add x0, x0, :lo12:latest_var
-    mov     x20, x0
-    cbnz    x28, next_debug_gate
-    adrp    x1, debug_break_asap
-    add x1, x1, :lo12:debug_break_asap
-    ldr     x1, [x1]
-    cbnz    x1, next_debug_gate
-    ldr     x21, [x19], #8
-    ldr     x1, [x21]
-    br      x1
-.section .bwstr, "a", %progbits
-nm_XFORTH_WORDLIST:
-    .byte 70, 79, 82, 84, 72, 45, 87, 79, 82, 68, 76, 73, 83, 84, 0
-hl_XFORTH_WORDLIST:
-    .byte 70, 79, 82, 84, 72, 45, 87, 79, 82, 68, 76, 73, 83, 84, 32, 40
-    .byte 32, 45, 45, 32, 119, 105, 100, 32, 41, 32, 109, 97, 105, 110, 32, 70
-    .byte 79, 82, 84, 72, 32, 119, 111, 114, 100, 32, 108, 105, 115, 116, 0
-.section .bootword, "a", %progbits
-.balign 8
-    .balign 8
-row_XFORTH_WORDLIST:
-    .quad nm_XFORTH_WORDLIST, hl_XFORTH_WORDLIST
-    .quad 0
-    .quad XFORTH_WORDLIST, 0
-.section .bootptr, "a", %progbits
-.balign 8
-    .balign 8
-    .quad row_XFORTH_WORDLIST
-.section .text, "ax", %progbits
-.balign 16
-XFORTH_WORDLIST:
-    str     x20, [x22, #-8]!
-    adrp    x0, latest_var
-    add x0, x0, :lo12:latest_var
-    mov     x20, x0
-    cbnz    x28, next_debug_gate
-    adrp    x1, debug_break_asap
-    add x1, x1, :lo12:debug_break_asap
-    ldr     x1, [x1]
-    cbnz    x1, next_debug_gate
-    ldr     x21, [x19], #8
-    ldr     x1, [x21]
-    br      x1
-.section .bwstr, "a", %progbits
-nm_XWORDLISTS:
-    .byte 87, 79, 82, 68, 76, 73, 83, 84, 83, 0
-hl_XWORDLISTS:
-    .byte 87, 79, 82, 68, 76, 73, 83, 84, 83, 32, 40, 32, 45, 45, 32, 97
-    .byte 100, 100, 114, 32, 110, 32, 41, 32, 114, 101, 103, 105, 115, 116, 101, 114
     .byte 101, 100, 32, 119, 111, 114, 100, 108, 105, 115, 116, 32, 116, 97, 98, 108
     .byte 101, 0
 .section .bootword, "a", %progbits
@@ -358,16 +251,24 @@ _catch_save:
     adrp    x7, throw_handler
     add x7, x7, :lo12:throw_handler
     ldr     x2, [x7]
-    adrp    x3, eval_resume_sp
-    add x3, x3, :lo12:eval_resume_sp
-    ldr     x3, [x3]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x3, [x16, #0xd0]
     str     x3, [x23, #-8]!
     str     x2, [x23, #-8]!
     str     x20, [x23, #-8]!
     str     x22, [x23, #-8]!
-    adrp    x2, source_sp
-    add x2, x2, :lo12:source_sp
-    ldr     x2, [x2]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x2, [x16, #0xc0]
     str     x2, [x23, #-8]!
     str     x19, [x23, #-8]!
     str     x23, [x7]
@@ -2136,14 +2037,22 @@ XLINE_SOURCE:
     bl      _view_set_src_from_pending
     ldp     x0, x1, [sp, #48]
     bl      _arm_lines
-    adrp    x0, source_id
-    add x0, x0, :lo12:source_id
     mov     x1, #2
     neg     x1, x1
-    str     x1, [x0]
-    adrp    x0, blk_var
-    add x0, x0, :lo12:blk_var
-    str     xzr, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x1, [x16, #0x80]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     xzr, [x16, #0x88]
     bl      _eval_resume_push
     ldp     x29, x30, [sp, #32]
     add     sp, sp, #64
@@ -2349,9 +2258,15 @@ _parse_filespec:
     stp     x29, x30, [sp, #32]
     bl      _cursor_load
     mov     x2, x0
-    adrp    x9, source_end
-    add x9, x9, :lo12:source_end
-    ldr     x9, [x9]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x9, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x9, x9, x17
 _pfs_skip:
     cmp     x2, x9
     b.hs    _pfs_empty
@@ -3196,6 +3111,7 @@ _forget_drop:
     add x0, x0, :lo12:forget_cut
     ldr     x0, [x0]
     bl      host_forget_drop_stale
+    bl      _task_forget_cut
 _forget_done:
     ldp     x29, x30, [sp, #32]
     add     sp, sp, #80
@@ -3402,9 +3318,13 @@ row_XBLK:
 .balign 16
 XBLK:
     str     x20, [x22, #-8]!
-    adrp    x0, blk_var
-    add x0, x0, :lo12:blk_var
-    mov     x20, x0
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    add     x20, x16, #0x88
     cbnz    x28, next_debug_gate
     adrp    x1, debug_break_asap
     add x1, x1, :lo12:debug_break_asap
@@ -3470,9 +3390,13 @@ XLOAD_ENTER:
     stp     x29, x30, [sp, #-16]!
     bl      _push_source
     ldp     x29, x30, [sp], #16
-    adrp    x0, blk_var
-    add x0, x0, :lo12:blk_var
-    str     x20, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x20, [x16, #0x88]
     cbnz    x28, next_debug_gate
     adrp    x1, debug_break_asap
     add x1, x1, :lo12:debug_break_asap
@@ -3510,26 +3434,15 @@ XLOAD_RUN:
     stp     x29, x30, [sp, #32]
     stp     x0, x1, [sp, #48]
     ldp     x0, x1, [sp, #48]
-    adrp    x2, source_base
-    add x2, x2, :lo12:source_base
-    str     x0, [x2]
-    adrp    x2, source_cur
-    add x2, x2, :lo12:source_cur
-    str     x0, [x2]
-    add     x0, x0, x1
-    adrp    x2, source_end
-    add x2, x2, :lo12:source_end
-    str     x0, [x2]
-    adrp    x2, to_in
-    add x2, x2, :lo12:to_in
-    str     xzr, [x2]
-    adrp    x2, line_mode
-    add x2, x2, :lo12:line_mode
-    str     xzr, [x2]
-    adrp    x2, source_id
-    add x2, x2, :lo12:source_id
+    bl      _set_source
     mov     x3, #-1
-    str     x3, [x2]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x3, [x16, #0x80]
     bl      _eval_resume_push
     ldp     x29, x30, [sp, #32]
     add     sp, sp, #80
@@ -3629,29 +3542,22 @@ XEVALUATE:
     bl      _push_source
     cbz     x0, _ev_fail
     ldp     x0, x1, [sp, #48]
-    adrp    x2, source_base
-    add x2, x2, :lo12:source_base
-    str     x0, [x2]
-    adrp    x2, source_cur
-    add x2, x2, :lo12:source_cur
-    str     x0, [x2]
-    add     x0, x0, x1
-    adrp    x2, source_end
-    add x2, x2, :lo12:source_end
-    str     x0, [x2]
-    adrp    x2, to_in
-    add x2, x2, :lo12:to_in
-    str     xzr, [x2]
-    adrp    x2, line_mode
-    add x2, x2, :lo12:line_mode
-    str     xzr, [x2]
-    adrp    x2, source_id
-    add x2, x2, :lo12:source_id
+    bl      _set_source
     mov     x3, #-1
-    str     x3, [x2]
-    adrp    x2, blk_var
-    add x2, x2, :lo12:blk_var
-    str     xzr, [x2]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x3, [x16, #0x80]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     xzr, [x16, #0x88]
     bl      _eval_resume_push
     ldp     x29, x30, [sp, #32]
     add     sp, sp, #80
@@ -3712,30 +3618,59 @@ row_XBACKSLASH_S:
 .section .text, "ax", %progbits
 .balign 16
 XBACKSLASH_S:
-    adrp    x0, line_mode
-    add x0, x0, :lo12:line_mode
-    ldr     x0, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x0, [x16, #0x90]
     cbz     x0, _bs_pin
-    adrp    x0, line_limit
-    add x0, x0, :lo12:line_limit
-    ldr     x1, [x0]
-    adrp    x0, line_next
-    add x0, x0, :lo12:line_next
-    str     x1, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x1, [x16, #0xa0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x1, [x16, #0xa8]
 _bs_pin:
-    adrp    x0, source_base
-    add x0, x0, :lo12:source_base
-    ldr     x0, [x0]
-    adrp    x1, source_end
-    add x1, x1, :lo12:source_end
-    ldr     x1, [x1]
-    sub     x2, x1, x0
-    adrp    x0, to_in
-    add x0, x0, :lo12:to_in
-    str     x2, [x0]
-    adrp    x0, source_cur
-    add x0, x0, :lo12:source_cur
-    str     x1, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x2, [x16, #0x70]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x2, [x16, #0x78]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x1, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x1, x1, x17
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x1, [x16, #0xb8]
     cbnz    x28, next_debug_gate
     adrp    x1, debug_break_asap
     add x1, x1, :lo12:debug_break_asap
@@ -3766,9 +3701,13 @@ row_XSOURCE_ID:
 .section .text, "ax", %progbits
 .balign 16
 XSOURCE_ID:
-    adrp    x0, source_id
-    add x0, x0, :lo12:source_id
-    ldr     x0, [x0]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x0, [x16, #0x80]
     str     x20, [x22, #-8]!
     mov     x20, x0
     cbnz    x28, next_debug_gate
@@ -4019,3 +3958,89 @@ nm_XSAVE_INPUT:
     .byte 83, 65, 86, 69, 45, 73, 78, 80, 85, 84, 0
 hl_XSAVE_INPUT:
     .byte 83, 65, 86, 69, 45, 73, 78, 80, 85, 84, 32, 40, 32, 45, 45, 32
+    .byte 120, 110, 32, 46, 46, 32, 120, 49, 32, 110, 32, 41, 32, 115, 97, 118
+    .byte 101, 32, 116, 104, 101, 32, 99, 117, 114, 114, 101, 110, 116, 32, 105, 110
+    .byte 112, 117, 116, 32, 115, 111, 117, 114, 99, 101, 0
+.section .bootword, "a", %progbits
+.balign 8
+    .balign 8
+row_XSAVE_INPUT:
+    .quad nm_XSAVE_INPUT, hl_XSAVE_INPUT
+    .quad 0
+    .quad XSAVE_INPUT, 0
+.section .bootptr, "a", %progbits
+.balign 8
+    .balign 8
+    .quad row_XSAVE_INPUT
+.section .text, "ax", %progbits
+.balign 16
+XSAVE_INPUT:
+    str     x20, [x22, #-8]!
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x20, [x16, #0x68]
+    str     x20, [x22, #-8]!
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x20, [x16, #0x70]
+    str     x20, [x22, #-8]!
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x20, [x16, #0x78]
+    str     x20, [x22, #-8]!
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x20, [x16, #0x80]
+    str     x20, [x22, #-8]!
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x20, [x16, #0x88]
+    str     x20, [x22, #-8]!
+    mov     x20, #5
+    cbnz    x28, next_debug_gate
+    adrp    x1, debug_break_asap
+    add x1, x1, :lo12:debug_break_asap
+    ldr     x1, [x1]
+    cbnz    x1, next_debug_gate
+    ldr     x21, [x19], #8
+    ldr     x1, [x21]
+    br      x1
+.section .bwstr, "a", %progbits
+nm_XRESTORE_INPUT:
+    .byte 82, 69, 83, 84, 79, 82, 69, 45, 73, 78, 80, 85, 84, 0
+hl_XRESTORE_INPUT:
+    .byte 82, 69, 83, 84, 79, 82, 69, 45, 73, 78, 80, 85, 84, 32, 40, 32
+    .byte 120, 110, 32, 46, 46, 32, 120, 49, 32, 110, 32, 45, 45, 32, 102, 108
+    .byte 97, 103, 32, 41, 32, 114, 101, 115, 116, 111, 114, 101, 32, 105, 110, 112
+    .byte 117, 116, 32, 115, 111, 117, 114, 99, 101, 46, 32, 48, 32, 109, 101, 97
+    .byte 110, 115, 32, 111, 107, 0
+.section .bootword, "a", %progbits
+.balign 8
+    .balign 8
+row_XRESTORE_INPUT:
+    .quad nm_XRESTORE_INPUT, hl_XRESTORE_INPUT
+    .quad 0
+    .quad XRESTORE_INPUT, 0
+.section .bootptr, "a", %progbits
+.balign 8
+    .balign 8

@@ -1,13 +1,12 @@
-"""Translate the EditForthWin ARM64 armasm kernel into ml64.
+"""Translate the ARM64 armasm kernel into NASM for Linux x64.
 
-This file lives in GrokTools. It reads the ARM64 kernel under EditForthWin
-and writes generated ml64 into Forth\\kernel\\x64\\asm. Set EDITFORTHWIN to
-point at a different tree.
+The ARM64 kernel is the source of truth. This pass writes System V AMD64
+into Forth/kernel/x64-linux/asm. Set EDITFORTHLIN to point at another tree.
 
-The x64 image keeps one memory cell per ARM64 register. Real RSP is SP.
-Internal bl/ret use that virtual link register. Calls into the C host use
-the Windows x64 ABI. kernel_init, kernel_eval, and the three kernel_set
-entry points take Windows arguments and return with a hardware ret.
+Each thread has its own x0..x30 file and NZCV flags. arm_load_base returns
+that file and translated code addresses it through r15. Real RSP is SP.
+kernel_init, kernel_eval, kernel_task_enter, and the kernel_set_* entry
+points take System V arguments and return with a hardware ret.
 """
 
 from __future__ import annotations
@@ -39,6 +38,7 @@ FILES = [
     "dict.asm",
     "entry.asm",
     "cold.asm",
+    "tasking.asm",
     "boot_end.asm",
 ]
 
@@ -49,6 +49,12 @@ C_PROCS = {
     "kernel_set_key",
     "kernel_set_pause",
     "kernel_set_facility_op",
+    "kernel_task_enter",
+    "kernel_set_key_q",
+    "kernel_set_core_schedule",
+    "kernel_set_core_wait",
+    "kernel_set_core_wake",
+    "kernel_set_core_join",
 }
 
 OPCODES = {
@@ -59,7 +65,9 @@ OPCODES = {
     "ldr", "ldrb", "str", "strb", "ldp", "stp",
     "adrp", "adr", "lea",
     "cbz", "cbnz", "tbz", "tbnz", "b", "bl", "br", "blr", "ret",
-    "csel", "csneg", "cset", "csetm", "ccmp", "extr",
+    "uxtw",
+    "csel", "csneg", "csinv", "csinc", "cset", "csetm", "ccmp", "extr",
+    "ldaxr", "stlxr", "ldar", "stlr", "clrex",
     "fmov", "fadd", "fsub", "fmul", "fdiv", "fmax", "fmin",
     "fneg", "fabs", "fsqrt", "fcmp", "fcvt", "fcvtzs", "scvtf", "ucvtf",
     "dcb", "dcq", "dcd", "space", "align",
@@ -207,6 +215,7 @@ class Expander:
         self.proto: tuple[str, list[str]] | None = None
         self.expect_proto = False
         self.depth = 0
+        self.local_seq = 0
         self.origin = ""
 
     def read_lines(self, path: str) -> list[str]:
@@ -222,6 +231,7 @@ class Expander:
         self.proto = None
         self.expect_proto = False
         self.depth = 0
+        self.local_seq = 0
         self.process_file(os.path.join(self.root, name))
         return self.lines, dict(self.equ)
 
@@ -330,10 +340,15 @@ class Expander:
         if self.depth > 30:
             raise AsmError(f"macro recursion at {line}")
         pairs = sorted(zip(params, args), key=lambda item: len(item[0]), reverse=True)
+        seq = self.local_seq
+        self.local_seq += 1
         for body_line in body:
             text = body_line
             for param, arg in pairs:
                 text = text.replace("$" + param, arg)
+            text = re.sub(r"%[FB]T?(\d+)", lambda m, n=seq: f"L{m.group(1)}_{n}", text)
+            if re.fullmatch(r"\d+", text.strip()):
+                text = f"L{text.strip()}_{seq}"
             self.process_line(text.strip())
         self.depth -= 1
 
@@ -372,6 +387,7 @@ class Translator:
         self.proc_stack: list[bool] = []
         self.nid = 0
         self.c_calls: set[str] = set()
+        self.needs_tls = False
 
     def lab(self, prefix: str) -> str:
         self.nid += 1
@@ -418,18 +434,39 @@ class Translator:
             except AsmError as exc:
                 raise AsmError(f"{self.origin_name}: {exc} | {text}") from exc
         self.close_section()
+        self.body = [self.tls_line(line) for line in self.body]
         header = [
             f"; Generated from Forth/kernel/arm64/{self.origin_name}. Do not edit.",
             "bits 64",
             "default rel",
         ]
-        for index in range(31):
-            header.append(f"extern arm_x{index}")
-        for name in ("arm_n", "arm_z", "arm_c", "arm_v"):
+        if self.needs_tls:
+            header.append("extern arm_load_base")
+        for name in ("arm_excl", "arm_excl_addr", "arm_excl_val"):
             header.append(f"extern {name}")
         for name in sorted(self.externs):
             header.append(f"extern {name}")
-        return "\n".join(header + self.body + [""])
+        # NASM uses XRELEASE and XACQUIRE as instruction names.
+        text = "\n".join(header + self.body + [""])
+        return re.sub(
+            r"\b(xacquire|xrelease)\b",
+            lambda match: match.group(0) + "_",
+            text,
+            flags=re.IGNORECASE,
+        )
+
+    def tls_line(self, line: str) -> str:
+        stripped = line.lstrip()
+        if not stripped or stripped.startswith(";"):
+            return line
+        line = re.sub(
+            r"\[rel arm_x(\d+)\]",
+            lambda match: f"[r15+{int(match.group(1)) * 8}]",
+            line,
+        )
+        for name, offset in (("arm_n", 248), ("arm_z", 249), ("arm_c", 250), ("arm_v", 251)):
+            line = line.replace(f"[rel {name}]", f"[r15+{offset}]")
+        return line
 
     def translate_line(self, line: str) -> None:
         token, rest = first_token(line)
@@ -468,7 +505,22 @@ class Translator:
         hardware = name in C_PROCS
         self.proc_stack.append(hardware)
         if hardware:
-            # System V AMD64: rdi, rsi, rdx, rcx
+            self.needs_tls = True
+            # System V entry RSP is 8 mod 16. Keep r15 (callee-saved) and the
+            # four arguments across the call that loads this thread's file.
+            self.L("push r15")
+            self.L("sub rsp, 40")
+            self.L("mov [rsp], rdi")
+            self.L("mov [rsp+8], rsi")
+            self.L("mov [rsp+16], rdx")
+            self.L("mov [rsp+24], rcx")
+            self.L("call arm_load_base")
+            self.L("mov r15, rax")
+            self.L("mov rdi, [rsp]")
+            self.L("mov rsi, [rsp+8]")
+            self.L("mov rdx, [rsp+16]")
+            self.L("mov rcx, [rsp+24]")
+            self.L("add rsp, 40")
             self.L("mov qword [rel arm_x0], rdi")
             self.L("mov qword [rel arm_x1], rsi")
             self.L("mov qword [rel arm_x2], rdx")
@@ -515,6 +567,12 @@ class Translator:
             raise AsmError("unpaired adrp")
         if op == "ret":
             self.emit_ret()
+            return
+        if op == "uxtw":
+            src = self.parse_op(ops[1])
+            dst = self.parse_op(ops[0])
+            self.load(src, "rax", 32)
+            self.store(dst, "rax")
             return
         if op == "b" or op.startswith("b."):
             cond = "al" if op == "b" else op[2:]
@@ -582,8 +640,24 @@ class Translator:
         if op in ("ldp", "stp"):
             self.emit_pair(op, ops)
             return
-        if op in ("csel", "csneg", "cset", "csetm"):
+        if op in ("csel", "csneg", "csinv", "csinc", "cset", "csetm"):
             self.emit_cset(op, ops)
+            return
+        if op in ("ldar", "ldaxr"):
+            self.emit_mem("ldr", ops)
+            if op == "ldaxr":
+                self.L("mov qword [rel arm_excl_addr], r10")
+                self.L("mov qword [rel arm_excl_val], rax")
+                self.L("mov qword [rel arm_excl], 1")
+            return
+        if op == "stlr":
+            self.emit_mem("str", ops)
+            return
+        if op == "stlxr":
+            self.emit_stlxr(ops)
+            return
+        if op == "clrex":
+            self.L("mov qword [rel arm_excl], 0")
             return
         if op == "ccmp":
             self.emit_ccmp(ops)
@@ -634,6 +708,10 @@ class Translator:
         char = re.fullmatch(r"'(.)'", token)
         if char:
             return ord(char.group(1))
+        try:
+            return int(eval_expr(token, self.equ))
+        except AsmError:
+            pass
         raise AsmError(f"not a number: {text}")
 
     def parse_op(self, text: str):
@@ -849,6 +927,7 @@ class Translator:
     def emit_ret(self) -> None:
         if self.proc_stack and self.proc_stack[-1]:
             self.L("mov rax, qword [rel arm_x0]")
+            self.L("pop r15")
             self.L("ret")
         else:
             self.L("jmp qword [rel arm_x30]")
@@ -1163,6 +1242,30 @@ class Translator:
         self.load(operand, "rax", 64)
         self.L(f"mov qword [r10+{disp}], rax")
 
+    def emit_stlxr(self, ops: list[str]) -> None:
+        status = self.parse_op(ops[0])
+        src = self.parse_op(ops[1])
+        mem = self.parse_mem(ops[2])
+        fail = self.lab("xl")
+        done = self.lab("xl")
+        self.emit_ea(mem)
+        self.L("cmp qword [rel arm_excl], 0")
+        self.L(f"je {fail}")
+        self.L("cmp r10, qword [rel arm_excl_addr]")
+        self.L(f"jne {fail}")
+        self.L("mov rax, qword [rel arm_excl_val]")
+        self.load(src, "rcx", 64)
+        self.L("lock cmpxchg qword [r10], rcx")
+        self.L("mov qword [rel arm_excl], 0")
+        self.L(f"jne {fail}")
+        self.L("xor eax, eax")
+        self.L(f"jmp {done}")
+        self.L(f"{fail}:")
+        self.L("mov qword [rel arm_excl], 0")
+        self.L("mov eax, 1")
+        self.L(f"{done}:")
+        self.store(status)
+
     def emit_cset(self, op: str, ops: list[str]) -> None:
         if op in ("cset", "csetm"):
             dest = self.parse_op(ops[0])
@@ -1187,6 +1290,10 @@ class Translator:
         self.load(no, "rax", 64)
         if op == "csneg":
             self.L("neg rax")
+        elif op == "csinv":
+            self.L("not rax")
+        elif op == "csinc":
+            self.L("add rax, 1")
         self.L(f"jmp {done}")
         self.L(f"{taken}:")
         self.load(yes, "rax", 64)

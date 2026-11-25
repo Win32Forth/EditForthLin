@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.7.6 — 2026-11-24
+
+Linux port of EditForthWin 2.7.6. The kernel banner is `2.7.6` / `Nov 24, 2026 6:27 PM` / `EditForthLin arm64` or `EditForthLin x64`. The arm64 kernel and editor were built on this host. `1 2 + .` prints `3`. `1 2 3 4 .S` prints `( 4 ) 1 2 3 4`. arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero, including `FPERRORS`. The x64 NASM objects assembled on this host (`nasm -f elf64`, 19 objects). Link `forthx64` on Linux Mint with `bash build-x64.sh`. The arm64 installer is `Releases/editforthlin_2.7.6_arm64.deb` (5954224 bytes, SHA256 `cfbf7110c932ef937a54d39c2e51cb1da4181615f45f7c5d213ce6674024350a`). The amd64 file in `Releases/` is still the 2.6.3 package.
+
+### In this release
+
+- Cooperative tasks keep a user area per task, including a saved image. CORES schedules ten pthread workers. `PAUSE` (result 1) keeps the same worker. `STOP` finishes the run. `join` waits until the scheduled runs finish. A worker memory fault returns -1. A console `kernel_eval` fault returns -1 and prints `memory access error`
+- `KEY?` does not consume the key. The companion polls its socket. A console or `--agent` process polls stdin
+- Open, include, and the other file words resolve `System/`, `Library/`, and `Config/` at those roots. Wordlists register up to 128 entries
+- Loading a file evaluates `S\" path\" INCLUDED`. `kernel_eval` still copies at most 1023 bytes, and that line stays under the cap
+- `kernel_eval` loads the console task from `up_var`. A Linux process can enter with a callee-saved x27 that is not a Forth task
+- The editor previews Markdown, checks stack effects, and builds the `stackcheck` tool. The file pane keeps recent folders. CHDIR still asks the editor for a directory over the Unix socket. Ask Forth keys are not stored on Linux
+- Stand-alone `emit-lin` accepts 384 columns and 192 rows. The in-process GRAPHICS window is an X11 window in the Forth process: TRUECOLOR, COLOR8, and 1-bit blits, the green character grid, arrow keys, and the mouse. S in the Julia programs opens a zenity Save Picture dialog (PNG, JPEG, or TIFF) and the Forth writers save that file
+- Restart discards the shutdown quit instead of leaving it for the next companion. Return and INCLUDE reach the fresh image
+
+### Still open
+
+- Image load and the small OOP windows (those panels still return cancel)
+- Ask Forth key storage on Linux
+- The amd64 2.7.6 package, and the Mint link of `forthx64`
+- An AppImage
+
 ## 2.6.3 — 2026-11-03
 
 Linux port of EditForthWin 2.6.3. The kernel banner is `2.6.3` / `Nov 3, 2026 12:03 PM` / `EditForthLin arm64` or `EditForthLin x64`. The arm64 kernel and editor were rebuilt on this host. `1 2 3 4 .S` prints `( 4 ) 1 2 3 4`. Forth1968CM assembled `0900–0DC3`, entry `09FA`, listing matches, and printed `HI THERE`. After that sign-on the 1968 machine waits for a key, so the agent run stays in `KEY`. Hayes and ANS-VALIDATE were not run. The x64 kernel sources are at the same 2.6.3 banner. Link that binary on Linux Mint with `bash build-x64.sh`.

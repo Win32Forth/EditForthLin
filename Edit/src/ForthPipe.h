@@ -23,6 +23,14 @@ public:
     void start();
     void shutdown();
     bool stopping() const { return m_stop.load(); }
+    int sessionEpoch() const { return m_epoch.load(); }
+    // A stop from the previous companion arrives after Restart has already
+    // started the next one. Ignore it so the fresh image stays connected.
+    void noteStoppedIfCurrent(int epoch) {
+        if (epoch != m_epoch.load())
+            return;
+        emit engineStopped();
+    }
     void *wakeHandle() const { return m_wake; }
     QList<QByteArray> takeOutgoing();
 
@@ -81,4 +89,5 @@ private:
     QList<QByteArray> m_outq;
     void *m_wake = nullptr;
     std::atomic<bool> m_stop{false};
+    std::atomic<int> m_epoch{0};
 };

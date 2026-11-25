@@ -237,7 +237,7 @@ source_sp:
 eval_resume_sp:
     .quad 0
 source_stack:
-    .space 512
+    .space 640
 eval_resume_stack:
     .space 64
 resolve_buf:
@@ -298,9 +298,9 @@ restart_cell:
 numbuf:
     .space 32
 word_scratch:
-    .space 80
+    .space 512
 wordlist_reg:
-    .space 256
+    .space 1024
 words_user_base:
     .quad 0
 words_filter_len:

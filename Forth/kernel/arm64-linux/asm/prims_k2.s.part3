@@ -1,70 +1,3 @@
-    .byte 120, 110, 32, 46, 46, 32, 120, 49, 32, 110, 32, 41, 32, 115, 97, 118
-    .byte 101, 32, 116, 104, 101, 32, 99, 117, 114, 114, 101, 110, 116, 32, 105, 110
-    .byte 112, 117, 116, 32, 115, 111, 117, 114, 99, 101, 0
-.section .bootword, "a", %progbits
-.balign 8
-    .balign 8
-row_XSAVE_INPUT:
-    .quad nm_XSAVE_INPUT, hl_XSAVE_INPUT
-    .quad 0
-    .quad XSAVE_INPUT, 0
-.section .bootptr, "a", %progbits
-.balign 8
-    .balign 8
-    .quad row_XSAVE_INPUT
-.section .text, "ax", %progbits
-.balign 16
-XSAVE_INPUT:
-    str     x20, [x22, #-8]!
-    adrp    x0, source_base
-    add x0, x0, :lo12:source_base
-    ldr     x20, [x0]
-    str     x20, [x22, #-8]!
-    adrp    x1, source_end
-    add x1, x1, :lo12:source_end
-    ldr     x1, [x1]
-    sub     x20, x1, x20
-    str     x20, [x22, #-8]!
-    adrp    x0, to_in
-    add x0, x0, :lo12:to_in
-    ldr     x20, [x0]
-    str     x20, [x22, #-8]!
-    adrp    x0, source_id
-    add x0, x0, :lo12:source_id
-    ldr     x20, [x0]
-    str     x20, [x22, #-8]!
-    adrp    x0, blk_var
-    add x0, x0, :lo12:blk_var
-    ldr     x20, [x0]
-    str     x20, [x22, #-8]!
-    mov     x20, #5
-    cbnz    x28, next_debug_gate
-    adrp    x1, debug_break_asap
-    add x1, x1, :lo12:debug_break_asap
-    ldr     x1, [x1]
-    cbnz    x1, next_debug_gate
-    ldr     x21, [x19], #8
-    ldr     x1, [x21]
-    br      x1
-.section .bwstr, "a", %progbits
-nm_XRESTORE_INPUT:
-    .byte 82, 69, 83, 84, 79, 82, 69, 45, 73, 78, 80, 85, 84, 0
-hl_XRESTORE_INPUT:
-    .byte 82, 69, 83, 84, 79, 82, 69, 45, 73, 78, 80, 85, 84, 32, 40, 32
-    .byte 120, 110, 32, 46, 46, 32, 120, 49, 32, 110, 32, 45, 45, 32, 102, 108
-    .byte 97, 103, 32, 41, 32, 114, 101, 115, 116, 111, 114, 101, 32, 105, 110, 112
-    .byte 117, 116, 32, 115, 111, 117, 114, 99, 101, 46, 32, 48, 32, 109, 101, 97
-    .byte 110, 115, 32, 111, 107, 0
-.section .bootword, "a", %progbits
-.balign 8
-    .balign 8
-row_XRESTORE_INPUT:
-    .quad nm_XRESTORE_INPUT, hl_XRESTORE_INPUT
-    .quad 0
-    .quad XRESTORE_INPUT, 0
-.section .bootptr, "a", %progbits
-.balign 8
-    .balign 8
     .quad row_XRESTORE_INPUT
 .section .text, "ax", %progbits
 .balign 16
@@ -83,9 +16,13 @@ _ri_common:
     ldr     x2, [x22], #8
     ldr     x3, [x22], #8
     ldr     x20, [x22], #8
-    adrp    x4, blk_var
-    add x4, x4, :lo12:blk_var
-    str     x5, [x4]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x5, [x16, #0x88]
     cbz     x5, _ri_apply
     sub     sp, sp, #64
     stp     x29, x30, [sp, #16]
@@ -101,30 +38,57 @@ _ri_common:
     add x3, x3, :lo12:block_buf
     mov     x2, #1024
 _ri_apply:
-    adrp    x4, source_base
-    add x4, x4, :lo12:source_base
-    str     x3, [x4]
-    adrp    x4, source_cur
-    add x4, x4, :lo12:source_cur
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x3, [x16, #0x68]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x2, [x16, #0x70]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x1, [x16, #0x78]
     add     x6, x3, x1
-    str     x6, [x4]
-    add     x6, x3, x2
-    adrp    x4, source_end
-    add x4, x4, :lo12:source_end
-    str     x6, [x4]
-    adrp    x4, to_in
-    add x4, x4, :lo12:to_in
-    str     x1, [x4]
-    adrp    x4, source_id
-    add x4, x4, :lo12:source_id
-    str     x0, [x4]
-    adrp    x4, line_mode
-    add x4, x4, :lo12:line_mode
-    ldr     x4, [x4]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x6, [x16, #0xb8]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x0, [x16, #0x80]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x4, [x16, #0x90]
     cbz     x4, _ri_ok
-    adrp    x4, line_limit
-    add x4, x4, :lo12:line_limit
-    ldr     x5, [x4]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x5, [x16, #0xa0]
     add     x3, x3, x2
     cmp     x3, x5
     b.hs    _ri_next
@@ -144,9 +108,13 @@ _ri_apply:
 _ri_nl:
     add     x3, x3, #1
 _ri_next:
-    adrp    x4, line_next
-    add x4, x4, :lo12:line_next
-    str     x3, [x4]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    str     x3, [x16, #0xa8]
 _ri_ok:
     str     x20, [x22, #-8]!
     mov     x20, #0
@@ -1154,6 +1122,10 @@ str_gmm_shrink:
     .byte 63, 32, 71, 82, 79, 87, 77, 69, 77, 79, 82, 89, 77, 66, 32, 99
     .byte 97, 110, 110, 111, 116, 32, 115, 104, 114, 105, 110, 107, 32, 109, 101, 109
     .byte 111, 114, 121, 10, 0
+str_gmm_task:
+    .byte 63, 32, 71, 82, 79, 87, 77, 69, 77, 79, 82, 89, 77, 66, 32, 111
+    .byte 110, 108, 121, 32, 102, 114, 111, 109, 32, 116, 104, 101, 32, 99, 111, 110
+    .byte 115, 111, 108, 101, 32, 116, 97, 115, 107, 10, 0
 str_bang:
     .byte 33, 0
 str_twostore:

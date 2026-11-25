@@ -6,11 +6,11 @@ Other Debian/Ubuntu-based distros use the same packages and steps.
 | Item | Value |
 | --- | --- |
 | Product | EditForthLin |
-| Marketing version | **2.6.3** |
+| Marketing version | **2.7.6** |
 | Repo | https://github.com/Win32Forth/EditForthLin |
-| Tag / release | [v2.5.6.2](https://github.com/Win32Forth/EditForthLin/releases/tag/v2.5.6.2) (published tag; 2.6.3 is on `main`) |
-| Install | [INSTALLER.md](INSTALLER.md). Arm64 package: `sudo apt install ./editforthlin_2.6.3_arm64.deb` |
-| Kernel banner | `=== EditForthLin 2.6.3 === Nov 3, 2026 12:03 PM ===` |
+| Tag / release | [v2.7.6](https://github.com/Win32Forth/EditForthLin/releases/tag/v2.7.6) |
+| Install | [INSTALLER.md](INSTALLER.md). arm64: `Releases/editforthlin_2.7.6_arm64.deb`. The amd64 package in `Releases/` is still 2.6.3 |
+| Kernel banner | `=== EditForthLin 2.7.6 === Nov 24, 2026 6:27 PM ===` |
 | Agent binary | `Forth/build/x64/forthx64` (aarch64: `Forth/build/arm64/fortharm64`) |
 | Editor binary | `Edit/build/x64/editforthlinx64` (aarch64: `Edit/build/arm64/editforthlinarm64`) |
 | User data | `~/Documents/EditForthLin` (override with absolute `EDITFORTHLIN`) |
@@ -77,7 +77,7 @@ Same lane as the Win11 **Arm64** UTM VM: snappy, native virtualization.
 Use this for a native arm64 Linux desktop. Guest `uname -m` is `aarch64`.
 Build with `bash build-arm64.sh`, not `bash build-x64.sh`. The engine is
 `Forth/build/arm64/fortharm64` and the editor is
-`Edit/build/arm64/editforthlinarm64`. Banner: `2.6.3`.
+`Edit/build/arm64/editforthlinarm64`. Banner: `2.7.6`.
 
 UTM can also enable **Rosetta (x86_64 Emulation)** inside an ARM64 Linux
 guest so some Intel binaries run there. That is optional and separate from a
@@ -121,6 +121,7 @@ sudo apt install -y \
   build-essential cmake ninja-build nasm python3 \
   qt6-base-dev qt6-base-dev-tools \
   libgl1-mesa-dev \
+  libx11-dev \
   pkg-config
 ```
 
@@ -179,7 +180,7 @@ Forth/build/x64/forthx64 --agent -e '2 3 + .'
 
 Look for:
 
-- Cold-load / banner with `2.6.3` and `EditForthLin x64`
+- Cold-load / banner with `2.7.6` and `EditForthLin x64`
 - Printed `5`
 - Clean exit, or return to a prompt if `-e` leaves the REPL (either is fine
   for a first smoke)
@@ -218,7 +219,7 @@ Socket path: `$TMPDIR/<name>` (default `/tmp/<name>`), matching Qt `QLocalSocket
 | `mint-deps.sh` | |
 | `build-x64.sh` → `forthx64` | |
 | `--agent -e '2 3 + .'` | |
-| Banner shows `2.5.6.2` | |
+| Banner shows `2.7.6` | |
 | `~/Documents/EditForthLin` seeded | |
 | Editor starts (if built) | |
 | Companion socket accepted | |
@@ -235,7 +236,7 @@ or open a GitHub issue.
 - NASM / System V translator → `Forth/kernel/x64-linux/`
 - Hand-written `identity.asm`, `vmregs.asm`, `find_host.asm`
 - Linux host under `Forth/host/linux/` (`--agent`, `--companion`, files, float,
-  exec, facility, debug; GRAPHICS and clipboard stubs)
+  exec, facility, debug, and the X11 GRAPHICS window). Clipboard stays a stub
 - Companion AF_UNIX IPC aligned with Qt (`/tmp/<name>`)
 - `build-x64.sh` + `scripts/mint-deps.sh`
 
@@ -248,9 +249,9 @@ or open a GitHub issue.
 
 ## Not finished
 
-- Hayes / ANS-VALIDATE
-- GRAPHICS and clipboard (stubs return failure)
-- AskForth key storage (libsecret) and an AppImage. The packed installers are `Releases/editforthlin_2.6.3_amd64.deb` (Linux Mint 22.3) and `Releases/editforthlin_2.6.3_arm64.deb`. `sudo apt install` of either file downloads its `Depends`
+- Hayes / ANS-VALIDATE on x64. On arm64, ANS-VALIDATE passed 394 and failed 0. Hayes counts were all zero, including `FPERRORS`
+- Image load, the small OOP windows, and the clipboard (those calls still return cancel). The X11 GRAPHICS window and Julia picture save are in this tree
+- AskForth key storage (libsecret) and an AppImage. The arm64 installer is `Releases/editforthlin_2.7.6_arm64.deb`. The amd64 file in `Releases/` is still `editforthlin_2.6.3_amd64.deb` until `bash build-x64.sh` and `bash scripts/pack-deb.sh amd64` run on Linux Mint. `sudo apt install` downloads that package's `Depends`
 - `Config/HYPER.CFG` is not copied into the user tree; reindex uses the default list
 
 Port status: [PORT.md](PORT.md). Host details: [docs/linux-host.md](docs/linux-host.md).

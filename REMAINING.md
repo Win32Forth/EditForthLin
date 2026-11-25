@@ -1,5 +1,7 @@
 # Remaining assembly words
 
+Current tree is 2.7.6 (Nov 24, 2026 6:27 PM). See CHANGELOG.md. The notes below are the 1.3.1 record.
+
 Updated Oct 19, 2026 7:56 PM for version 1.3.1. ARM64 is `1.3.1`, built Oct 19, 2026 7:56 PM. x64 is `1.3.1-x64`, built Oct 19, 2026 7:56 PM. The Mac kernel (`EditForth/Forth/Kernel/forth.s`) has 401 boot words. The Windows ARM64 kernel had 372 at 1.2.0. 1.2.1 adds five: `EDIT-AT`, `SYSTEM`, `XEMIT`, `USER-DICT`, and `GROWMEMORYMB`. The x64 kernel is a translation of this ARM64 set, so it has the same words. `Forth/boot-fix.fth` is a cold-start suffix after `xref.fth`. It redefines `SYNONYM`, `REPLACES`, and `SUBSTITUTE`. A copy is shipped at `Forth/Resources/Library/Sources/boot-fix.fth` so `VIEW` can open it. The seven Mac cold-load files are unchanged.
 
 Punctuation names (`;` `,` `\` `\S` `S"` `(S")` `."` `S\"` `C"` `(C")` `C,` `TIME&DATE`) are present on both sides.

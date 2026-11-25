@@ -31,7 +31,7 @@ fi
 mkdir -p "$OBJDIR" "$(dirname "$OUTBIN")"
 ASM_FILES=(
   state emit boot_begin prims prims_k1 prims_k2 prims_k3
-  sa_print sa_files sa_float prims_dbg dict entry cold boot_end
+  sa_print sa_files sa_float prims_dbg dict entry cold tasking boot_end
 )
 for name in "${ASM_FILES[@]}"; do
   src="$ASMDIR/$name.s"
@@ -47,6 +47,7 @@ echo "Assembled $(ls "$OBJDIR"/*.o | wc -l | tr -d ' ') objects in $OBJDIR"
 # --- 3. Compile Linux host ----------------------------------------------------
 HOST_SRCS=(
   "$HOSTDIR/main_linux.c"
+  "$HOSTDIR/cores_linux.c"
   "$HOSTDIR/console_linux.c"
   "$HOSTDIR/companion_linux.c"
   "$HOSTDIR/float_linux.c"
@@ -76,7 +77,7 @@ for name in "${ASM_FILES[@]}" identity; do
   ASM_OBJS+=("$OBJDIR/$name.o")
 done
 
-"$CC" -o "$OUTBIN" "${HOST_OBJS[@]}" "${ASM_OBJS[@]}" -lm -ldl -lpthread
+"$CC" -o "$OUTBIN" "${HOST_OBJS[@]}" "${ASM_OBJS[@]}" -lm -ldl -lpthread -lX11
 echo "Linked: $OUTBIN"
 
 mkdir -p Forth/Resources/System/Sources/arm64

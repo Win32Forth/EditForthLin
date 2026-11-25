@@ -1,0 +1,1559 @@
+    mov rax, qword [r15+160]
+    mov qword [r10], rax
+    ; mov     x20, x9
+    mov rax, qword [r15+72]
+    mov qword [r15+160], rax
+    ; str     x20, [x22, #-8]!
+    mov rax, qword [r15+176]
+    add rax, -8
+    mov qword [r15+176], rax
+    mov r10, qword [r15+176]
+    mov rax, qword [r15+160]
+    mov qword [r10], rax
+    ; mov     x20, x5
+    mov rax, qword [r15+40]
+    mov qword [r15+160], rax
+    ; b       XTYPE
+    jmp XTYPE
+section .bwstr align=1
+nm_XBACKSLASH:
+    ; DCB 0x5C, 0
+    db 0x5c, 0
+hl_XBACKSLASH:
+    ; DCB 0x5C, "( -- ) comment to end of line (immediate)", 0
+    db 0x5c, "( -- ) comment to end of line (immediate)", 0
+section .bootword align=8
+    ; ALIGN 8
+align 8
+row_XBACKSLASH:
+    ; DCQ     nm_XBACKSLASH, hl_XBACKSLASH
+    dq nm_XBACKSLASH, hl_XBACKSLASH
+    ; DCD     0, FLAG_IMM
+    dd 0, 0x80000000
+    ; DCQ     XBACKSLASH, 0
+    dq XBACKSLASH, 0
+section .bootptr align=8
+    ; ALIGN 8
+align 8
+    ; DCQ     row_XBACKSLASH
+    dq row_XBACKSLASH
+section .text
+XBACKSLASH:
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_347
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_347
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_347:
+    ; ldr     x0, [x16, #TU_BLK]
+    mov r10, qword [r15+128]
+    add r10, 0x88
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; cbnz    x0, _bs_block
+    mov rax, qword [r15+0]
+    cmp rax, 0
+    jne _bs_block
+    ; sub     sp, sp, #64
+    mov rax, rsp
+    sub rax, 0x40
+    mov rsp, rax
+    ; stp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r15+232]
+    mov qword [r10+0], rax
+    mov rax, qword [r15+240]
+    mov qword [r10+8], rax
+    ; bl      _cursor_load
+    lea rax, [rel xret_60]
+    mov qword [r15+240], rax
+    jmp _cursor_load
+    xret_60:
+    ; mov     x10, x0
+    mov rax, qword [r15+0]
+    mov qword [r15+80], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_349
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_349
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_349:
+    ; ldr     x9, [x16, #TU_SRC_ADDR]
+    mov r10, qword [r15+128]
+    add r10, 0x68
+    mov rax, qword [r10]
+    mov qword [r15+72], rax
+    ; ldr     x17, [x16, #TU_SRC_LEN]
+    mov r10, qword [r15+128]
+    add r10, 0x70
+    mov rax, qword [r10]
+    mov qword [r15+136], rax
+    ; add     x9, x9, x17
+    mov rax, qword [r15+72]
+    mov rcx, qword [r15+136]
+    add rax, rcx
+    mov qword [r15+72], rax
+_bs_loop:
+    ; cmp     x10, x9
+    mov rax, qword [r15+80]
+    mov rcx, qword [r15+72]
+    cmp rax, rcx
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.hs    _bs_done
+    cmp byte [r15+250], 0
+    jne _bs_done
+    ; ldrb    w4, [x10]
+    mov r10, qword [r15+80]
+    movzx eax, byte [r10]
+    mov qword [r15+32], rax
+    ; cbz     w4, _bs_done
+    mov eax, dword [r15+32]
+    cmp rax, 0
+    je _bs_done
+    ; cmp     w4, #10
+    mov eax, dword [r15+32]
+    cmp eax, 0xa
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.eq    _bs_done
+    cmp byte [r15+249], 0
+    jne _bs_done
+    ; cmp     w4, #13
+    mov eax, dword [r15+32]
+    cmp eax, 0xd
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.eq    _bs_done
+    cmp byte [r15+249], 0
+    jne _bs_done
+    ; add     x10, x10, #1
+    mov rax, qword [r15+80]
+    add rax, 1
+    mov qword [r15+80], rax
+    ; b       _bs_loop
+    jmp _bs_loop
+_bs_done:
+    ; mov     x0, x10
+    mov rax, qword [r15+80]
+    mov qword [r15+0], rax
+    ; bl      _cursor_commit
+    lea rax, [rel xret_61]
+    mov qword [r15+240], rax
+    jmp _cursor_commit
+    xret_61:
+    ; ldp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r10]
+    mov rcx, qword [r10+8]
+    mov qword [r15+232], rax
+    mov qword [r15+240], rcx
+    ; add     sp, sp, #64
+    mov rax, rsp
+    add rax, 0x40
+    mov rsp, rax
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [r15+224]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [r15+8], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [r15+8]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [r15+152]
+    mov rax, qword [r10]
+    mov qword [r15+168], rax
+    mov rax, qword [r15+152]
+    add rax, 8
+    mov qword [r15+152], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [r15+168]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; br      x1
+    mov rax, qword [r15+8]
+    jmp rax
+_bs_block:
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_352
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_352
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_352:
+    ; ldr     x1, [x16, #TU_TO_IN]
+    mov r10, qword [r15+128]
+    add r10, 0x78
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_354
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_354
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_354:
+    ; ldr     x3, [x16, #TU_SRC_ADDR]
+    mov r10, qword [r15+128]
+    add r10, 0x68
+    mov rax, qword [r10]
+    mov qword [r15+24], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_356
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_356
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_356:
+    ; ldr     x2, [x16, #TU_SRC_LEN]
+    mov r10, qword [r15+128]
+    add r10, 0x70
+    mov rax, qword [r10]
+    mov qword [r15+16], rax
+    ; lsr     x5, x1, #6
+    mov rax, qword [r15+8]
+    shr rax, 6
+    mov qword [r15+40], rax
+    ; add     x5, x5, #1
+    mov rax, qword [r15+40]
+    add rax, 1
+    mov qword [r15+40], rax
+    ; lsl     x5, x5, #6
+    mov rax, qword [r15+40]
+    shl rax, 6
+    mov qword [r15+40], rax
+    ; cmp     x5, x2
+    mov rax, qword [r15+40]
+    mov rcx, qword [r15+16]
+    cmp rax, rcx
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.ls    _bs_blk_ok
+    cmp byte [r15+250], 0
+    je _bs_blk_ok
+    cmp byte [r15+249], 0
+    jne _bs_blk_ok
+    ; mov     x5, x2
+    mov rax, qword [r15+16]
+    mov qword [r15+40], rax
+_bs_blk_ok:
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_358
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_358
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_358:
+    ; str     x5, [x16, #TU_TO_IN]
+    mov r10, qword [r15+128]
+    add r10, 0x78
+    mov rax, qword [r15+40]
+    mov qword [r10], rax
+    ; add     x3, x3, x5
+    mov rax, qword [r15+24]
+    mov rcx, qword [r15+40]
+    add rax, rcx
+    mov qword [r15+24], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_360
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_360
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_360:
+    ; str     x3, [x16, #TU_WORD_CURSOR]
+    mov r10, qword [r15+128]
+    add r10, 0xb8
+    mov rax, qword [r15+24]
+    mov qword [r10], rax
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [r15+224]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [r15+8], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [r15+8]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [r15+152]
+    mov rax, qword [r10]
+    mov qword [r15+168], rax
+    mov rax, qword [r15+152]
+    add rax, 8
+    mov qword [r15+152], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [r15+168]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; br      x1
+    mov rax, qword [r15+8]
+    jmp rax
+section .bwstr align=1
+nm_XPAREN:
+    ; DCB "(", 0
+    db "(", 0
+hl_XPAREN:
+    ; DCB "( -- ) comment until ) (immediate)", 0
+    db "( -- ) comment until ) (immediate)", 0
+section .bootword align=8
+    ; ALIGN 8
+align 8
+row_XPAREN:
+    ; DCQ     nm_XPAREN, hl_XPAREN
+    dq nm_XPAREN, hl_XPAREN
+    ; DCD     0, FLAG_IMM
+    dd 0, 0x80000000
+    ; DCQ     XPAREN, 0
+    dq XPAREN, 0
+section .bootptr align=8
+    ; ALIGN 8
+align 8
+    ; DCQ     row_XPAREN
+    dq row_XPAREN
+section .text
+XPAREN:
+    ; sub     sp, sp, #64
+    mov rax, rsp
+    sub rax, 0x40
+    mov rsp, rax
+    ; stp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r15+232]
+    mov qword [r10+0], rax
+    mov rax, qword [r15+240]
+    mov qword [r10+8], rax
+    ; bl      _cursor_load
+    lea rax, [rel xret_62]
+    mov qword [r15+240], rax
+    jmp _cursor_load
+    xret_62:
+    ; mov     x10, x0
+    mov rax, qword [r15+0]
+    mov qword [r15+80], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_366
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_366
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_366:
+    ; ldr     x9, [x16, #TU_SRC_ADDR]
+    mov r10, qword [r15+128]
+    add r10, 0x68
+    mov rax, qword [r10]
+    mov qword [r15+72], rax
+    ; ldr     x17, [x16, #TU_SRC_LEN]
+    mov r10, qword [r15+128]
+    add r10, 0x70
+    mov rax, qword [r10]
+    mov qword [r15+136], rax
+    ; add     x9, x9, x17
+    mov rax, qword [r15+72]
+    mov rcx, qword [r15+136]
+    add rax, rcx
+    mov qword [r15+72], rax
+_par_loop:
+    ; cmp     x10, x9
+    mov rax, qword [r15+80]
+    mov rcx, qword [r15+72]
+    cmp rax, rcx
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.hs    _par_eol
+    cmp byte [r15+250], 0
+    jne _par_eol
+    ; ldrb    w4, [x10]
+    mov r10, qword [r15+80]
+    movzx eax, byte [r10]
+    mov qword [r15+32], rax
+    ; cbz     w4, _par_eol
+    mov eax, dword [r15+32]
+    cmp rax, 0
+    je _par_eol
+    ; cmp     w4, #41
+    mov eax, dword [r15+32]
+    cmp eax, 0x29
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.eq    _par_found
+    cmp byte [r15+249], 0
+    jne _par_found
+    ; add     x10, x10, #1
+    mov rax, qword [r15+80]
+    add rax, 1
+    mov qword [r15+80], rax
+    ; b       _par_loop
+    jmp _par_loop
+_par_found:
+    ; add     x10, x10, #1
+    mov rax, qword [r15+80]
+    add rax, 1
+    mov qword [r15+80], rax
+    ; b       _par_store
+    jmp _par_store
+_par_eol:
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_368
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_368
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_368:
+    ; ldr     x0, [x16, #TU_LINE_MODE]
+    mov r10, qword [r15+128]
+    add r10, 0x90
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; cbz     x0, _par_store
+    mov rax, qword [r15+0]
+    cmp rax, 0
+    je _par_store
+    ; bl      _take_line
+    lea rax, [rel xret_63]
+    mov qword [r15+240], rax
+    jmp _take_line
+    xret_63:
+    ; cbz     x0, _par_eof
+    mov rax, qword [r15+0]
+    cmp rax, 0
+    je _par_eof
+    ; bl      _cursor_load
+    lea rax, [rel xret_64]
+    mov qword [r15+240], rax
+    jmp _cursor_load
+    xret_64:
+    ; mov     x10, x0
+    mov rax, qword [r15+0]
+    mov qword [r15+80], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_370
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_370
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_370:
+    ; ldr     x9, [x16, #TU_SRC_ADDR]
+    mov r10, qword [r15+128]
+    add r10, 0x68
+    mov rax, qword [r10]
+    mov qword [r15+72], rax
+    ; ldr     x17, [x16, #TU_SRC_LEN]
+    mov r10, qword [r15+128]
+    add r10, 0x70
+    mov rax, qword [r10]
+    mov qword [r15+136], rax
+    ; add     x9, x9, x17
+    mov rax, qword [r15+72]
+    mov rcx, qword [r15+136]
+    add rax, rcx
+    mov qword [r15+72], rax
+    ; b       _par_loop
+    jmp _par_loop
+_par_eof:
+    ; bl      _cursor_load
+    lea rax, [rel xret_65]
+    mov qword [r15+240], rax
+    jmp _cursor_load
+    xret_65:
+    ; mov     x10, x0
+    mov rax, qword [r15+0]
+    mov qword [r15+80], rax
+_par_store:
+    ; mov     x0, x10
+    mov rax, qword [r15+80]
+    mov qword [r15+0], rax
+    ; bl      _cursor_commit
+    lea rax, [rel xret_66]
+    mov qword [r15+240], rax
+    jmp _cursor_commit
+    xret_66:
+    ; ldp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r10]
+    mov rcx, qword [r10+8]
+    mov qword [r15+232], rax
+    mov qword [r15+240], rcx
+    ; add     sp, sp, #64
+    mov rax, rsp
+    add rax, 0x40
+    mov rsp, rax
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [r15+224]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [r15+8], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [r15+8]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [r15+152]
+    mov rax, qword [r10]
+    mov qword [r15+168], rax
+    mov rax, qword [r15+152]
+    add rax, 8
+    mov qword [r15+152], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [r15+168]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; br      x1
+    mov rax, qword [r15+8]
+    jmp rax
+section .bwstr align=1
+nm_XSLIT:
+    ; DCB "(S", 0x22, ")", 0
+    db "(S", 0x22, ")", 0
+hl_XSLIT:
+    ; DCB "(S", 0x22, ")", "( -- c-addr u ) runtime for a compiled quote string", 0
+    db "(S", 0x22, ")", "( -- c-addr u ) runtime for a compiled quote string", 0
+section .bootword align=8
+    ; ALIGN 8
+align 8
+row_XSLIT:
+    ; DCQ     nm_XSLIT, hl_XSLIT
+    dq nm_XSLIT, hl_XSLIT
+    ; DCQ     0
+    dq 0
+    ; DCQ     XSLIT, XSLIT_END
+    dq XSLIT, XSLIT_END
+section .bootptr align=8
+    ; ALIGN 8
+align 8
+    ; DCQ     row_XSLIT
+    dq row_XSLIT
+section .text
+XSLIT:
+    ; ldr     x0, [x19], #8
+    mov r10, qword [r15+152]
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    mov rax, qword [r15+152]
+    add rax, 8
+    mov qword [r15+152], rax
+    ; str     x20, [x22, #-8]!
+    mov rax, qword [r15+176]
+    add rax, -8
+    mov qword [r15+176], rax
+    mov r10, qword [r15+176]
+    mov rax, qword [r15+160]
+    mov qword [r10], rax
+    ; mov     x20, x19
+    mov rax, qword [r15+152]
+    mov qword [r15+160], rax
+    ; str     x20, [x22, #-8]!
+    mov rax, qword [r15+176]
+    add rax, -8
+    mov qword [r15+176], rax
+    mov r10, qword [r15+176]
+    mov rax, qword [r15+160]
+    mov qword [r10], rax
+    ; mov     x20, x0
+    mov rax, qword [r15+0]
+    mov qword [r15+160], rax
+    ; add     x19, x19, x0
+    mov rax, qword [r15+152]
+    mov rcx, qword [r15+0]
+    add rax, rcx
+    mov qword [r15+152], rax
+    ; add     x19, x19, #7
+    mov rax, qword [r15+152]
+    add rax, 7
+    mov qword [r15+152], rax
+    ; bic     x19, x19, #7
+    mov rax, qword [r15+152]
+    mov rcx, 7
+    not rcx
+    and rax, rcx
+    mov qword [r15+152], rax
+XSLIT_END:
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [r15+224]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [r15+8], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [r15+8]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [r15+152]
+    mov rax, qword [r10]
+    mov qword [r15+168], rax
+    mov rax, qword [r15+152]
+    add rax, 8
+    mov qword [r15+152], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [r15+168]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; br      x1
+    mov rax, qword [r15+8]
+    jmp rax
+section .bwstr align=1
+nm_XSQUOTE:
+    ; DCB "S", 0x22, 0
+    db "S", 0x22, 0
+hl_XSQUOTE:
+    ; DCB "S", 0x22, "( -- c-addr u ) quote-delimited string (immediate)", 0
+    db "S", 0x22, "( -- c-addr u ) quote-delimited string (immediate)", 0
+section .bootword align=8
+    ; ALIGN 8
+align 8
+row_XSQUOTE:
+    ; DCQ     nm_XSQUOTE, hl_XSQUOTE
+    dq nm_XSQUOTE, hl_XSQUOTE
+    ; DCD     0, FLAG_IMM
+    dd 0, 0x80000000
+    ; DCQ     XSQUOTE, 0
+    dq XSQUOTE, 0
+section .bootptr align=8
+    ; ALIGN 8
+align 8
+    ; DCQ     row_XSQUOTE
+    dq row_XSQUOTE
+section .text
+XSQUOTE:
+    ; sub     sp, sp, #96
+    mov rax, rsp
+    sub rax, 0x60
+    mov rsp, rax
+    ; stp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r15+232]
+    mov qword [r10+0], rax
+    mov rax, qword [r15+240]
+    mov qword [r10+8], rax
+    ; bl      _cursor_load
+    lea rax, [rel xret_67]
+    mov qword [r15+240], rax
+    jmp _cursor_load
+    xret_67:
+    ; mov     x1, x0
+    mov rax, qword [r15+0]
+    mov qword [r15+8], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_380
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_380
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_380:
+    ; ldr     x6, [x16, #TU_SRC_ADDR]
+    mov r10, qword [r15+128]
+    add r10, 0x68
+    mov rax, qword [r10]
+    mov qword [r15+48], rax
+    ; ldr     x17, [x16, #TU_SRC_LEN]
+    mov r10, qword [r15+128]
+    add r10, 0x70
+    mov rax, qword [r10]
+    mov qword [r15+136], rax
+    ; add     x6, x6, x17
+    mov rax, qword [r15+48]
+    mov rcx, qword [r15+136]
+    add rax, rcx
+    mov qword [r15+48], rax
+    ; mov     x9, x1
+    mov rax, qword [r15+8]
+    mov qword [r15+72], rax
+_sq_scan:
+    ; cmp     x1, x6
+    mov rax, qword [r15+8]
+    mov rcx, qword [r15+48]
+    cmp rax, rcx
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.hs    _sq_eos
+    cmp byte [r15+250], 0
+    jne _sq_eos
+    ; ldrb    w3, [x1]
+    mov r10, qword [r15+8]
+    movzx eax, byte [r10]
+    mov qword [r15+24], rax
+    ; cbz     w3, _sq_eos
+    mov eax, dword [r15+24]
+    cmp rax, 0
+    je _sq_eos
+    ; cmp     w3, #34
+    mov eax, dword [r15+24]
+    cmp eax, 0x22
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.eq    _sq_found
+    cmp byte [r15+249], 0
+    jne _sq_found
+    ; add     x1, x1, #1
+    mov rax, qword [r15+8]
+    add rax, 1
+    mov qword [r15+8], rax
+    ; b       _sq_scan
+    jmp _sq_scan
+_sq_found:
+    ; sub     x5, x1, x9
+    mov rax, qword [r15+8]
+    mov rcx, qword [r15+72]
+    sub rax, rcx
+    mov qword [r15+40], rax
+    ; add     x1, x1, #1
+    mov rax, qword [r15+8]
+    add rax, 1
+    mov qword [r15+8], rax
+    ; b       _sq_commit
+    jmp _sq_commit
+_sq_eos:
+    ; sub     x5, x1, x9
+    mov rax, qword [r15+8]
+    mov rcx, qword [r15+72]
+    sub rax, rcx
+    mov qword [r15+40], rax
+_sq_commit:
+    ; mov     x0, x1
+    mov rax, qword [r15+8]
+    mov qword [r15+0], rax
+    ; bl      _cursor_commit
+    lea rax, [rel xret_68]
+    mov qword [r15+240], rax
+    jmp _cursor_commit
+    xret_68:
+    ; lea x0, state_var
+    lea rax, [rel state_var]
+    mov qword [r15+0], rax
+    ; ldr     x0, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; cbnz    x0, _sq_comp
+    mov rax, qword [r15+0]
+    cmp rax, 0
+    jne _sq_comp
+    ; str     x20, [x22, #-8]!
+    mov rax, qword [r15+176]
+    add rax, -8
+    mov qword [r15+176], rax
+    mov r10, qword [r15+176]
+    mov rax, qword [r15+160]
+    mov qword [r10], rax
+    ; mov     x20, x9
+    mov rax, qword [r15+72]
+    mov qword [r15+160], rax
+    ; str     x20, [x22, #-8]!
+    mov rax, qword [r15+176]
+    add rax, -8
+    mov qword [r15+176], rax
+    mov r10, qword [r15+176]
+    mov rax, qword [r15+160]
+    mov qword [r10], rax
+    ; mov     x20, x5
+    mov rax, qword [r15+40]
+    mov qword [r15+160], rax
+    ; ldp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r10]
+    mov rcx, qword [r10+8]
+    mov qword [r15+232], rax
+    mov qword [r15+240], rcx
+    ; add     sp, sp, #96
+    mov rax, rsp
+    add rax, 0x60
+    mov rsp, rax
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [r15+224]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [r15+8], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [r15+8]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [r15+152]
+    mov rax, qword [r10]
+    mov qword [r15+168], rax
+    mov rax, qword [r15+152]
+    add rax, 8
+    mov qword [r15+152], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [r15+168]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; br      x1
+    mov rax, qword [r15+8]
+    jmp rax
+_sq_comp:
+    ; stp     x9, x5, [sp, #48]
+    lea r10, [rsp]
+    add r10, 0x30
+    mov rax, qword [r15+72]
+    mov qword [r10+0], rax
+    mov rax, qword [r15+40]
+    mov qword [r10+8], rax
+    ; lea x0, cfa_slit
+    lea rax, [rel cfa_slit]
+    mov qword [r15+0], rax
+    ; ldr     x0, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; bl      _compile_cell
+    lea rax, [rel xret_69]
+    mov qword [r15+240], rax
+    jmp _compile_cell
+    xret_69:
+    ; ldr     x0, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; bl      _compile_cell
+    lea rax, [rel xret_70]
+    mov qword [r15+240], rax
+    jmp _compile_cell
+    xret_70:
+    ; ldr     x5, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [r15+40], rax
+    ; mov     x0, x5
+    mov rax, qword [r15+40]
+    mov qword [r15+0], rax
+    ; bl      _here_reserve
+    lea rax, [rel xret_71]
+    mov qword [r15+240], rax
+    jmp _here_reserve
+    xret_71:
+    ; mov     x1, x0
+    mov rax, qword [r15+0]
+    mov qword [r15+8], rax
+    ; ldr     x5, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [r15+40], rax
+    ; ldr     x9, [sp, #48]
+    lea r10, [rsp]
+    add r10, 0x30
+    mov rax, qword [r10]
+    mov qword [r15+72], rax
+    ; mov     x3, #0
+    mov rax, 0
+    mov qword [r15+24], rax
+_sq_cpy:
+    ; cmp     x3, x5
+    mov rax, qword [r15+24]
+    mov rcx, qword [r15+40]
+    cmp rax, rcx
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.ge    _sq_align
+    mov r11b, byte [r15+248]
+    cmp r11b, byte [r15+251]
+    je _sq_align
+    ; ldrb    w4, [x9, x3]
+    mov r10, qword [r15+72]
+    mov rax, qword [r15+24]
+    add r10, rax
+    movzx eax, byte [r10]
+    mov qword [r15+32], rax
+    ; strb    w4, [x1, x3]
+    mov r10, qword [r15+8]
+    mov rax, qword [r15+24]
+    add r10, rax
+    mov eax, dword [r15+32]
+    mov byte [r10], al
+    ; add     x3, x3, #1
+    mov rax, qword [r15+24]
+    add rax, 1
+    mov qword [r15+24], rax
+    ; b       _sq_cpy
+    jmp _sq_cpy
+_sq_align:
+    ; ldp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r10]
+    mov rcx, qword [r10+8]
+    mov qword [r15+232], rax
+    mov qword [r15+240], rcx
+    ; add     sp, sp, #96
+    mov rax, rsp
+    add rax, 0x60
+    mov rsp, rax
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [r15+224]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [r15+8], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [r15+8]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [r15+152]
+    mov rax, qword [r10]
+    mov qword [r15+168], rax
+    mov rax, qword [r15+152]
+    add rax, 8
+    mov qword [r15+152], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [r15+168]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; br      x1
+    mov rax, qword [r15+8]
+    jmp rax
+section .bwstr align=1
+nm_XCSTR:
+    ; DCB "(C", 0x22, ")", 0
+    db "(C", 0x22, ")", 0
+hl_XCSTR:
+    ; DCB "(C", 0x22, ")", "( -- c-addr ) runtime for a compiled counted string", 0
+    db "(C", 0x22, ")", "( -- c-addr ) runtime for a compiled counted string", 0
+section .bootword align=8
+    ; ALIGN 8
+align 8
+row_XCSTR:
+    ; DCQ     nm_XCSTR, hl_XCSTR
+    dq nm_XCSTR, hl_XCSTR
+    ; DCQ     0
+    dq 0
+    ; DCQ     XCSTR, XCSTR_END
+    dq XCSTR, XCSTR_END
+section .bootptr align=8
+    ; ALIGN 8
+align 8
+    ; DCQ     row_XCSTR
+    dq row_XCSTR
+section .text
+XCSTR:
+    ; str     x20, [x22, #-8]!
+    mov rax, qword [r15+176]
+    add rax, -8
+    mov qword [r15+176], rax
+    mov r10, qword [r15+176]
+    mov rax, qword [r15+160]
+    mov qword [r10], rax
+    ; mov     x20, x19
+    mov rax, qword [r15+152]
+    mov qword [r15+160], rax
+    ; ldrb    w0, [x19]
+    mov r10, qword [r15+152]
+    movzx eax, byte [r10]
+    mov qword [r15+0], rax
+    ; add     x19, x19, x0
+    mov rax, qword [r15+152]
+    mov rcx, qword [r15+0]
+    add rax, rcx
+    mov qword [r15+152], rax
+    ; add     x19, x19, #1
+    mov rax, qword [r15+152]
+    add rax, 1
+    mov qword [r15+152], rax
+    ; add     x19, x19, #7
+    mov rax, qword [r15+152]
+    add rax, 7
+    mov qword [r15+152], rax
+    ; bic     x19, x19, #7
+    mov rax, qword [r15+152]
+    mov rcx, 7
+    not rcx
+    and rax, rcx
+    mov qword [r15+152], rax
+XCSTR_END:
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [r15+224]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [r15+8], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [r15+8]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [r15+152]
+    mov rax, qword [r10]
+    mov qword [r15+168], rax
+    mov rax, qword [r15+152]
+    add rax, 8
+    mov qword [r15+152], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [r15+168]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; br      x1
+    mov rax, qword [r15+8]
+    jmp rax
+section .bwstr align=1
+nm_XCQUOTE:
+    ; DCB "C", 0x22, 0
+    db "C", 0x22, 0
+hl_XCQUOTE:
+    ; DCB "C", 0x22, "( -- c-addr ) compile a quote-delimited counted string", 0
+    db "C", 0x22, "( -- c-addr ) compile a quote-delimited counted string", 0
+section .bootword align=8
+    ; ALIGN 8
+align 8
+row_XCQUOTE:
+    ; DCQ     nm_XCQUOTE, hl_XCQUOTE
+    dq nm_XCQUOTE, hl_XCQUOTE
+    ; DCD     0, FLAG_IMM
+    dd 0, 0x80000000
+    ; DCQ     XCQUOTE, 0
+    dq XCQUOTE, 0
+section .bootptr align=8
+    ; ALIGN 8
+align 8
+    ; DCQ     row_XCQUOTE
+    dq row_XCQUOTE
+section .text
+XCQUOTE:
+    ; sub     sp, sp, #96
+    mov rax, rsp
+    sub rax, 0x60
+    mov rsp, rax
+    ; stp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r15+232]
+    mov qword [r10+0], rax
+    mov rax, qword [r15+240]
+    mov qword [r10+8], rax
+    ; bl      _cursor_load
+    lea rax, [rel xret_72]
+    mov qword [r15+240], rax
+    jmp _cursor_load
+    xret_72:
+    ; mov     x1, x0
+    mov rax, qword [r15+0]
+    mov qword [r15+8], rax
+    ; mov     x16, x27
+    mov rax, qword [r15+216]
+    mov qword [r15+128], rax
+    ; cbnz    x16, L91_391
+    mov rax, qword [r15+128]
+    cmp rax, 0
+    jne L91_391
+    ; lea x16, up_var
+    lea rax, [rel up_var]
+    mov qword [r15+128], rax
+    ; ldr     x16, [x16]
+    mov r10, qword [r15+128]
+    mov rax, qword [r10]
+    mov qword [r15+128], rax
+L91_391:
+    ; ldr     x6, [x16, #TU_SRC_ADDR]
+    mov r10, qword [r15+128]
+    add r10, 0x68
+    mov rax, qword [r10]
+    mov qword [r15+48], rax
+    ; ldr     x17, [x16, #TU_SRC_LEN]
+    mov r10, qword [r15+128]
+    add r10, 0x70
+    mov rax, qword [r10]
+    mov qword [r15+136], rax
+    ; add     x6, x6, x17
+    mov rax, qword [r15+48]
+    mov rcx, qword [r15+136]
+    add rax, rcx
+    mov qword [r15+48], rax
+    ; mov     x9, x1
+    mov rax, qword [r15+8]
+    mov qword [r15+72], rax
+_cq_scan:
+    ; cmp     x1, x6
+    mov rax, qword [r15+8]
+    mov rcx, qword [r15+48]
+    cmp rax, rcx
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.hs    _cq_eos
+    cmp byte [r15+250], 0
+    jne _cq_eos
+    ; ldrb    w3, [x1]
+    mov r10, qword [r15+8]
+    movzx eax, byte [r10]
+    mov qword [r15+24], rax
+    ; cbz     w3, _cq_eos
+    mov eax, dword [r15+24]
+    cmp rax, 0
+    je _cq_eos
+    ; cmp     w3, #34
+    mov eax, dword [r15+24]
+    cmp eax, 0x22
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.eq    _cq_found
+    cmp byte [r15+249], 0
+    jne _cq_found
+    ; add     x1, x1, #1
+    mov rax, qword [r15+8]
+    add rax, 1
+    mov qword [r15+8], rax
+    ; b       _cq_scan
+    jmp _cq_scan
+_cq_found:
+    ; sub     x5, x1, x9
+    mov rax, qword [r15+8]
+    mov rcx, qword [r15+72]
+    sub rax, rcx
+    mov qword [r15+40], rax
+    ; add     x1, x1, #1
+    mov rax, qword [r15+8]
+    add rax, 1
+    mov qword [r15+8], rax
+    ; b       _cq_commit
+    jmp _cq_commit
+_cq_eos:
+    ; sub     x5, x1, x9
+    mov rax, qword [r15+8]
+    mov rcx, qword [r15+72]
+    sub rax, rcx
+    mov qword [r15+40], rax
+_cq_commit:
+    ; mov     x0, x1
+    mov rax, qword [r15+8]
+    mov qword [r15+0], rax
+    ; bl      _cursor_commit
+    lea rax, [rel xret_73]
+    mov qword [r15+240], rax
+    jmp _cursor_commit
+    xret_73:
+    ; cmp     x5, #255
+    mov rax, qword [r15+40]
+    cmp rax, 0xff
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.ls    _cq_lenok
+    cmp byte [r15+250], 0
+    je _cq_lenok
+    cmp byte [r15+249], 0
+    jne _cq_lenok
+    ; mov     x5, #255
+    mov rax, 0xff
+    mov qword [r15+40], rax
+_cq_lenok:
+    ; lea x0, state_var
+    lea rax, [rel state_var]
+    mov qword [r15+0], rax
+    ; ldr     x0, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; cbnz    x0, _cq_comp
+    mov rax, qword [r15+0]
+    cmp rax, 0
+    jne _cq_comp
+    ; lea x0, pad_buffer
+    lea rax, [rel pad_buffer]
+    mov qword [r15+0], rax
+    ; strb    w5, [x0]
+    mov r10, qword [r15+0]
+    mov eax, dword [r15+40]
+    mov byte [r10], al
+    ; mov     x3, #0
+    mov rax, 0
+    mov qword [r15+24], rax
+_cq_ipad:
+    ; cmp     x3, x5
+    mov rax, qword [r15+24]
+    mov rcx, qword [r15+40]
+    cmp rax, rcx
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.ge    _cq_idone
+    mov r11b, byte [r15+248]
+    cmp r11b, byte [r15+251]
+    je _cq_idone
+    ; ldrb    w4, [x9, x3]
+    mov r10, qword [r15+72]
+    mov rax, qword [r15+24]
+    add r10, rax
+    movzx eax, byte [r10]
+    mov qword [r15+32], rax
+    ; add     x6, x0, #1
+    mov rax, qword [r15+0]
+    add rax, 1
+    mov qword [r15+48], rax
+    ; strb    w4, [x6, x3]
+    mov r10, qword [r15+48]
+    mov rax, qword [r15+24]
+    add r10, rax
+    mov eax, dword [r15+32]
+    mov byte [r10], al
+    ; add     x3, x3, #1
+    mov rax, qword [r15+24]
+    add rax, 1
+    mov qword [r15+24], rax
+    ; b       _cq_ipad
+    jmp _cq_ipad
+_cq_idone:
+    ; str     x20, [x22, #-8]!
+    mov rax, qword [r15+176]
+    add rax, -8
+    mov qword [r15+176], rax
+    mov r10, qword [r15+176]
+    mov rax, qword [r15+160]
+    mov qword [r10], rax
+    ; mov     x20, x0
+    mov rax, qword [r15+0]
+    mov qword [r15+160], rax
+    ; ldp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r10]
+    mov rcx, qword [r10+8]
+    mov qword [r15+232], rax
+    mov qword [r15+240], rcx
+    ; add     sp, sp, #96
+    mov rax, rsp
+    add rax, 0x60
+    mov rsp, rax
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [r15+224]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [r15+8], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [r15+8]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [r15+152]
+    mov rax, qword [r10]
+    mov qword [r15+168], rax
+    mov rax, qword [r15+152]
+    add rax, 8
+    mov qword [r15+152], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [r15+168]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; br      x1
+    mov rax, qword [r15+8]
+    jmp rax
+_cq_comp:
+    ; stp     x9, x5, [sp, #48]
+    lea r10, [rsp]
+    add r10, 0x30
+    mov rax, qword [r15+72]
+    mov qword [r10+0], rax
+    mov rax, qword [r15+40]
+    mov qword [r10+8], rax
+    ; lea x0, cfa_cstr
+    lea rax, [rel cfa_cstr]
+    mov qword [r15+0], rax
+    ; ldr     x0, [x0]
+    mov r10, qword [r15+0]
+    mov rax, qword [r10]
+    mov qword [r15+0], rax
+    ; bl      _compile_cell
+    lea rax, [rel xret_74]
+    mov qword [r15+240], rax
+    jmp _compile_cell
+    xret_74:
+    ; ldr     x5, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [r15+40], rax
+    ; add     x0, x5, #1
+    mov rax, qword [r15+40]
+    add rax, 1
+    mov qword [r15+0], rax
+    ; bl      _here_reserve
+    lea rax, [rel xret_75]
+    mov qword [r15+240], rax
+    jmp _here_reserve
+    xret_75:
+    ; mov     x1, x0
+    mov rax, qword [r15+0]
+    mov qword [r15+8], rax
+    ; ldr     x5, [sp, #56]
+    lea r10, [rsp]
+    add r10, 0x38
+    mov rax, qword [r10]
+    mov qword [r15+40], rax
+    ; ldr     x9, [sp, #48]
+    lea r10, [rsp]
+    add r10, 0x30
+    mov rax, qword [r10]
+    mov qword [r15+72], rax
+    ; strb    w5, [x1], #1
+    mov r10, qword [r15+8]
+    mov eax, dword [r15+40]
+    mov byte [r10], al
+    mov rax, qword [r15+8]
+    add rax, 1
+    mov qword [r15+8], rax
+    ; mov     x3, #0
+    mov rax, 0
+    mov qword [r15+24], rax
+_cq_cpy:
+    ; cmp     x3, x5
+    mov rax, qword [r15+24]
+    mov rcx, qword [r15+40]
+    cmp rax, rcx
+    seto byte [r15+251]
+    sets byte [r15+248]
+    setz byte [r15+249]
+    setnc byte [r15+250]
+    ; b.ge    _cq_align
+    mov r11b, byte [r15+248]
+    cmp r11b, byte [r15+251]
+    je _cq_align
+    ; ldrb    w4, [x9, x3]
+    mov r10, qword [r15+72]
+    mov rax, qword [r15+24]
+    add r10, rax
+    movzx eax, byte [r10]
+    mov qword [r15+32], rax
+    ; strb    w4, [x1, x3]
+    mov r10, qword [r15+8]
+    mov rax, qword [r15+24]
+    add r10, rax
+    mov eax, dword [r15+32]
+    mov byte [r10], al
+    ; add     x3, x3, #1
+    mov rax, qword [r15+24]
+    add rax, 1
+    mov qword [r15+24], rax
+    ; b       _cq_cpy
+    jmp _cq_cpy
+_cq_align:
+    ; ldp     x29, x30, [sp, #32]
+    lea r10, [rsp]
+    add r10, 0x20
+    mov rax, qword [r10]
+    mov rcx, qword [r10+8]
+    mov qword [r15+232], rax
+    mov qword [r15+240], rcx
+    ; add     sp, sp, #96
+    mov rax, rsp
+    add rax, 0x60
+    mov rsp, rax
+    ; cbnz    x28, next_debug_gate
+    mov rax, qword [r15+224]
+    cmp rax, 0
+    jne next_debug_gate
+    ; lea x1, debug_break_asap
+    lea rax, [rel debug_break_asap]
+    mov qword [r15+8], rax
+    ; ldr     x1, [x1]
+    mov r10, qword [r15+8]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; cbnz    x1, next_debug_gate
+    mov rax, qword [r15+8]
+    cmp rax, 0
+    jne next_debug_gate
+    ; ldr     x21, [x19], #8
+    mov r10, qword [r15+152]
+    mov rax, qword [r10]
+    mov qword [r15+168], rax
+    mov rax, qword [r15+152]
+    add rax, 8
+    mov qword [r15+152], rax
+    ; ldr     x1, [x21]
+    mov r10, qword [r15+168]
+    mov rax, qword [r10]
+    mov qword [r15+8], rax
+    ; br      x1
+    mov rax, qword [r15+8]
+    jmp rax
+next_debug_gate:
+    ; lea x16, next_debug
+    lea rax, [rel next_debug]
+    mov qword [r15+128], rax
+    ; br      x16
+    mov rax, qword [r15+128]
+    jmp rax
+section .rodata
+msg_allot:
+    ; DCB     "ALLOT: dictionary full (need more USER-DICT space)", 10, 0
+    db "ALLOT: dictionary full (need more USER-DICT space)", 0xa, 0
+msg_throw:
+    ; DCB     " throw ", 0
+    db " throw ", 0
+msg_huh_k1:
+    ; DCB     " ?", 10, 0
+    db " ?", 0xa, 0
+str_search_order:
+    ; DCB "Search order: ", 0
+    db "Search order: ", 0
+str_comp_wl:
+    ; DCB     "Compilation wordlist: ", 0
+    db "Compilation wordlist: ", 0

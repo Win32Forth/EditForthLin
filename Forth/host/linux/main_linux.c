@@ -32,7 +32,8 @@ extern unsigned long long latest_var;
 extern unsigned long long current_var;
 extern unsigned long long search_order[8];
 extern unsigned long long search_order_n;
-extern unsigned long long wordlist_reg[32];
+#define WORDLIST_REG_MAX 128
+extern unsigned long long wordlist_reg[WORDLIST_REG_MAX];
 extern unsigned long long wordlist_reg_n;
 
 /* cut is a CFA. A VOCABULARY or WORDLIST created after that cut is gone
@@ -48,8 +49,8 @@ void host_forget_drop_stale(unsigned long long cut)
 
     forth_wid = (unsigned long long)(uintptr_t)&latest_var;
     n = wordlist_reg_n;
-    if (n > 32)
-        n = 32;
+    if (n > WORDLIST_REG_MAX)
+        n = WORDLIST_REG_MAX;
     i = 0;
     while (i < n) {
         wid = wordlist_reg[i];
@@ -217,24 +218,15 @@ static int host_expand_home(char *dst, size_t cap, const char *src)
     return 1;
 }
 
+long long host_resolve(const char *p, long long n, char *out, long long cap);
+
+/* OPEN-FILE and the other file words. System/, Library/, and Config/
+   resolve at those roots, the same way INCLUDE does. */
 static int host_copy_path(const char *p, long long n, char *dst, size_t cap)
 {
-    char raw[HOST_PATH];
-    char expanded[HOST_PATH];
-    size_t nout;
-
-    if (p == NULL || n <= 0 || (unsigned long long)n >= sizeof raw || dst == NULL)
+    if (p == NULL || n <= 0 || dst == NULL || cap < 2)
         return 0;
-    memcpy(raw, p, (size_t)n);
-    raw[n] = '\0';
-    if (!host_expand_home(expanded, sizeof expanded, raw))
-        return 0;
-    host_slashes(expanded);
-    nout = strlen(expanded);
-    if (nout >= cap)
-        return 0;
-    memcpy(dst, expanded, nout + 1);
-    return 1;
+    return host_resolve(p, n, dst, (long long)cap) > 0;
 }
 
 static void host_mkdir_parents(const char *path)
@@ -418,6 +410,39 @@ static int host_system_dir(char *dst, size_t cap)
     }
     n = snprintf(dst, cap, "System");
     return n > 0 && (size_t)n < cap;
+}
+
+static int host_config_dir(char *dst, size_t cap)
+{
+    int n;
+
+    if (user_root[0] != '\0') {
+        n = snprintf(dst, cap, "%s/Config", user_root);
+        return n > 0 && (size_t)n < cap;
+    }
+    n = snprintf(dst, cap, "Config");
+    return n > 0 && (size_t)n < cap;
+}
+
+/* 1 when path is name or name/rest. rest is empty or the tail after the slash. */
+static int host_root_prefix(const char *path, const char *name, const char **rest)
+{
+    size_t n;
+
+    if (path == NULL || name == NULL || rest == NULL)
+        return 0;
+    n = strlen(name);
+    if (strncasecmp(path, name, n) != 0)
+        return 0;
+    if (path[n] == '\0') {
+        *rest = "";
+        return 1;
+    }
+    if (path[n] == '/') {
+        *rest = path + n + 1;
+        return 1;
+    }
+    return 0;
 }
 
 static int host_top_is(const char *path, const char *name)
@@ -1692,6 +1717,7 @@ long long host_resolve(const char *p, long long n, char *out, long long cap)
     src = tmp;
     if (!host_abs(tmp, (long long)strlen(tmp))) {
         const char *sys_tail = host_library_system_tail(tmp);
+        const char *rest = NULL;
         int sys_hit = sys_tail != NULL || (fromlib_armed && host_system_top(tmp));
         char sys[HOST_PATH];
 
@@ -1708,6 +1734,21 @@ long long host_resolve(const char *p, long long n, char *out, long long cap)
                 host_outs("FROMLIB: Documents/EditForthLin/Library is missing\n");
                 return 0;
             }
+            src = joined;
+        } else if (host_root_prefix(tmp, "System", &rest)) {
+            if (!host_system_dir(sys, sizeof sys) ||
+                !host_join(joined, (int)sizeof joined, sys, rest))
+                return 0;
+            src = joined;
+        } else if (host_root_prefix(tmp, "Library", &rest)) {
+            if (!host_library_dir(sys, sizeof sys) ||
+                !host_join(joined, (int)sizeof joined, sys, rest))
+                return 0;
+            src = joined;
+        } else if (host_root_prefix(tmp, "Config", &rest)) {
+            if (!host_config_dir(sys, sizeof sys) ||
+                !host_join(joined, (int)sizeof joined, sys, rest))
+                return 0;
             src = joined;
         } else if (load_n > 0 && load_len[load_n - 1] > 0) {
             int dl = load_len[load_n - 1];
@@ -2265,6 +2306,29 @@ static void emit_c(int c)
     sa_win_putchar((unsigned long long)(unsigned char)c);
 }
 
+int companion_key_ready(void);
+
+/* KEY? does not consume. The companion reports a waiting frame.
+   A console or --agent process polls stdin. */
+static int key_q_c(void)
+{
+    fd_set rfds;
+    struct timeval tv;
+    int ready;
+
+    ready = companion_key_ready();
+    if (ready >= 0)
+        return ready;
+    FD_ZERO(&rfds);
+    FD_SET(STDIN_FILENO, &rfds);
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    if (select(STDIN_FILENO + 1, &rfds, NULL, NULL, &tv) > 0 &&
+        FD_ISSET(STDIN_FILENO, &rfds))
+        return 1;
+    return 0;
+}
+
 static int key_c(void)
 {
     if (key_hook != NULL)
@@ -2732,8 +2796,10 @@ int host_bi_selftest(void);
 
 int forth_boot(void)
 {
+    cores_host_init();
     kernel_set_emit(emit_c);
     kernel_set_key(key_c);
+    kernel_set_key_q(key_q_c);
     kernel_set_facility_op(host_facility_op);
     if (kernel_init() != 0) {
         host_outs("kernel_init failed\n");
@@ -2760,10 +2826,11 @@ void forth_autoload_set(int on)
     autoload_enabled = on ? 1 : 0;
 }
 
-/* Evaluate System/AutoLoad/autoload.fth as one buffer from Documents/EditForthLin.
+/* Evaluate System/AutoLoad/autoload.fth from Documents/EditForthLin.
    A leftover top-level AutoLoad is used when System/AutoLoad is not there.
-   Relative Library/<system> names rewrite to System. INCLUDE would push
-   AutoLoad/ and look for siblings beside the script. */
+   The load is S\" path\" INCLUDED, so the file is not cut at 1023 bytes.
+   System/, Library/, and Config/ names resolve at those roots while the
+   load cwd is the AutoLoad folder. */
 void forth_autoload(void)
 {
     char path[HOST_PATH];
@@ -2790,53 +2857,61 @@ void forth_autoload(void)
     (void)chdir(user_root);
 }
 
-/* One kernel_eval of the whole file. kernel1.fth defines words across lines. */
+/* S\" path\" INCLUDED. kernel_eval copies at most 1023 bytes.
+   The load is one line so a long file is not cut at that cap. */
 int forth_eval_file(const char *path)
 {
-    FILE *fp;
-    long sz;
-    char *buf;
-    size_t nread;
-    int rc;
+    char line[2048];
     char msg[HOST_PATH + 64];
+    const char *s;
+    size_t n;
+    struct stat st;
 
-    fp = fopen(path, "rb");
-    if (fp == NULL) {
+    if (path == NULL || path[0] == '\0') {
+        host_outs("cannot open \n");
+        return -1;
+    }
+    if (stat(path, &st) != 0 || !S_ISREG(st.st_mode)) {
         snprintf(msg, sizeof msg, "cannot open %s\n", path);
         host_outs(msg);
         return -1;
     }
-    if (fseek(fp, 0, SEEK_END) != 0) {
-        fclose(fp);
-        snprintf(msg, sizeof msg, "cannot size %s\n", path);
-        host_outs(msg);
+    n = 0;
+    line[n++] = 'S';
+    line[n++] = '\\';
+    line[n++] = '"';
+    line[n++] = ' ';
+    for (s = path; *s != '\0'; s++) {
+        char c = *s;
+
+        if (c == '\\')
+            c = '/';
+        if (c == '"') {
+            if (n + 1 >= sizeof line) {
+                host_outs("path too long\n");
+                return -1;
+            }
+            line[n++] = '\\';
+        }
+        if (n + 1 >= sizeof line) {
+            host_outs("path too long\n");
+            return -1;
+        }
+        line[n++] = c;
+    }
+    if (n + 12 >= sizeof line) {
+        host_outs("path too long\n");
         return -1;
     }
-    sz = ftell(fp);
-    if (sz < 0) {
-        fclose(fp);
-        snprintf(msg, sizeof msg, "cannot size %s\n", path);
-        host_outs(msg);
+    line[n++] = '"';
+    memcpy(line + n, " INCLUDED", 9);
+    n += 9;
+    line[n] = '\0';
+    if (n > 1023) {
+        host_outs("path too long\n");
         return -1;
     }
-    if (fseek(fp, 0, SEEK_SET) != 0) {
-        fclose(fp);
-        snprintf(msg, sizeof msg, "cannot read %s\n", path);
-        host_outs(msg);
-        return -1;
-    }
-    buf = (char *)malloc((size_t)sz + 1);
-    if (buf == NULL) {
-        fclose(fp);
-        host_outs("out of memory\n");
-        return -1;
-    }
-    nread = fread(buf, 1, (size_t)sz, fp);
-    fclose(fp);
-    buf[nread] = '\0';
-    rc = forth_eval(buf, nread);
-    free(buf);
-    return rc;
+    return forth_eval(line, n);
 }
 
 /* Bare INCLUDE / FLOAD with no path: no GUI dialog on Linux host. */

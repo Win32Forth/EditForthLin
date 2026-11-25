@@ -31,8 +31,8 @@
 #define EMIT_PAGE 0x10000u
 #define EMIT_STACK_BYTES (2 * 1024 * 1024)
 #define EMIT_RP_BYTES (256 * 1024)
-#define EMIT_COLS_MAX 256
-#define EMIT_ROWS_MAX 128
+#define EMIT_COLS_MAX 384
+#define EMIT_ROWS_MAX 192
 #define EMIT_KEYCAP 64
 
 typedef int64_t (*emit_host_fn)(int64_t, int64_t);

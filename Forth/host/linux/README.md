@@ -11,7 +11,8 @@ POSIX host for `forthx64` and `fortharm64`. The C sources are shared. The x64 ke
 | `exec_linux.c` | `mmap` / `mprotect` / `__builtin___clear_cache` |
 | `facility_linux.c` | PAGE / AT-XY grid; clipboard stub |
 | `debug_linux.c` | Debug JSON paint for the editor |
-| `gfx_linux.c` | GRAPHICS stubs (return failure) |
+| `gfx_linux.c` | X11 GRAPHICS window, zenity picture save. Image load and OOP still return cancel |
+| `cores_linux.c` | Ten pthread workers for CORES |
 | `bigint.c` | Shared big-integer helpers |
 
 Windows `Forth/host/*_win.c` / `main.c` / `companion.c` stay as reference.

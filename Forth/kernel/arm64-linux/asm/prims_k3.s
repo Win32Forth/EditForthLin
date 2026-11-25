@@ -218,6 +218,11 @@
 .local row_XAPP_FILE_SAVE_AS
 .local XAPP_FILE_SAVE_AS
 .local XAPP_FILE_SAVE_AS_END
+.local nm_XAPP_FILE_SAVE_PICTURE
+.local hl_XAPP_FILE_SAVE_PICTURE
+.local row_XAPP_FILE_SAVE_PICTURE
+.local XAPP_FILE_SAVE_PICTURE
+.local XAPP_FILE_SAVE_PICTURE_END
 .local nm_XAPP_FILE_PATH
 .local hl_XAPP_FILE_PATH
 .local row_XAPP_FILE_PATH
@@ -1031,13 +1036,20 @@ row_XSOURCE:
 .section .text, "ax", %progbits
 .balign 16
 XSOURCE:
-    adrp    x0, source_base
-    add x0, x0, :lo12:source_base
-    ldr     x0, [x0]
-    adrp    x1, source_end
-    add x1, x1, :lo12:source_end
-    ldr     x1, [x1]
-    sub     x1, x1, x0
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x0, [x16, #0x68]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x1, [x16, #0x70]
     str     x20, [x22, #-8]!
     str     x0, [x22, #-8]!
     mov     x20, x1
@@ -1967,6 +1979,43 @@ XAPP_FILE_SAVE_AS_END:
     ldr     x1, [x21]
     br      x1
 .section .bwstr, "a", %progbits
+nm_XAPP_FILE_SAVE_PICTURE:
+    .byte 40, 65, 80, 80, 45, 70, 73, 76, 69, 45, 83, 65, 86, 69, 45, 80
+    .byte 73, 67, 84, 85, 82, 69, 41, 0
+hl_XAPP_FILE_SAVE_PICTURE:
+    .byte 40, 65, 80, 80, 45, 70, 73, 76, 69, 45, 83, 65, 86, 69, 45, 80
+    .byte 73, 67, 84, 85, 82, 69, 41, 32, 40, 32, 45, 45, 32, 105, 111, 114
+    .byte 32, 41, 32, 115, 97, 118, 101, 32, 112, 105, 99, 116, 117, 114, 101, 32
+    .byte 118, 105, 97, 32, 100, 105, 97, 108, 111, 103, 0
+.section .bootword, "a", %progbits
+.balign 8
+    .balign 8
+row_XAPP_FILE_SAVE_PICTURE:
+    .quad nm_XAPP_FILE_SAVE_PICTURE, hl_XAPP_FILE_SAVE_PICTURE
+    .quad 0
+    .quad XAPP_FILE_SAVE_PICTURE, XAPP_FILE_SAVE_PICTURE_END
+.section .bootptr, "a", %progbits
+.balign 8
+    .balign 8
+    .quad row_XAPP_FILE_SAVE_PICTURE
+.section .text, "ax", %progbits
+.balign 16
+XAPP_FILE_SAVE_PICTURE:
+    stp     x29, x30, [sp, #-16]!
+    bl      host_app_file_save_picture
+    ldp     x29, x30, [sp], #16
+    str     x20, [x22, #-8]!
+    mov     x20, x0
+XAPP_FILE_SAVE_PICTURE_END:
+    cbnz    x28, next_debug_gate
+    adrp    x1, debug_break_asap
+    add x1, x1, :lo12:debug_break_asap
+    ldr     x1, [x1]
+    cbnz    x1, next_debug_gate
+    ldr     x21, [x19], #8
+    ldr     x1, [x21]
+    br      x1
+.section .bwstr, "a", %progbits
 nm_XAPP_FILE_PATH:
     .byte 40, 65, 80, 80, 45, 70, 73, 76, 69, 45, 80, 65, 84, 72, 41, 0
 hl_XAPP_FILE_PATH:
@@ -2115,9 +2164,15 @@ XSESCAPE:
     stp     x29, x30, [sp, #32]
     bl      _cursor_load
     mov     x1, x0
-    adrp    x6, source_end
-    add x6, x6, :lo12:source_end
-    ldr     x6, [x6]
+    mov     x16, x27
+    cbnz    x16, 91f
+    adrp    x16, up_var
+    add x16, x16, :lo12:up_var
+    ldr     x16, [x16]
+91:
+    ldr     x6, [x16, #0x68]
+    ldr     x17, [x16, #0x70]
+    add     x6, x6, x17
     adrp    x8, slit_esc_which
     add x8, x8, :lo12:slit_esc_which
     ldr     x4, [x8]
@@ -2279,10 +2334,11 @@ _se_comp:
     bl      _compile_cell
     ldr     x0, [sp, #56]
     bl      _compile_cell
+    ldr     x5, [sp, #56]
+    mov     x0, x5
+    bl      _here_reserve
+    mov     x1, x0
     ldp     x7, x5, [sp, #48]
-    adrp    x0, here_ptr
-    add x0, x0, :lo12:here_ptr
-    ldr     x1, [x0]
     mov     x3, #0
 _se_cpy:
     cmp     x3, x5
@@ -2292,10 +2348,6 @@ _se_cpy:
     add     x3, x3, #1
     b       _se_cpy
 _se_align:
-    add     x1, x1, x5
-    add     x1, x1, #7
-    bic     x1, x1, #7
-    str     x1, [x0]
     ldp     x29, x30, [sp, #32]
     add     sp, sp, #96
     cbnz    x28, next_debug_gate

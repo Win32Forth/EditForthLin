@@ -52,7 +52,7 @@
 .local _u2s_cpy
 .local _u2s_done
 .local _u64_to_str_end
-.local _print_string_svc
+.global _print_string_svc
 .local _pss_len
 .local _pss_go
 .local _print_string_svc_end

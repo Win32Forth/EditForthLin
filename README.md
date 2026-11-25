@@ -3,7 +3,7 @@
 Linux sibling of [EditForthWin](https://github.com/Win32Forth/EditForthWin).  
 Public domain (same spirit as the other EditForth trees).
 
-**Version:** 2.6.3 (`EditForthLin arm64` and `EditForthLin x64`)
+**Version:** 2.7.6 (`EditForthLin arm64` and `EditForthLin x64`)
 
 **Target:** Linux Mint first (Ubuntu/Debian package base), **x64** and **arm64**.  
 **Status:** x64 builds and runs on Linux Mint. Native arm64 builds and runs on aarch64 Linux (`bash build-arm64.sh`). Build steps are in
@@ -13,6 +13,15 @@ Desktop shape matches Windows: Qt 6 Widgets editor + process companion Forth
 (`--companion`). Shared Forth cold-load `.fth`, `kernel_api.h`, and
 `Forth/Resources/Library` and `Forth/Resources/System` stay common; OS-specific code lives under
 `Forth/host/linux/` and the Linux editor IPC path.
+
+### 2.7.6 highlights
+
+- Linux port of EditForthWin 2.7.6. The kernel banner is `2.7.6` / `Nov 24, 2026 6:27 PM` / `EditForthLin arm64` or `EditForthLin x64`
+- CORES runs on ten pthread workers. `KEY?` does not consume a key. File words resolve `System/`, `Library/`, and `Config/` at those roots. A file load is `S\" path\" INCLUDED`, so it is not cut at 1023 bytes
+- The editor has Markdown preview, a stack-effect check, the `stackcheck` tool, and a recent-folder menu. Restart drops the old quit frame, so Return and INCLUDE work on the fresh image. Ask Forth keys are still not saved on Linux
+- The GRAPHICS window is an X11 window in the Forth process: TRUECOLOR, COLOR8, and 1-bit blits, the green character grid, arrow keys, and the mouse. S in the Julia programs opens a zenity Save Picture dialog and writes PNG, JPEG, or TIFF. Image load and the small OOP windows still return cancel. Stand-alone emit accepts a 384 by 192 character grid
+- arm64 ANS-VALIDATE: 394 passed, 0 failed. Hayes: all counts zero, including `FPERRORS`. `1 2 + .` prints `3`. `1 2 3 4 .S` prints `( 4 ) 1 2 3 4`. The x64 NASM objects assembled on this host. Link `forthx64` and pack the amd64 installer on Linux Mint
+- The arm64 installer is `Releases/editforthlin_2.7.6_arm64.deb`. `sudo apt install` downloads Qt 6, X11, zenity, and the other packages in `Depends`. The amd64 file in `Releases/` is still the 2.6.3 package
 
 ### 2.6.3 highlights
 
@@ -137,7 +146,7 @@ Full Mint guide: **[LINUXMINT.md](LINUXMINT.md)**. Also
 ## Console banner (expected after Mint link)
 
 ```
-=== EditForthLin 2.6.3 === Nov 3, 2026 12:03 PM ===
+=== EditForthLin 2.7.6 === Nov 24, 2026 6:27 PM ===
 ```
 
 (`Forth/kernel/x64-linux/identity.asm`, `Forth/kernel/arm64-linux/identity.s`)
